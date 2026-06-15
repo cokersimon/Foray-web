@@ -1,0 +1,22 @@
+{
+  "applinks": {
+    "details": [
+      {
+        "appIDs": ["QB7WZZ935T.com.simoncoker.orizon"],
+        "components": [
+          {
+            "/": "/callback",
+            "comment": "Magic-link return path — opens app/callback.tsx"
+          },
+          {
+            "/": "/callback?*",
+            "comment": "Magic-link return with ?code= query"
+          }
+        ]
+      }
+    ]
+  },
+  "webcredentials": {
+    "apps": ["QB7WZZ935T.com.simoncoker.orizon"]
+  }
+}
