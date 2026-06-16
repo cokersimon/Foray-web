@@ -1,6 +1,8 @@
 import { Navbar } from "@/components/marketing/navbar";
 import { Hero } from "@/components/marketing/hero";
 import { ScrollytellingSection } from "@/components/marketing/scrollytelling-section";
+import { Promise } from "@/components/marketing/promise";
+import { Pricing } from "@/components/marketing/pricing";
 import { Footer } from "@/components/marketing/footer";
 import { WaitlistProvider } from "@/components/marketing/waitlist-provider";
 import { WaitlistModal } from "@/components/marketing/waitlist-modal";
@@ -14,6 +16,8 @@ export default function Home() {
         <Hero />
         <WaitlistModal />
         <ScrollytellingSection />
+        <Promise />
+        <Pricing />
         <Footer />
       </SmoothScrollProvider>
     </WaitlistProvider>

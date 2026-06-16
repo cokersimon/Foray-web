@@ -1,17 +1,11 @@
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
 import { Providers } from "@/components/providers";
 import "./globals.css";
 
-const inter = Inter({
-  variable: "--font-inter",
-  subsets: ["latin"],
-});
-
 export const metadata: Metadata = {
-  title: "Zentra — Your Goals on Autopilot",
+  title: "Foray — Swipe to fork",
   description:
-    "AI-powered nutrition, recovery, and fitness planning that learns from you.",
+    "Foray turns recipes you love into a sorted grocery list and a five-click checkout. Built for busy, ADHD-friendly UK kitchens.",
 };
 
 export default function RootLayout({
@@ -20,7 +14,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en-GB" className={`${inter.variable} h-full antialiased`}>
+    <html lang="en-GB" className="h-full antialiased">
       <body className="min-h-full bg-background text-foreground">
         <Providers>{children}</Providers>
       </body>

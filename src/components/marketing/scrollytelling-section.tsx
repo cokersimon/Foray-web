@@ -8,17 +8,18 @@ import {
   type MotionValue,
 } from "framer-motion";
 import {
-  Dumbbell,
-  Utensils,
-  ShoppingCart,
-  Flame,
-  Target,
-  Apple,
-  Clock,
-  ListChecks,
+  Link2,
+  Sparkles,
+  FileDown,
   Heart,
-  BedDouble,
-  Activity,
+  CalendarCheck,
+  Hand,
+  Layers,
+  ShoppingCart,
+  MapPin,
+  CreditCard,
+  Check,
+  ChefHat,
 } from "lucide-react";
 import { cn } from "@/lib/cn";
 
@@ -40,32 +41,32 @@ interface CardDef {
 
 const FEATURES: Feature[] = [
   {
-    id: "fitness",
-    title: "Train with precision.",
+    id: "import",
+    title: "Import any recipe.",
     subtitle:
-      "Adaptive programs that respond to your recovery, goals, and daily readiness — every rep counts.",
-    screen: <FitnessScreen />,
+      "Paste a link from TikTok, Instagram, or any food blog. Foray's AI Chef reads it and pulls out the ingredients and steps for you.",
+    screen: <ImportScreen />,
     cards: [
       {
-        icon: <Dumbbell className="h-4 w-4 text-sky-500" />,
-        label: "Today's Session",
-        value: "Upper Body · 48 min",
+        icon: <Link2 className="h-4 w-4 text-brand-dot" />,
+        label: "Paste a link",
+        value: "TikTok, Insta, web",
         rotation: -6,
         desktopClass:
           "top-[15%] left-[18%] lg:left-[22%] w-[140px] lg:w-[160px]",
       },
       {
-        icon: <Flame className="h-4 w-4 text-orange-500" />,
-        label: "Calories burnt",
-        value: "427 kcal",
+        icon: <Sparkles className="h-4 w-4 text-brand-dot" />,
+        label: "AI Chef parses it",
+        value: "Ingredients + steps",
         rotation: 5,
         desktopClass:
           "top-[12%] right-[18%] lg:right-[22%] w-[140px] lg:w-[160px]",
       },
       {
-        icon: <Target className="h-4 w-4 text-emerald-500" />,
-        label: "Weekly Goal",
-        value: "4 of 5 sessions",
+        icon: <FileDown className="h-4 w-4 text-neutral-500" />,
+        label: "Saved to your plan",
+        value: "In seconds",
         rotation: 7,
         desktopClass:
           "bottom-[12%] left-[20%] lg:left-[24%] w-[140px] lg:w-[160px]",
@@ -73,32 +74,32 @@ const FEATURES: Feature[] = [
     ],
   },
   {
-    id: "nutrition",
-    title: "Fuel your body.",
+    id: "plan",
+    title: "Swipe to fork.",
     subtitle:
-      "AI-optimised meal plans that hit your macros, respect your preferences, and adapt week to week.",
-    screen: <NutritionScreen />,
+      "Flick through recipes one thumb at a time. Swipe to fork the ones you fancy into this week's plan — no spreadsheets, no decision fatigue.",
+    screen: <PlanScreen />,
     cards: [
       {
-        icon: <Utensils className="h-4 w-4 text-emerald-500" />,
-        label: "Protein",
-        value: "142g / 160g",
+        icon: <Heart className="h-4 w-4 text-brand-dot" />,
+        label: "Swipe right to fork",
+        value: "Into this week",
         rotation: -5,
         desktopClass:
           "top-[14%] left-[18%] lg:left-[22%] w-[140px] lg:w-[160px]",
       },
       {
-        icon: <Apple className="h-4 w-4 text-red-500" />,
-        label: "Carbs",
-        value: "198g / 220g",
+        icon: <CalendarCheck className="h-4 w-4 text-neutral-500" />,
+        label: "This week",
+        value: "12 meals planned",
         rotation: 6,
         desktopClass:
           "top-[12%] right-[18%] lg:right-[22%] w-[140px] lg:w-[160px]",
       },
       {
-        icon: <Flame className="h-4 w-4 text-amber-500" />,
-        label: "Calories",
-        value: "1,847 / 2,100",
+        icon: <Hand className="h-4 w-4 text-neutral-500" />,
+        label: "One thumb",
+        value: "Zero faff",
         rotation: -8,
         desktopClass:
           "bottom-[10%] right-[20%] lg:right-[24%] w-[140px] lg:w-[160px]",
@@ -106,32 +107,32 @@ const FEATURES: Feature[] = [
     ],
   },
   {
-    id: "groceries",
-    title: "From plan to pantry.",
+    id: "cart",
+    title: "One sorted trolley.",
     subtitle:
-      "Your meal plan becomes a smart grocery list instantly — organised by aisle, optimised for zero waste.",
-    screen: <GroceriesScreen />,
+      "Every forked recipe rolls into a single shopping list — deduped, combined, and sorted by aisle. Two recipes that need an onion? That's one onion.",
+    screen: <CartScreen />,
     cards: [
       {
-        icon: <ListChecks className="h-4 w-4 text-sky-500" />,
-        label: "This Week's Recipes",
-        value: "12 meals planned",
+        icon: <Layers className="h-4 w-4 text-brand-dot" />,
+        label: "Deduped",
+        value: "2 recipes, 1 onion",
         rotation: -4,
         desktopClass:
           "top-[15%] left-[18%] lg:left-[22%] w-[140px] lg:w-[160px]",
       },
       {
-        icon: <ShoppingCart className="h-4 w-4 text-emerald-500" />,
-        label: "Grocery List",
-        value: "23 items · $87",
+        icon: <ShoppingCart className="h-4 w-4 text-neutral-500" />,
+        label: "Sorted by aisle",
+        value: "23 items",
         rotation: 5,
         desktopClass:
           "top-[13%] right-[18%] lg:right-[22%] w-[140px] lg:w-[160px]",
       },
       {
-        icon: <Clock className="h-4 w-4 text-violet-500" />,
-        label: "Time Saved",
-        value: "~2.5 hrs / week",
+        icon: <MapPin className="h-4 w-4 text-neutral-500" />,
+        label: "In-store or online",
+        value: "Your choice",
         rotation: -6,
         desktopClass:
           "bottom-[11%] left-[20%] lg:left-[24%] w-[140px] lg:w-[160px]",
@@ -139,32 +140,32 @@ const FEATURES: Feature[] = [
     ],
   },
   {
-    id: "recovery",
-    title: "Adapt and recover.",
+    id: "checkout",
+    title: "Five clicks to dinner.",
     subtitle:
-      "Sleep, HRV, and readiness data feed back into your plan — so you push when ready and rest when needed.",
-    screen: <RecoveryScreen />,
+      "Check out your whole trolley online in five clicks, then jump straight into hands-free cook mode with built-in timers.",
+    screen: <CheckoutScreen />,
     cards: [
       {
-        icon: <BedDouble className="h-4 w-4 text-indigo-500" />,
-        label: "Sleep Score",
-        value: "92 — Excellent",
+        icon: <CreditCard className="h-4 w-4 text-brand-dot" />,
+        label: "Online checkout",
+        value: "£2.49 fee",
         rotation: -5,
         desktopClass:
           "top-[14%] left-[18%] lg:left-[22%] w-[140px] lg:w-[160px]",
       },
       {
-        icon: <Activity className="h-4 w-4 text-violet-500" />,
-        label: "HRV",
-        value: "62 ms",
+        icon: <Check className="h-4 w-4 text-neutral-500" />,
+        label: "Five clicks",
+        value: "Recipe → done",
         rotation: 4,
         desktopClass:
           "top-[12%] right-[18%] lg:right-[22%] w-[140px] lg:w-[160px]",
       },
       {
-        icon: <Heart className="h-4 w-4 text-rose-500" />,
-        label: "Recovery",
-        value: "87% — Ready",
+        icon: <ChefHat className="h-4 w-4 text-neutral-500" />,
+        label: "Cook mode",
+        value: "Steps + timers",
         rotation: -7,
         desktopClass:
           "bottom-[12%] right-[20%] lg:right-[24%] w-[140px] lg:w-[160px]",
@@ -213,95 +214,90 @@ function featureOpacityRange(index: number): {
 // Phone screen content for each feature
 // ---------------------------------------------------------------------------
 
-function FitnessScreen() {
+function ImportScreen() {
   return (
     <div className="flex h-full flex-col bg-[#0c0c0c] p-5 text-white">
-      <div className="mb-3 text-[10px] font-medium uppercase tracking-widest text-sky-400">
-        Today&apos;s Workout
+      <div className="mb-3 text-[10px] font-medium uppercase tracking-widest text-brand-dot">
+        Import a recipe
       </div>
-      <div className="mb-5 text-xl font-bold">Upper Body Power</div>
-      <div className="space-y-2.5">
-        {[
-          { name: "Bench Press", sets: "4 × 8", done: true },
-          { name: "Overhead Press", sets: "3 × 10", done: true },
-          { name: "Bent-over Row", sets: "4 × 8", done: false },
-          { name: "Face Pulls", sets: "3 × 15", done: false },
-          { name: "Bicep Curls", sets: "3 × 12", done: false },
-        ].map((ex) => (
-          <div
-            key={ex.name}
-            className={cn(
-              "flex items-center justify-between rounded-xl bg-white/5 px-3 py-2.5",
-              ex.done && "opacity-50",
-            )}
-          >
-            <div className="flex items-center gap-2.5">
+      <div className="mb-4 flex items-center gap-2 rounded-xl border border-white/10 bg-white/5 px-3 py-2.5">
+        <Link2 className="h-3.5 w-3.5 shrink-0 text-neutral-500" />
+        <span className="truncate text-[11px] text-neutral-300">
+          tiktok.com/@chef/one-pot-orzo
+        </span>
+      </div>
+      <div className="mb-3 flex items-center gap-2 text-[10px] text-neutral-500">
+        <Sparkles className="h-3 w-3 text-brand-dot" />
+        AI Chef is reading the recipe…
+      </div>
+      <div className="rounded-2xl bg-white/5 p-3">
+        <div className="mb-1 text-sm font-semibold">One-Pot Lemon Orzo</div>
+        <div className="mb-3 text-[10px] text-neutral-500">
+          25 min · 4 servings
+        </div>
+        <div className="space-y-1.5">
+          {["Orzo pasta", "Lemon", "Spinach", "Parmesan", "Garlic"].map(
+            (ing) => (
               <div
-                className={cn(
-                  "h-3.5 w-3.5 rounded-full border-2",
-                  ex.done
-                    ? "border-sky-500 bg-sky-500"
-                    : "border-white/20",
-                )}
-              />
-              <span className="text-xs">{ex.name}</span>
-            </div>
-            <span className="text-[10px] text-neutral-500">{ex.sets}</span>
-          </div>
-        ))}
+                key={ing}
+                className="flex items-center gap-2 text-[11px] text-neutral-300"
+              >
+                <Check className="h-3 w-3 text-brand-dot" />
+                {ing}
+              </div>
+            ),
+          )}
+        </div>
       </div>
     </div>
   );
 }
 
-function NutritionScreen() {
+function PlanScreen() {
   return (
     <div className="flex h-full flex-col bg-[#0c0c0c] p-5 text-white">
-      <div className="mb-3 text-[10px] font-medium uppercase tracking-widest text-emerald-400">
-        Today&apos;s Nutrition
+      <div className="mb-3 text-[10px] font-medium uppercase tracking-widest text-brand-dot">
+        Swipe to fork
       </div>
-      <div className="mb-5 text-xl font-bold">1,847 kcal</div>
-      <div className="flex gap-2">
-        {[
-          { label: "Protein", value: "142g", color: "bg-emerald-500" },
-          { label: "Carbs", value: "198g", color: "bg-blue-500" },
-          { label: "Fat", value: "64g", color: "bg-amber-500" },
-        ].map((m) => (
-          <div key={m.label} className="flex-1 rounded-xl bg-white/5 p-2.5">
-            <div className={cn("mb-1.5 h-1 w-6 rounded-full", m.color)} />
-            <div className="text-xs font-semibold">{m.value}</div>
-            <div className="text-[10px] text-neutral-500">{m.label}</div>
+      <div className="relative flex flex-1 items-center justify-center">
+        <div className="absolute inset-x-6 top-6 bottom-10 rotate-6 rounded-3xl border border-white/5 bg-white/[0.03]" />
+        <div className="absolute inset-x-5 top-4 bottom-9 -rotate-3 rounded-3xl border border-white/5 bg-white/[0.04]" />
+        <div className="relative w-full rounded-3xl border border-white/10 bg-white/[0.06] p-4">
+          <div className="mb-3 aspect-[4/3] w-full rounded-2xl bg-gradient-to-br from-white/10 to-white/[0.02]" />
+          <div className="text-sm font-semibold">Miso Salmon Bowl</div>
+          <div className="mb-3 text-[10px] text-neutral-500">
+            20 min · high protein
           </div>
-        ))}
-      </div>
-      <div className="mt-4 space-y-2">
-        {["Breakfast", "Lunch", "Dinner"].map((meal) => (
-          <div
-            key={meal}
-            className="flex items-center justify-between rounded-xl bg-white/5 px-3 py-2.5"
-          >
-            <span className="text-xs">{meal}</span>
-            <span className="text-[10px] text-neutral-500">Logged</span>
+          <div className="flex items-center justify-between">
+            <span className="rounded-full border border-white/10 px-3 py-1 text-[10px] text-neutral-400">
+              Skip
+            </span>
+            <span className="flex items-center gap-1 rounded-full bg-brand-dot px-3 py-1 text-[10px] font-semibold text-black">
+              <Heart className="h-3 w-3" /> Fork
+            </span>
           </div>
-        ))}
+        </div>
       </div>
     </div>
   );
 }
 
-function GroceriesScreen() {
+function CartScreen() {
   return (
     <div className="flex h-full flex-col bg-[#0c0c0c] p-5 text-white">
-      <div className="mb-3 text-[10px] font-medium uppercase tracking-widest text-emerald-400">
-        Smart shopping list
+      <div className="mb-3 text-[10px] font-medium uppercase tracking-widest text-brand-dot">
+        Your trolley
       </div>
-      <div className="mb-5 text-xl font-bold">23 Items</div>
+      <div className="mb-4 flex items-baseline gap-2">
+        <span className="text-xl font-bold">23 items</span>
+        <span className="text-[10px] text-neutral-500">· deduped</span>
+      </div>
       <div className="space-y-2">
         {[
-          { aisle: "Fruit & veg", items: "Spinach, Avocados, Bananas" },
-          { aisle: "Protein", items: "Chicken breast, Salmon, Eggs" },
-          { aisle: "Dairy", items: "Greek yoghurt, Cottage cheese" },
-          { aisle: "Grains", items: "Oats, Brown rice, Quinoa" },
+          { aisle: "Fruit & veg", items: "Spinach, Lemon, Garlic" },
+          { aisle: "Protein", items: "Salmon, Chicken, Eggs" },
+          { aisle: "Dairy", items: "Greek yoghurt, Parmesan" },
+          { aisle: "Cupboard", items: "Orzo, Rice, Miso paste" },
         ].map((section) => (
           <div key={section.aisle} className="rounded-xl bg-white/5 p-3">
             <div className="mb-1 text-[10px] font-medium uppercase tracking-wider text-neutral-400">
@@ -315,33 +311,36 @@ function GroceriesScreen() {
   );
 }
 
-function RecoveryScreen() {
+function CheckoutScreen() {
   return (
     <div className="flex h-full flex-col bg-[#0c0c0c] p-5 text-white">
-      <div className="mb-3 text-[10px] font-medium uppercase tracking-widest text-violet-400">
-        Recovery Score
+      <div className="mb-3 text-[10px] font-medium uppercase tracking-widest text-brand-dot">
+        Checkout
       </div>
-      <div className="mb-1 text-4xl font-bold">87</div>
-      <div className="mb-5 text-xs text-neutral-500">Excellent</div>
-      <div className="space-y-3">
+      <div className="space-y-2">
         {[
-          { label: "Sleep", value: "7h 42m", pct: 85 },
-          { label: "HRV", value: "62 ms", pct: 78 },
-          { label: "Soreness", value: "Low", pct: 92 },
-        ].map((metric) => (
-          <div key={metric.label}>
-            <div className="mb-1 flex justify-between text-xs">
-              <span>{metric.label}</span>
-              <span className="text-neutral-500">{metric.value}</span>
-            </div>
-            <div className="h-1 overflow-hidden rounded-full bg-white/10">
-              <div
-                className="h-full rounded-full bg-violet-500"
-                style={{ width: `${metric.pct}%` }}
-              />
-            </div>
+          { label: "Groceries (23 items)", value: "£41.80" },
+          { label: "Foray convenience fee", value: "£2.49" },
+        ].map((row) => (
+          <div
+            key={row.label}
+            className="flex items-center justify-between rounded-xl bg-white/5 px-3 py-2.5"
+          >
+            <span className="text-[11px] text-neutral-300">{row.label}</span>
+            <span className="text-[11px] font-semibold">{row.value}</span>
           </div>
         ))}
+      </div>
+      <div className="mt-4 flex items-center justify-between rounded-xl border border-white/10 px-3 py-2.5">
+        <span className="text-xs font-semibold">Total</span>
+        <span className="text-xs font-semibold">£44.29</span>
+      </div>
+      <button className="mt-4 flex items-center justify-center gap-2 rounded-xl bg-brand-dot py-3 text-xs font-semibold text-black">
+        <CreditCard className="h-3.5 w-3.5" />
+        Place order
+      </button>
+      <div className="mt-3 flex items-center justify-center gap-1.5 text-[10px] text-neutral-500">
+        <ChefHat className="h-3 w-3" /> Then straight into cook mode
       </div>
     </div>
   );

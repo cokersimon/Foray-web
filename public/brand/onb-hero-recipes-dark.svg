@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 2048 2048" width="2048" height="2048">
+  <!-- Dark remap: ink #F2F2F7, fill #2C2C2E, mid #48484A -->
+  <rect x="488" y="712" width="640" height="840" rx="72" fill="#48484A" stroke="#F2F2F7" stroke-width="56"/>
+  <rect x="688" y="568" width="720" height="920" rx="72" fill="#2C2C2E" stroke="#F2F2F7" stroke-width="56"/>
+  <circle cx="1048" cy="968" r="128" fill="#48484A" stroke="#F2F2F7" stroke-width="48"/>
+  <circle cx="1048" cy="968" r="72" fill="#2C2C2E" stroke="#F2F2F7" stroke-width="32"/>
+  <rect x="768" y="1168" width="560" height="52" rx="26" fill="#48484A"/>
+  <rect x="768" y="1272" width="440" height="52" rx="26" fill="#48484A"/>
+  <rect x="768" y="1376" width="520" height="52" rx="26" fill="#48484A"/>
+</svg>

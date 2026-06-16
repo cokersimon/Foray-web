@@ -78,7 +78,7 @@ export function WaitlistModal() {
                   You&rsquo;re on the list!
                 </h2>
                 <p className="mt-3 text-base leading-relaxed text-black">
-                  We&rsquo;ll send you an invite as soon as Zentra is ready.
+                  We&rsquo;ll send you an invite as soon as Foray is ready.
                   Check your inbox for a confirmation.
                 </p>
                 <button

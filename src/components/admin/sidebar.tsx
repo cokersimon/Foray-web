@@ -2,9 +2,20 @@
 
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { LayoutDashboard, ChefHat, LogOut, Settings, Wand2 } from "lucide-react";
+import {
+  LayoutDashboard,
+  ChefHat,
+  LogOut,
+  Settings,
+  Wand2,
+  Flag,
+  CreditCard,
+  AlertTriangle,
+  BarChart3,
+} from "lucide-react";
 import { supabaseBrowser } from "@/lib/supabase/client";
 import { useSupabaseSession } from "@/components/providers";
+import { Wordmark } from "@/components/brand/wordmark";
 import { cn } from "@/lib/cn";
 
 const navItems = [
@@ -16,6 +27,10 @@ const navItems = [
     icon: Wand2,
     exactMatch: false,
   },
+  { label: "Checkout", href: "/admin/checkout", icon: CreditCard },
+  { label: "Reports", href: "/admin/reports", icon: Flag },
+  { label: "Errors", href: "/admin/errors", icon: AlertTriangle },
+  { label: "Analytics", href: "/admin/analytics", icon: BarChart3 },
   { label: "Settings", href: "/admin/settings", icon: Settings },
 ];
 
@@ -27,11 +42,8 @@ export function Sidebar() {
   return (
     <aside className="flex h-screen w-60 shrink-0 flex-col border-r border-neutral-200 bg-white">
       <div className="flex h-16 items-center px-6">
-        <Link
-          href="/admin"
-          className="text-lg font-semibold tracking-tight text-neutral-900"
-        >
-          Zentra
+        <Link href="/admin" className="text-lg">
+          <Wordmark />
         </Link>
         <span className="ml-2 rounded-md bg-neutral-100 px-2 py-0.5 text-[10px] font-medium uppercase tracking-wider text-neutral-500">
           Admin

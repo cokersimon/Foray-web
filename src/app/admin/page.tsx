@@ -10,7 +10,7 @@ export default function AdminDashboard() {
         Dashboard
       </h1>
       <p className="mt-2 text-neutral-500">
-        Welcome to the Zentra admin cockpit.
+        Welcome to the Foray admin cockpit.
       </p>
 
       <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">

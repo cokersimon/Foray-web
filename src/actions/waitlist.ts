@@ -11,25 +11,26 @@ function buildWelcomeEmail(_email: string): string {
 <html>
 <head>
   <meta charset="utf-8">
-  <title>Welcome to Zentra</title>
+  <title>Welcome to Foray</title>
 </head>
-<body style="margin:0;padding:0;background-color:#ffffff;color:#000000;font-family:sans-serif;">
+<body style="margin:0;padding:0;background-color:#ffffff;color:#000000;font-family:-apple-system,BlinkMacSystemFont,'SF Pro Text','Helvetica Neue',sans-serif;">
   <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background-color:#ffffff;">
     <tr>
       <td align="center" style="padding: 60px 24px;">
         <table role="presentation" style="max-width:520px; width:100%; margin:0 auto; text-align:center;">
           <tr>
             <td align="center">
-              <h1 style="margin:0 0 24px; font-size:24px; font-weight:bold; color:#000000; text-align:center;">Welcome to Zentra</h1>
+              <p style="margin:0 0 24px; font-size:28px; font-weight:bold; letter-spacing:-0.02em; color:#000000; text-align:center;">Foray<span style="color:#FF9500;">.</span></p>
+              <h1 style="margin:0 0 24px; font-size:24px; font-weight:bold; color:#000000; text-align:center;">You&rsquo;re on the list</h1>
               <p style="margin:0 0 16px; font-size:16px; line-height:1.6; color:#000000; text-align:center;">
-                You&rsquo;re officially on the waitlist. We&rsquo;re building something special. AI-powered fitness, nutrition, and recovery that adapts to your life.
+                Thanks for joining the Foray waitlist. We&rsquo;re building the fastest way to turn a recipe you love into a sorted grocery list and a five-click checkout.
               </p>
               <p style="margin:0 0 32px; font-size:16px; line-height:1.6; color:#000000; text-align:center;">
-                We&rsquo;ll reach out soon with early access. In the meantime, sit tight. Great things are coming.
+                We&rsquo;ll email you the moment early access opens. Sit tight.
               </p>
               <hr style="border:none; border-top:1px solid #000000; margin:0 0 24px;" />
               <p style="margin:0; font-size:12px; color:#000000; text-align:center;">
-                &copy; ${year} Zentra. All rights reserved.
+                &copy; ${year} Foray. All rights reserved.
               </p>
             </td>
           </tr>
@@ -67,9 +68,10 @@ export async function joinWaitlist(
 
   try {
     await resend.emails.send({
-      from: "Zentra <hello@zentraapp.com>",
+      // NOTE: forayapp.co.uk must be a verified sending domain in Resend, or sends fail.
+      from: "Foray <hello@forayapp.co.uk>",
       to: email,
-      subject: "Welcome to Zentra",
+      subject: "You're on the Foray waitlist",
       html: buildWelcomeEmail(email),
     });
 

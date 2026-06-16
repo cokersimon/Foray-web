@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 2048 2048" width="2048" height="2048">
+  <!-- Hand-authored from Groceries spec: ink #1C1C1E, white #FFFFFF, mid #8E8E93, halo 56, rx 72 -->
+  <!-- Back card (satellite) -->
+  <rect x="488" y="712" width="640" height="840" rx="72" fill="#8E8E93" stroke="#FFFFFF" stroke-width="56"/>
+  <!-- Front card (primary) -->
+  <rect x="688" y="568" width="720" height="920" rx="72" fill="#FFFFFF" stroke="#1C1C1E" stroke-width="56"/>
+  <!-- Plate glyph -->
+  <circle cx="1048" cy="968" r="128" fill="#8E8E93" stroke="#FFFFFF" stroke-width="48"/>
+  <circle cx="1048" cy="968" r="72" fill="#FFFFFF" stroke="#1C1C1E" stroke-width="32"/>
+  <!-- Recipe lines -->
+  <rect x="768" y="1168" width="560" height="52" rx="26" fill="#8E8E93"/>
+  <rect x="768" y="1272" width="440" height="52" rx="26" fill="#8E8E93"/>
+  <rect x="768" y="1376" width="520" height="52" rx="26" fill="#8E8E93"/>
+</svg>

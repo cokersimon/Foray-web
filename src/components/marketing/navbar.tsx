@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { Wordmark } from "@/components/brand/wordmark";
 import { useWaitlist } from "./waitlist-provider";
 
 export function Navbar() {
@@ -10,12 +11,12 @@ export function Navbar() {
     <nav className="relative z-50 flex items-center justify-between pl-6 pr-6 pt-6 pb-2 md:min-h-[4.5rem] md:justify-end md:px-10 md:py-6">
       <Link
         href="/"
-        className="shrink-0 text-2xl font-extrabold leading-none tracking-tighter text-foreground transition-opacity hover:opacity-80 md:absolute md:left-10 md:top-1/2 md:z-10 md:-translate-y-1/2"
+        className="shrink-0 transition-opacity hover:opacity-80 md:absolute md:left-10 md:top-1/2 md:z-10 md:-translate-y-1/2"
       >
-        Zentra
+        <Wordmark className="text-2xl tracking-tighter" />
       </Link>
 
-      {/* Join Waitlist only: right side; vertically centred with Zentra. Desktop: frosted pill on the right. */}
+      {/* Join Waitlist only: right side; vertically centred with the wordmark. Desktop: frosted pill on the right. */}
       <div className="shrink-0 rounded-none border-none bg-transparent p-0 shadow-none backdrop-blur-none md:rounded-full md:border md:border-black/[0.08] md:bg-white/70 md:p-1 md:shadow-[0_4px_24px_rgba(0,0,0,0.06)] md:backdrop-blur-[20px]">
         <button
           type="button"

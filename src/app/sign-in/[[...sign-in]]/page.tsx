@@ -4,6 +4,7 @@ import { useCallback, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Loader2 } from "lucide-react";
 import { supabaseBrowser } from "@/lib/supabase/client";
+import { Wordmark } from "@/components/brand/wordmark";
 
 /**
  * Supabase Auth sign-in (ADR-019) — replaces Clerk's <SignIn />. Email + password for
@@ -51,7 +52,12 @@ export default function SignInPage() {
         onSubmit={handleSubmit}
         className="mx-auto w-full max-w-sm rounded-2xl border border-white/10 bg-neutral-950 p-8"
       >
-        <h1 className="text-lg font-semibold text-neutral-100">Zentra admin</h1>
+        <h1 className="flex items-baseline gap-2 text-lg">
+          <Wordmark />
+          <span className="text-sm font-medium uppercase tracking-wider text-neutral-500">
+            Admin
+          </span>
+        </h1>
         <p className="mt-1 text-sm text-neutral-400">Sign in to continue.</p>
 
         {error ? (
