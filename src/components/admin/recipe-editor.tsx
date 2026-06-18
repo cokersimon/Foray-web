@@ -360,8 +360,6 @@ interface RecipeEditorProps {
   ) => void | Promise<void>;
   /** Row index currently awaiting approveOrizonFoodMapping (spinner in approval cell). */
   approvingIngredientIndex?: number | null;
-  onRedoIngredientThumbnail?: (orizonFoodId: string) => void | Promise<void>;
-  redoingIngredientThumbnailId?: string | null;
   onUpdateApprovedIngredient?: (
     stagingId: string,
     ingredientIndex: number,
@@ -562,29 +560,6 @@ function textValue(value: unknown): string {
   return typeof value === "string" && value.trim() ? value.trim() : "";
 }
 
-function IngredientThumbnail({
-  src,
-  label,
-}: {
-  src?: string;
-  label: string;
-}) {
-  if (!src) {
-    return (
-      <div className="flex h-14 w-14 items-center justify-center rounded-lg border border-dashed border-neutral-300 bg-neutral-50 text-center text-[10px] font-medium leading-tight text-neutral-500">
-        No image
-      </div>
-    );
-  }
-  return (
-    <img
-      src={src}
-      alt={label}
-      className="h-14 w-14 rounded-lg border border-neutral-200 bg-white object-cover shadow-sm"
-    />
-  );
-}
-
 export function RecipeEditor({
   recipe,
   onApprove,
@@ -605,8 +580,6 @@ export function RecipeEditor({
   isRefreshingNutrition = false,
   onApproveOrizonFoodMapping,
   approvingIngredientIndex = null,
-  onRedoIngredientThumbnail,
-  redoingIngredientThumbnailId = null,
   onUpdateApprovedIngredient,
   updatingApprovedIngredientIndex = null,
   onDeleteIngredient,
@@ -884,7 +857,7 @@ export function RecipeEditor({
   const normalizedStatus = String(recipe.status ?? "")
     .trim()
     .toLowerCase();
-  const showApprovedThumbnailReview =
+  const showApprovedIngredientReview =
     normalizedStatus === "approved" || normalizedStatus === "published";
   const canEditIngredientRows = Boolean(onUpdateApprovedIngredient);
 
@@ -929,8 +902,6 @@ export function RecipeEditor({
       typeof row.orizonFoodId === "string" ? row.orizonFoodId.trim() : "";
     const fatsecretFoodId =
       typeof row.fatsecretFoodId === "string" ? row.fatsecretFoodId.trim() : "";
-    const recraftThumbnailUrl = textValue(row.recraftThumbnailUrl);
-    const directWebpThumbnailUrl = textValue(row.webpThumbnailUrl);
     const isUsdaLinked = orizonFoodId.toLowerCase().includes("-usda-");
     const isFatSecretFallback =
       !isUsdaLinked ||
@@ -966,10 +937,6 @@ export function RecipeEditor({
       }),
       sourceBadgeLabel: isUsdaLinked ? "USDA" : "FS",
       orizonFoodId,
-      recraftThumbnailUrl,
-      webpThumbnailUrl:
-        directWebpThumbnailUrl ||
-        (isFatSecretFallback ? recraftThumbnailUrl : ""),
       flagTooltip,
       initialManualSearchQuery,
     };
@@ -1228,8 +1195,8 @@ export function RecipeEditor({
             </div>
             <p className="mb-2 text-xs text-neutral-600">
               Columns:{" "}
-              {showApprovedThumbnailReview
-                ? "source · ingredient · recraft thumbnail · webp thumbnail · quantity · kcal."
+              {showApprovedIngredientReview
+                ? "source · ingredient · quantity · kcal."
                 : "approval (golden tick) · ingredient · quantity · kcal · manual FatSecret search."}{" "}
               Per-line kcal from{" "}
               <span className="font-mono text-[11px]">kcal</span> /{" "}
@@ -1256,10 +1223,10 @@ export function RecipeEditor({
               <table
                 className={cn(
                   "w-full border-collapse text-sm",
-                  showApprovedThumbnailReview
+                  showApprovedIngredientReview
                     ? ingredientDiagnosticView
-                      ? "min-w-[70rem]"
-                      : "min-w-[46rem]"
+                      ? "min-w-[52rem]"
+                      : "min-w-[28rem]"
                     : ingredientDiagnosticView
                       ? "min-w-[62rem]"
                       : "min-w-[26rem]",
@@ -1267,7 +1234,7 @@ export function RecipeEditor({
               >
                 <thead>
                   <tr className="border-b border-neutral-200 bg-neutral-50 text-left text-[10px] font-semibold uppercase tracking-wider text-neutral-800">
-                    {!showApprovedThumbnailReview && (
+                    {!showApprovedIngredientReview && (
                       <th
                         className="w-12 whitespace-nowrap px-2 py-3 text-center font-semibold"
                         title="Golden mapping — green when globally approved; tap circle to approve"
@@ -1285,7 +1252,7 @@ export function RecipeEditor({
                         #
                       </th>
                     )}
-                    {showApprovedThumbnailReview && (
+                    {showApprovedIngredientReview && (
                       <th className="w-20 whitespace-nowrap px-3 py-3 font-semibold">
                         Source
                       </th>
@@ -1293,20 +1260,10 @@ export function RecipeEditor({
                     <th className="min-w-[10rem] px-4 py-3 font-semibold">
                       Ingredient
                     </th>
-                    {!showApprovedThumbnailReview && (
+                    {!showApprovedIngredientReview && (
                       <th className="min-w-[9rem] whitespace-nowrap px-3 py-3 font-semibold">
                         Source/ID
                       </th>
-                    )}
-                    {showApprovedThumbnailReview && (
-                      <>
-                        <th className="w-20 whitespace-nowrap px-3 py-3 text-center font-semibold">
-                          Recraft
-                        </th>
-                        <th className="w-20 whitespace-nowrap px-3 py-3 text-center font-semibold">
-                          WebP
-                        </th>
-                      </>
                     )}
                     {ingredientDiagnosticView ? (
                       <>
@@ -1325,7 +1282,7 @@ export function RecipeEditor({
                     <th className="whitespace-nowrap px-4 py-3 text-right font-semibold tabular-nums">
                       Computed Kcals
                     </th>
-                    {!showApprovedThumbnailReview && (
+                    {!showApprovedIngredientReview && (
                       <th
                         className="w-12 whitespace-nowrap px-1 py-3 text-center font-semibold"
                         title="Search FatSecret for a manual match"
@@ -1387,7 +1344,7 @@ export function RecipeEditor({
                           : undefined
                       }
                     >
-                      {!showApprovedThumbnailReview && (
+                      {!showApprovedIngredientReview && (
                         <td className="w-12 px-1 py-2 align-middle">
                           {row.isApproved ? (
                             <div
@@ -1435,7 +1392,7 @@ export function RecipeEditor({
                           {i + 1}
                         </td>
                       )}
-                      {showApprovedThumbnailReview && (
+                      {showApprovedIngredientReview && (
                         <td className="whitespace-nowrap px-3 py-2.5 align-middle">
                           <span
                             className={cn(
@@ -1502,14 +1459,14 @@ export function RecipeEditor({
                               {row.label}
                             </span>
                           )}
-                          {row.isFatSecretFallback && !showApprovedThumbnailReview ? (
+                          {row.isFatSecretFallback && !showApprovedIngredientReview ? (
                             <span className="shrink-0 rounded-full border border-red-300 bg-red-100 px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-red-800">
                               FatSecret
                             </span>
                           ) : null}
                         </div>
                       </td>
-                      {!showApprovedThumbnailReview && (
+                      {!showApprovedIngredientReview && (
                         <td className="whitespace-nowrap px-3 py-2.5 align-middle">
                           <span
                             className={cn(
@@ -1528,62 +1485,6 @@ export function RecipeEditor({
                             </span>
                           </span>
                         </td>
-                      )}
-                      {showApprovedThumbnailReview && (
-                        <>
-                          <td className="px-3 py-2.5 align-middle">
-                            <div className="flex items-center justify-center gap-2">
-                              {!row.isFatSecretFallback ? (
-                                <button
-                                  type="button"
-                                  onClick={() =>
-                                    void onRedoIngredientThumbnail?.(
-                                      row.orizonFoodId,
-                                    )
-                                  }
-                                  disabled={
-                                    !row.orizonFoodId ||
-                                    !onRedoIngredientThumbnail ||
-                                    redoingIngredientThumbnailId ===
-                                      row.orizonFoodId
-                                  }
-                                  className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-amber-300 bg-amber-50 text-amber-800 transition-colors hover:bg-amber-100 disabled:cursor-not-allowed disabled:opacity-50"
-                                  title="Redo Recraft thumbnail"
-                                  aria-label={`Redo Recraft thumbnail for ${row.label}`}
-                                >
-                                  {redoingIngredientThumbnailId ===
-                                  row.orizonFoodId ? (
-                                    <Loader2
-                                      className="h-4 w-4 animate-spin"
-                                      aria-hidden
-                                    />
-                                  ) : (
-                                    <RefreshCw
-                                      className="h-4 w-4"
-                                      aria-hidden
-                                    />
-                                  )}
-                                </button>
-                              ) : null}
-                              <IngredientThumbnail
-                                src={
-                                  row.isFatSecretFallback
-                                    ? undefined
-                                    : row.recraftThumbnailUrl
-                                }
-                                label={`${row.label} recraft thumbnail`}
-                              />
-                            </div>
-                          </td>
-                          <td className="px-3 py-2.5 align-middle">
-                            <div className="flex justify-center">
-                              <IngredientThumbnail
-                                src={row.webpThumbnailUrl}
-                                label={`${row.label} webp thumbnail`}
-                              />
-                            </div>
-                          </td>
-                        </>
                       )}
                       {ingredientDiagnosticView ? (
                         <>
@@ -1770,7 +1671,7 @@ export function RecipeEditor({
                           )}
                         </td>
                       )}
-                      {!showApprovedThumbnailReview && (
+                      {!showApprovedIngredientReview && (
                         <td className="w-12 px-1 py-2 align-middle">
                           <button
                             type="button"
