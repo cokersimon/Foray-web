@@ -857,8 +857,6 @@ export function RecipeEditor({
   const normalizedStatus = String(recipe.status ?? "")
     .trim()
     .toLowerCase();
-  const showApprovedIngredientReview =
-    normalizedStatus === "approved" || normalizedStatus === "published";
   const canEditIngredientRows = Boolean(onUpdateApprovedIngredient);
 
   const rawIngredients = Array.isArray(data?.ingredients)
@@ -1194,11 +1192,8 @@ export function RecipeEditor({
               </label>
             </div>
             <p className="mb-2 text-xs text-neutral-600">
-              Columns:{" "}
-              {showApprovedIngredientReview
-                ? "source · ingredient · quantity · kcal."
-                : "approval (golden tick) · ingredient · quantity · kcal · manual FatSecret search."}{" "}
-              Per-line kcal from{" "}
+              Columns: approval (golden tick) · ingredient · quantity · kcal ·
+              manual FatSecret search. Per-line kcal from{" "}
               <span className="font-mono text-[11px]">kcal</span> /{" "}
               <span className="font-mono text-[11px]">calories</span>. Red (!)
               lists diagnostic flags in one tooltip.
@@ -1223,48 +1218,33 @@ export function RecipeEditor({
               <table
                 className={cn(
                   "w-full border-collapse text-sm",
-                  showApprovedIngredientReview
-                    ? ingredientDiagnosticView
-                      ? "min-w-[52rem]"
-                      : "min-w-[28rem]"
-                    : ingredientDiagnosticView
-                      ? "min-w-[62rem]"
-                      : "min-w-[26rem]",
+                  ingredientDiagnosticView ? "min-w-[62rem]" : "min-w-[26rem]",
                 )}
               >
                 <thead>
                   <tr className="border-b border-neutral-200 bg-neutral-50 text-left text-[10px] font-semibold uppercase tracking-wider text-neutral-800">
-                    {!showApprovedIngredientReview && (
-                      <th
-                        className="w-12 whitespace-nowrap px-2 py-3 text-center font-semibold"
-                        title="Golden mapping — green when globally approved; tap circle to approve"
-                      >
-                        <span className="sr-only">Approval</span>
-                        <Check
-                          className="mx-auto h-3.5 w-3.5 text-neutral-400"
-                          strokeWidth={2.5}
-                          aria-hidden
-                        />
-                      </th>
-                    )}
+                    <th
+                      className="w-12 whitespace-nowrap px-2 py-3 text-center font-semibold"
+                      title="Golden mapping — green when globally approved; tap circle to approve"
+                    >
+                      <span className="sr-only">Approval</span>
+                      <Check
+                        className="mx-auto h-3.5 w-3.5 text-neutral-400"
+                        strokeWidth={2.5}
+                        aria-hidden
+                      />
+                    </th>
                     {ingredientDiagnosticView && (
                       <th className="whitespace-nowrap px-3 py-3 font-semibold tabular-nums">
                         #
                       </th>
                     )}
-                    {showApprovedIngredientReview && (
-                      <th className="w-20 whitespace-nowrap px-3 py-3 font-semibold">
-                        Source
-                      </th>
-                    )}
                     <th className="min-w-[10rem] px-4 py-3 font-semibold">
                       Ingredient
                     </th>
-                    {!showApprovedIngredientReview && (
-                      <th className="min-w-[9rem] whitespace-nowrap px-3 py-3 font-semibold">
-                        Source/ID
-                      </th>
-                    )}
+                    <th className="min-w-[9rem] whitespace-nowrap px-3 py-3 font-semibold">
+                      Source/ID
+                    </th>
                     {ingredientDiagnosticView ? (
                       <>
                         <th className="whitespace-nowrap px-3 py-3 text-right font-semibold tabular-nums">
@@ -1282,19 +1262,17 @@ export function RecipeEditor({
                     <th className="whitespace-nowrap px-4 py-3 text-right font-semibold tabular-nums">
                       Computed Kcals
                     </th>
-                    {!showApprovedIngredientReview && (
-                      <th
-                        className="w-12 whitespace-nowrap px-1 py-3 text-center font-semibold"
-                        title="Search FatSecret for a manual match"
-                      >
-                        <span className="sr-only">Manual match</span>
-                        <Search
-                          className="mx-auto h-3.5 w-3.5 text-neutral-400"
-                          strokeWidth={2.5}
-                          aria-hidden
-                        />
-                      </th>
-                    )}
+                    <th
+                      className="w-12 whitespace-nowrap px-1 py-3 text-center font-semibold"
+                      title="Search FatSecret for a manual match"
+                    >
+                      <span className="sr-only">Manual match</span>
+                      <Search
+                        className="mx-auto h-3.5 w-3.5 text-neutral-400"
+                        strokeWidth={2.5}
+                        aria-hidden
+                      />
+                    </th>
                     {onDeleteIngredient && (
                       <th className="w-28 whitespace-nowrap px-3 py-3 text-center font-semibold">
                         Delete
@@ -1344,67 +1322,50 @@ export function RecipeEditor({
                           : undefined
                       }
                     >
-                      {!showApprovedIngredientReview && (
-                        <td className="w-12 px-1 py-2 align-middle">
-                          {row.isApproved ? (
-                            <div
-                              className="mx-auto flex h-8 w-8 cursor-default items-center justify-center rounded-full bg-emerald-600 text-white shadow-sm"
-                              title="Globally approved — this mapping is locked across the app"
-                              aria-label="Globally approved ingredient mapping"
-                            >
-                              <Check className="h-4 w-4" strokeWidth={2.5} aria-hidden />
-                            </div>
-                          ) : (
-                            <button
-                              type="button"
-                              disabled={
-                                approvingIngredientIndex === i ||
-                                !onApproveOrizonFoodMapping
-                              }
-                              onClick={() =>
-                                void onApproveOrizonFoodMapping?.(
-                                  recipe._id,
-                                  i,
-                                )
-                              }
-                              className="mx-auto flex h-8 w-8 items-center justify-center rounded-full border-2 border-dashed border-amber-400/80 bg-amber-50 text-amber-800 transition-colors hover:border-amber-500 hover:bg-amber-100 disabled:cursor-not-allowed disabled:opacity-50"
-                              title="Approve this FatSecret / Orizon mapping (golden)"
-                              aria-label="Approve ingredient mapping"
-                            >
-                              {approvingIngredientIndex === i ? (
-                                <Loader2
-                                  className="h-4 w-4 animate-spin text-amber-900"
-                                  aria-hidden
-                                />
-                              ) : (
-                                <Circle
-                                  className="h-4 w-4 text-amber-700"
-                                  strokeWidth={2}
-                                  aria-hidden
-                                />
-                              )}
-                            </button>
-                          )}
-                        </td>
-                      )}
+                      <td className="w-12 px-1 py-2 align-middle">
+                        {row.isApproved ? (
+                          <div
+                            className="mx-auto flex h-8 w-8 cursor-default items-center justify-center rounded-full bg-emerald-600 text-white shadow-sm"
+                            title="Globally approved — this mapping is locked across the app"
+                            aria-label="Globally approved ingredient mapping"
+                          >
+                            <Check className="h-4 w-4" strokeWidth={2.5} aria-hidden />
+                          </div>
+                        ) : (
+                          <button
+                            type="button"
+                            disabled={
+                              approvingIngredientIndex === i ||
+                              !onApproveOrizonFoodMapping
+                            }
+                            onClick={() =>
+                              void onApproveOrizonFoodMapping?.(
+                                recipe._id,
+                                i,
+                              )
+                            }
+                            className="mx-auto flex h-8 w-8 items-center justify-center rounded-full border-2 border-dashed border-amber-400/80 bg-amber-50 text-amber-800 transition-colors hover:border-amber-500 hover:bg-amber-100 disabled:cursor-not-allowed disabled:opacity-50"
+                            title="Approve this FatSecret / Orizon mapping (golden)"
+                            aria-label="Approve ingredient mapping"
+                          >
+                            {approvingIngredientIndex === i ? (
+                              <Loader2
+                                className="h-4 w-4 animate-spin text-amber-900"
+                                aria-hidden
+                              />
+                            ) : (
+                              <Circle
+                                className="h-4 w-4 text-amber-700"
+                                strokeWidth={2}
+                                aria-hidden
+                              />
+                            )}
+                          </button>
+                        )}
+                      </td>
                       {ingredientDiagnosticView && (
                         <td className="whitespace-nowrap px-3 py-2.5 tabular-nums text-neutral-500">
                           {i + 1}
-                        </td>
-                      )}
-                      {showApprovedIngredientReview && (
-                        <td className="whitespace-nowrap px-3 py-2.5 align-middle">
-                          <span
-                            className={cn(
-                              "inline-flex items-center rounded-full border px-2 py-0.5 text-[10px] font-semibold",
-                              row.isFatSecretFallback
-                                ? "border-orange-300 bg-orange-100 text-orange-800"
-                                : "border-emerald-300 bg-emerald-50 text-emerald-800",
-                            )}
-                            title={row.sourceIdLabel}
-                          >
-                            {row.sourceBadgeLabel}
-                          </span>
                         </td>
                       )}
                       <td className="max-w-[16rem] px-4 py-2.5 font-medium text-neutral-900">
@@ -1459,33 +1420,31 @@ export function RecipeEditor({
                               {row.label}
                             </span>
                           )}
-                          {row.isFatSecretFallback && !showApprovedIngredientReview ? (
+                          {row.isFatSecretFallback ? (
                             <span className="shrink-0 rounded-full border border-red-300 bg-red-100 px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-red-800">
                               FatSecret
                             </span>
                           ) : null}
                         </div>
                       </td>
-                      {!showApprovedIngredientReview && (
-                        <td className="whitespace-nowrap px-3 py-2.5 align-middle">
-                          <span
-                            className={cn(
-                              "inline-flex max-w-[11rem] items-center rounded-full border px-2 py-0.5 text-[10px] font-semibold",
-                              row.isFatSecretFallback
-                                ? "border-orange-300 bg-orange-100 text-orange-800"
-                                : "border-emerald-300 bg-emerald-50 text-emerald-800",
-                            )}
-                            title={row.sourceIdLabel}
-                          >
-                            <span className="mr-1 uppercase tracking-wide">
-                              {row.sourceBadgeLabel}
-                            </span>
-                            <span className="truncate font-mono">
-                              {row.sourceIdLabel.replace(/^(USDA|FS):\s*/, "")}
-                            </span>
+                      <td className="whitespace-nowrap px-3 py-2.5 align-middle">
+                        <span
+                          className={cn(
+                            "inline-flex max-w-[11rem] items-center rounded-full border px-2 py-0.5 text-[10px] font-semibold",
+                            row.isFatSecretFallback
+                              ? "border-orange-300 bg-orange-100 text-orange-800"
+                              : "border-emerald-300 bg-emerald-50 text-emerald-800",
+                          )}
+                          title={row.sourceIdLabel}
+                        >
+                          <span className="mr-1 uppercase tracking-wide">
+                            {row.sourceBadgeLabel}
                           </span>
-                        </td>
-                      )}
+                          <span className="truncate font-mono">
+                            {row.sourceIdLabel.replace(/^(USDA|FS):\s*/, "")}
+                          </span>
+                        </span>
+                      </td>
                       {ingredientDiagnosticView ? (
                         <>
                           <td className="whitespace-nowrap px-3 py-2.5 text-right tabular-nums text-neutral-900">
@@ -1624,6 +1583,23 @@ export function RecipeEditor({
                       <td className="whitespace-nowrap px-4 py-2.5 text-right tabular-nums font-medium text-neutral-900">
                         {row.kcal != null ? formatIngredientKcal(row.kcal) : "—"}
                       </td>
+                      <td className="w-12 px-1 py-2 align-middle">
+                        <button
+                          type="button"
+                          onClick={() =>
+                            setManualMatch({
+                              ingredientIndex: i,
+                              initialQuery:
+                                row.initialManualSearchQuery.trim() || "food",
+                            })
+                          }
+                          className="mx-auto flex h-8 w-8 items-center justify-center rounded-lg border border-neutral-200 bg-neutral-50 text-neutral-700 transition-colors hover:border-amber-400 hover:bg-amber-50 hover:text-amber-900"
+                          title="Search FatSecret for a manual match"
+                          aria-label="Open manual FatSecret match for this ingredient"
+                        >
+                          <Search className="h-4 w-4" strokeWidth={2.25} aria-hidden />
+                        </button>
+                      </td>
                       {onDeleteIngredient && (
                         <td className="whitespace-nowrap px-3 py-2.5 text-center">
                           {isConfirmingDelete ? (
@@ -1669,25 +1645,6 @@ export function RecipeEditor({
                               <Trash2 className="h-4 w-4" strokeWidth={2.25} aria-hidden />
                             </button>
                           )}
-                        </td>
-                      )}
-                      {!showApprovedIngredientReview && (
-                        <td className="w-12 px-1 py-2 align-middle">
-                          <button
-                            type="button"
-                            onClick={() =>
-                              setManualMatch({
-                                ingredientIndex: i,
-                                initialQuery:
-                                  row.initialManualSearchQuery.trim() || "food",
-                              })
-                            }
-                            className="mx-auto flex h-8 w-8 items-center justify-center rounded-lg border border-neutral-200 bg-neutral-50 text-neutral-700 transition-colors hover:border-amber-400 hover:bg-amber-50 hover:text-amber-900"
-                            title="Search FatSecret for a manual match"
-                            aria-label="Open manual FatSecret match for this ingredient"
-                          >
-                            <Search className="h-4 w-4" strokeWidth={2.25} aria-hidden />
-                          </button>
                         </td>
                       )}
                       {ingredientDiagnosticView && (
