@@ -19,9 +19,47 @@ type ErrorRow = {
   deviceModel: string | null;
   domain: string | null;
   context: string | null;
+  code: string | null;
+  stage: string | null;
 };
 
 type ErrorsResponse = { errors: ErrorRow[] };
+
+type ImportBreakdown = {
+  failuresByCode: { code: string; d1: number; d7: number }[];
+  totals: {
+    attempts7d: number;
+    failed7d: number;
+    rate429_1d: number;
+    rate429_7d: number;
+    rate429Pct7d: number;
+  };
+  spike429: boolean;
+  suspect: {
+    counts: { lowMatch1d: number; lowMatch7d: number; highInferred7d: number; recreated7d: number };
+    rows: {
+      id: string;
+      ownerId: string | null;
+      url: string;
+      sourceType: string;
+      at: number;
+      quality: { matchRate?: number; ingredientCount?: number; inferredCount?: number; recreated?: boolean; score?: number } | null;
+    }[];
+  };
+};
+
+/** Plain-English explanations for import failure codes (esp. 429, which is non-obvious). */
+const CODE_EXPLAINER: Record<string, string> = {
+  RATE_LIMITED_429:
+    "HTTP 429 = Too Many Requests. Instagram/TikTok throttled an automated read from our servers. The on-device capture should usually avoid this; a spike here means the platform tightened limits.",
+  LOGIN_WALL: "The post is behind a login/consent wall, so it can't be read without a session.",
+  NOT_A_RECIPE: "The post/page had no identifiable full recipe to extract.",
+  NO_RECIPE_CONTENT: "The post couldn't be read (private, or the caption had no recipe).",
+  PAGE_FETCH_FAILED: "The page returned a non-OK HTTP status or timed out.",
+  GEMINI_ERROR: "The AI extraction call failed (config, quota, or a transient error).",
+  PROCESSING_TIMEOUT: "The background parse never reported a terminal result and was reaped.",
+  MATCH_FAILED: "Ingredient matching against the catalogue threw.",
+};
 
 const SOURCE_LABEL: Record<string, string> = {
   job: "Chef job",
@@ -82,6 +120,96 @@ function DetailRow({ label, value }: { label: string; value: string | null }) {
   );
 }
 
+function fmtDateShort(ms: number): string {
+  return new Date(ms).toLocaleString("en-GB", {
+    day: "2-digit",
+    month: "short",
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+}
+
+/** WS4: import-specific breakdown over /admin/errors. Axis 1 = hard failures by code with a
+ * 429 spike alert ("Instagram changed something"); Axis 2 = succeeded-but-suspect imports that
+ * auto-published at low quality (no review gate), so admin sees bad successes, not just errors. */
+function ImportsBreakdown() {
+  const { data } = useChefQuery<ImportBreakdown>("imports.breakdown", {}, { pollMs: 30000 });
+  if (!data) return null;
+
+  return (
+    <div className="mt-6 space-y-4">
+      {data.spike429 ? (
+        <div className="rounded-xl border border-red-300 bg-red-50 px-4 py-3 text-sm text-red-800">
+          <strong>Possible Instagram/TikTok change:</strong> {data.totals.rate429Pct7d}% of imports in
+          the last 7 days failed with HTTP 429 (rate limiting) — {data.totals.rate429_1d} in the last
+          24h. When on-device capture misses, the server fallback gets throttled; a spike usually
+          means the platform tightened limits.
+        </div>
+      ) : null}
+
+      <div className="grid gap-4 lg:grid-cols-2">
+        <div className="rounded-2xl border border-neutral-200 bg-white p-4">
+          <h2 className="text-sm font-semibold text-neutral-900">Import failures by reason (7d / 24h)</h2>
+          <table className="mt-3 w-full text-left text-sm">
+            <thead>
+              <tr className="text-xs uppercase tracking-wider text-neutral-400">
+                <th className="py-1 font-medium">Code</th>
+                <th className="py-1 text-right font-medium">24h</th>
+                <th className="py-1 text-right font-medium">7d</th>
+              </tr>
+            </thead>
+            <tbody>
+              {data.failuresByCode.length === 0 ? (
+                <tr><td colSpan={3} className="py-3 text-neutral-400">No import failures recorded.</td></tr>
+              ) : (
+                data.failuresByCode.map((r) => (
+                  <tr key={r.code} className="border-t border-neutral-100">
+                    <td className="py-1.5 font-mono text-xs text-neutral-700">{r.code}</td>
+                    <td className="py-1.5 text-right text-neutral-600">{r.d1}</td>
+                    <td className="py-1.5 text-right text-neutral-600">{r.d7}</td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
+        </div>
+
+        <div className="rounded-2xl border border-neutral-200 bg-white p-4">
+          <h2 className="text-sm font-semibold text-neutral-900">Succeeded but suspect (auto-published)</h2>
+          <p className="mt-1 text-xs text-neutral-500">
+            Imports publish without a review gate. These passed but look low-quality: low ingredient
+            match rate, many inferred fields, or recreated from a dish name.
+          </p>
+          <div className="mt-3 flex flex-wrap gap-2 text-xs">
+            <span className="rounded-full border border-amber-200 bg-amber-50 px-2 py-0.5 text-amber-700">
+              Low match (7d): {data.suspect.counts.lowMatch7d}
+            </span>
+            <span className="rounded-full border border-amber-200 bg-amber-50 px-2 py-0.5 text-amber-700">
+              High inferred (7d): {data.suspect.counts.highInferred7d}
+            </span>
+            <span className="rounded-full border border-amber-200 bg-amber-50 px-2 py-0.5 text-amber-700">
+              Recreated (7d): {data.suspect.counts.recreated7d}
+            </span>
+          </div>
+          <ul className="mt-3 space-y-1.5">
+            {data.suspect.rows.slice(0, 8).map((r) => (
+              <li key={r.id} className="flex items-center justify-between gap-2 border-t border-neutral-100 py-1.5 text-xs">
+                <span className="truncate font-mono text-neutral-600" title={r.url}>{r.url}</span>
+                <span className="shrink-0 text-neutral-400">
+                  {Math.round((r.quality?.matchRate ?? 0) * 100)}% match · {fmtDateShort(r.at)}
+                </span>
+              </li>
+            ))}
+            {data.suspect.rows.length === 0 ? (
+              <li className="py-2 text-neutral-400">No suspect successes.</li>
+            ) : null}
+          </ul>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export default function ErrorsPage() {
   const { data, error, isLoading, refetch } = useChefQuery<ErrorsResponse>(
     "errors.list",
@@ -117,6 +245,8 @@ export default function ErrorsPage() {
           <RefreshCw className="h-4 w-4" /> Refresh
         </button>
       </div>
+
+      <ImportsBreakdown />
 
       <div className="mt-6 flex flex-wrap gap-2">
         {["all", ...sources].map((s) => (
@@ -232,6 +362,13 @@ export default function ErrorsPage() {
                         <td colSpan={5} className="px-4 py-4">
                           <dl className="space-y-2">
                             <DetailRow label="Error ID" value={row.id} />
+                            <DetailRow label="Code" value={row.code} />
+                            <DetailRow label="Stage" value={row.stage} />
+                            {row.code && CODE_EXPLAINER[row.code] ? (
+                              <div className="rounded-lg border border-sky-200 bg-sky-50 px-3 py-2 text-xs text-sky-800">
+                                {CODE_EXPLAINER[row.code]}
+                              </div>
+                            ) : null}
                             <DetailRow label="Severity" value={row.severity} />
                             <DetailRow label="Domain" value={row.domain} />
                             <DetailRow label="Screen" value={row.screen} />
