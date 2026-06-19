@@ -9,11 +9,9 @@ import {
   RefreshCw,
   AlertCircle,
   Circle,
-  Search,
   Trash2,
 } from "lucide-react";
 import { cn } from "@/lib/cn";
-import { ManualMatchModal } from "@/components/admin/manual-match-modal";
 import {
   formatIngredientKcal,
   pickIngredientLineKcal,
@@ -595,10 +593,6 @@ export function RecipeEditor({
   const [isRequestingGen, setIsRequestingGen] = useState(false);
   const [ingredientDiagnosticView, setIngredientDiagnosticView] =
     useState(false);
-  const [manualMatch, setManualMatch] = useState<{
-    ingredientIndex: number;
-    initialQuery: string;
-  } | null>(null);
   const [approvedIngredientDrafts, setApprovedIngredientDrafts] = useState<
     Record<number, IngredientEditPatch>
   >({});
@@ -621,7 +615,6 @@ export function RecipeEditor({
   useEffect(() => {
     setGenerateMutationError(null);
     setIngredientDiagnosticView(false);
-    setManualMatch(null);
     setApprovedIngredientDrafts({});
     setApprovedIngredientEditError(null);
     setPendingIngredientDelete(null);
@@ -908,12 +901,6 @@ export function RecipeEditor({
       databaseSource === "fatsecret" ||
       orizonFoodId.startsWith("OF-fs-");
     const isApproved = row.isApproved === true && !isFatSecretFallback;
-    const initialManualSearchQuery =
-      (typeof row.searchName === "string" && row.searchName.trim()) ||
-      (typeof row.name === "string" && row.name.trim()) ||
-      (typeof row.displayString === "string" && row.displayString.trim()) ||
-      (typeof row.description === "string" && row.description.trim()) ||
-      "";
     return {
       label: String(label),
       qtyValue,
@@ -936,7 +923,6 @@ export function RecipeEditor({
       sourceBadgeLabel: isUsdaLinked ? "USDA" : "FS",
       orizonFoodId,
       flagTooltip,
-      initialManualSearchQuery,
     };
   });
 
@@ -1035,16 +1021,6 @@ export function RecipeEditor({
 
   return (
     <div className="flex h-full min-h-0 flex-col">
-      {manualMatch ? (
-        <ManualMatchModal
-          open
-          onClose={() => setManualMatch(null)}
-          onApplied={() => void onRefreshNutrition(recipe._id)}
-          stagingId={recipe._id}
-          ingredientIndex={manualMatch.ingredientIndex}
-          initialQuery={manualMatch.initialQuery}
-        />
-      ) : null}
       <div className="min-h-0 flex-1 overflow-y-auto">
       {/* Header */}
       <div className="border-b border-neutral-200 p-6">
@@ -1261,17 +1237,6 @@ export function RecipeEditor({
                     )}
                     <th className="whitespace-nowrap px-4 py-3 text-right font-semibold tabular-nums">
                       Computed Kcals
-                    </th>
-                    <th
-                      className="w-12 whitespace-nowrap px-1 py-3 text-center font-semibold"
-                      title="Search FatSecret for a manual match"
-                    >
-                      <span className="sr-only">Manual match</span>
-                      <Search
-                        className="mx-auto h-3.5 w-3.5 text-neutral-400"
-                        strokeWidth={2.5}
-                        aria-hidden
-                      />
                     </th>
                     {onDeleteIngredient && (
                       <th className="w-28 whitespace-nowrap px-3 py-3 text-center font-semibold">
@@ -1582,23 +1547,6 @@ export function RecipeEditor({
                       )}
                       <td className="whitespace-nowrap px-4 py-2.5 text-right tabular-nums font-medium text-neutral-900">
                         {row.kcal != null ? formatIngredientKcal(row.kcal) : "—"}
-                      </td>
-                      <td className="w-12 px-1 py-2 align-middle">
-                        <button
-                          type="button"
-                          onClick={() =>
-                            setManualMatch({
-                              ingredientIndex: i,
-                              initialQuery:
-                                row.initialManualSearchQuery.trim() || "food",
-                            })
-                          }
-                          className="mx-auto flex h-8 w-8 items-center justify-center rounded-lg border border-neutral-200 bg-neutral-50 text-neutral-700 transition-colors hover:border-amber-400 hover:bg-amber-50 hover:text-amber-900"
-                          title="Search FatSecret for a manual match"
-                          aria-label="Open manual FatSecret match for this ingredient"
-                        >
-                          <Search className="h-4 w-4" strokeWidth={2.25} aria-hidden />
-                        </button>
                       </td>
                       {onDeleteIngredient && (
                         <td className="whitespace-nowrap px-3 py-2.5 text-center">

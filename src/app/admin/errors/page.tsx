@@ -58,7 +58,8 @@ const CODE_EXPLAINER: Record<string, string> = {
   PAGE_FETCH_FAILED: "The page returned a non-OK HTTP status or timed out.",
   GEMINI_ERROR: "The AI extraction call failed (config, quota, or a transient error).",
   PROCESSING_TIMEOUT: "The background parse never reported a terminal result and was reaped.",
-  MATCH_FAILED: "Ingredient matching against the catalogue threw.",
+  MATCH_FAILED:
+    "Legacy: ingredient catalogue matching threw. The catalogue was removed (ADR-040) — lines now carry embedded enrichment, so this code is only seen on historical rows.",
 };
 
 const SOURCE_LABEL: Record<string, string> = {

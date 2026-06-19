@@ -65,13 +65,25 @@ export async function chefIngest(args: {
 export type ChefQuantity = { value: number; unit: string; unitClass: string };
 
 export type ChefIngredientLine = {
-  ingredientId: string | null;
   rawText: string;
   displayName: string;
   quantity: ChefQuantity;
-  matchConfidence: number;
   note?: string;
+  // ADR-040 R2 embedded per-ingredient enrichment (recipe-scoped, self-contained). There is no
+  // ingredient catalog: each line carries its own aisle/macros/allergens/dietary. The admin editor
+  // preserves these on round-trip; a line is "resolved" when it carries embedded enrichment.
+  lineId?: string;
+  aisle?: string;
+  lineMacros?: ChefMacros;
+  allergens?: string[];
+  dietaryLabels?: string[];
+  schemaVersion?: number;
 };
+
+/** A self-contained line carries its own enrichment (ADR-040) — no catalog pointer needed. */
+function isEnriched(line: ChefIngredientLine): boolean {
+  return line.schemaVersion != null || (line.aisle?.trim().length ?? 0) > 0;
+}
 
 export type ChefStep = {
   index: number;
@@ -193,11 +205,15 @@ function legacyIngredients(lines: ChefIngredientLine[]): Array<Record<string, un
     searchName: line.displayName,
     quantity: line.quantity?.value,
     unit: line.quantity?.unit,
-    // matched lines point at the curated catalog; the editor treats a present id as resolved
-    orizonFoodId: line.ingredientId ?? "",
-    databaseSource: line.ingredientId ? "foray_catalog" : "",
-    matchConfidence: line.matchConfidence,
     rawText: line.rawText,
+    // ADR-040: forward the self-contained embedded enrichment (no catalog pointer). The editor
+    // preserves these on round-trip; a line is resolved when it carries this enrichment.
+    ...(line.lineId ? { lineId: line.lineId } : {}),
+    ...(line.aisle ? { aisle: line.aisle } : {}),
+    ...(line.lineMacros ? { lineMacros: line.lineMacros } : {}),
+    ...(line.allergens ? { allergens: line.allergens } : {}),
+    ...(line.dietaryLabels ? { dietaryLabels: line.dietaryLabels } : {}),
+    ...(line.schemaVersion != null ? { schemaVersion: line.schemaVersion } : {}),
     ...(line.note ? { note: line.note } : {}),
   }));
 }
@@ -226,7 +242,7 @@ export function toLegacySummary(r: ChefStagingRecipe): LegacyStagingSummary {
 
 export function toLegacyDetail(r: ChefStagingRecipe): LegacyStagingDetail {
   const unresolved = r.ingredients
-    .filter((line) => !line.ingredientId)
+    .filter((line) => !isEnriched(line))
     .map((line) => line.displayName);
   return {
     ...toLegacySummary(r),
