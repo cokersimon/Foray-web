@@ -17,6 +17,7 @@ import {
   pickIngredientLineKcal,
 } from "@/lib/resolved-ingredient-kcal";
 import { resolveStagingRecipeTags } from "@/lib/staging-recipe-tags";
+import { PlanBrowseShelvesPanel } from "@/components/admin/plan-browse-shelves-panel";
 
 type ImageGenStatus = "idle" | "pending" | "error" | undefined;
 
@@ -1677,6 +1678,10 @@ export function RecipeEditor({
             seasonality={resolvedTags.tagsSeasonality}
             allergens={resolvedTags.computedAllergens}
           />
+        </div>
+
+        <div className="mt-4">
+          <PlanBrowseShelvesPanel recipe={recipe} variant="light" />
         </div>
 
         <div>

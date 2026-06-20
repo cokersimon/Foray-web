@@ -7,6 +7,7 @@ import {
   pickIngredientLineKcal,
 } from "@/lib/resolved-ingredient-kcal";
 import { resolveStagingRecipeTags } from "@/lib/staging-recipe-tags";
+import { PlanBrowseShelvesPanel } from "@/components/admin/plan-browse-shelves-panel";
 import {
   describeUnresolvedReason,
   resolveCookingInstruction,
@@ -260,11 +261,11 @@ export function RecipePreview({
         {discoveryTags.length > 0 && (
           <div className="mt-4">
             <h3 className="mb-1.5 text-[10px] font-semibold uppercase tracking-wider text-neutral-500">
-              Discovery tags
+              Chef tags
             </h3>
             <p className="mb-2 text-[10px] leading-snug text-neutral-600">
-              Cuisine, meal type, diet, cook speed &amp; seasonality (document or
-              recipeData)
+              Closed ADR-018 vocabulary from ingest (dish type, method, occasion,
+              dietary)
             </p>
             <div className="flex flex-wrap gap-1">
               {discoveryTags.map((tag, i) => (
@@ -278,6 +279,10 @@ export function RecipePreview({
             </div>
           </div>
         )}
+
+        <div className="mt-4">
+          <PlanBrowseShelvesPanel recipe={recipe} variant="dark" />
+        </div>
 
         {hasAutoFoodTags && (
           <div className="mt-4 rounded-xl border border-violet-500/25 bg-violet-950/20 p-3">
