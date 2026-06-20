@@ -37,7 +37,7 @@ export default function SignInPage() {
           await supabaseBrowser().auth.signOut();
           return;
         }
-        router.push("/admin");
+        router.push("/admin/recipes");
         router.refresh();
       } finally {
         setIsSubmitting(false);

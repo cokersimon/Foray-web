@@ -80,11 +80,6 @@ export type ChefIngredientLine = {
   schemaVersion?: number;
 };
 
-/** A self-contained line carries its own enrichment (ADR-040) — no catalog pointer needed. */
-function isEnriched(line: ChefIngredientLine): boolean {
-  return line.schemaVersion != null || (line.aisle?.trim().length ?? 0) > 0;
-}
-
 export type ChefStep = {
   index: number;
   text: string;
@@ -190,7 +185,6 @@ export type LegacyStagingDetail = LegacyStagingSummary & {
   computedCarbs?: number;
   computedFat?: number;
   nutritionReady?: boolean;
-  unresolvedIngredients?: string[];
   batchId?: string;
   reviewNotes?: string;
   updatedAt?: number;
@@ -241,9 +235,6 @@ export function toLegacySummary(r: ChefStagingRecipe): LegacyStagingSummary {
 }
 
 export function toLegacyDetail(r: ChefStagingRecipe): LegacyStagingDetail {
-  const unresolved = r.ingredients
-    .filter((line) => !isEnriched(line))
-    .map((line) => line.displayName);
   return {
     ...toLegacySummary(r),
     description: r.description ?? undefined,
@@ -270,7 +261,6 @@ export function toLegacyDetail(r: ChefStagingRecipe): LegacyStagingDetail {
     computedCarbs: r.macros?.carbs,
     computedFat: r.macros?.fat,
     nutritionReady: (r.macros?.kcal ?? 0) > 0,
-    unresolvedIngredients: unresolved,
     batchId: r.jobId ?? undefined,
     reviewNotes: r.reviewNotes ?? undefined,
     updatedAt: r.lastModified,

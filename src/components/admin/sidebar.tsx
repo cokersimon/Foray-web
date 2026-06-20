@@ -3,10 +3,8 @@
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import {
-  LayoutDashboard,
   ChefHat,
   LogOut,
-  Settings,
   Wand2,
   Flag,
   CreditCard,
@@ -19,7 +17,6 @@ import { Wordmark } from "@/components/brand/wordmark";
 import { cn } from "@/lib/cn";
 
 const navItems = [
-  { label: "Dashboard", href: "/admin", icon: LayoutDashboard },
   { label: "Recipes", href: "/admin/recipes", icon: ChefHat, exactMatch: true },
   {
     label: "AI ingest",
@@ -31,7 +28,6 @@ const navItems = [
   { label: "Reports", href: "/admin/reports", icon: Flag },
   { label: "Errors", href: "/admin/errors", icon: AlertTriangle },
   { label: "Analytics", href: "/admin/analytics", icon: BarChart3 },
-  { label: "Settings", href: "/admin/settings", icon: Settings },
 ];
 
 export function Sidebar() {
@@ -42,7 +38,7 @@ export function Sidebar() {
   return (
     <aside className="flex h-screen w-60 shrink-0 flex-col border-r border-neutral-200 bg-white">
       <div className="flex h-16 items-center px-6">
-        <Link href="/admin" className="text-lg">
+        <Link href="/admin/recipes" className="text-lg">
           <Wordmark />
         </Link>
         <span className="ml-2 rounded-md bg-neutral-100 px-2 py-0.5 text-[10px] font-medium uppercase tracking-wider text-neutral-500">
@@ -53,11 +49,9 @@ export function Sidebar() {
       <nav className="flex-1 space-y-1 px-3 py-4">
         {navItems.map((item) => {
           const isActive =
-            item.href === "/admin"
-              ? pathname === "/admin"
-              : "exactMatch" in item && item.exactMatch
-                ? pathname === item.href
-                : pathname === item.href || pathname.startsWith(`${item.href}/`);
+            "exactMatch" in item && item.exactMatch
+              ? pathname === item.href
+              : pathname === item.href || pathname.startsWith(`${item.href}/`);
 
           return (
             <Link

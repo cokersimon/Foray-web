@@ -8,7 +8,6 @@ import {
   Wand2,
   RefreshCw,
   AlertCircle,
-  Circle,
   Trash2,
 } from "lucide-react";
 import { cn } from "@/lib/cn";
@@ -319,8 +318,6 @@ interface StagingRecipeDetail {
   nutritionConversionFailedIngredients?: string[];
   /** Unknown quantity units — 0g assumed in computed totals. */
   unitConversionFailedIngredients?: string[];
-  /** Orizon + FatSecret lookup both failed; requires manual match. */
-  unresolvedIngredients?: string[];
   batchId?: string;
   reviewNotes?: string;
   createdAt: number;
@@ -353,12 +350,6 @@ interface RecipeEditorProps {
   isPublishing?: boolean;
   isUnpublishing?: boolean;
   isRefreshingNutrition?: boolean;
-  onApproveOrizonFoodMapping?: (
-    stagingId: string,
-    ingredientIndex: number,
-  ) => void | Promise<void>;
-  /** Row index currently awaiting approveOrizonFoodMapping (spinner in approval cell). */
-  approvingIngredientIndex?: number | null;
   onUpdateApprovedIngredient?: (
     stagingId: string,
     ingredientIndex: number,
@@ -540,21 +531,6 @@ function TagGroups({
   );
 }
 
-function sourceIdLabel({
-  isUsdaLinked,
-  orizonFoodId,
-  fatsecretFoodId,
-}: {
-  isUsdaLinked: boolean;
-  orizonFoodId: string;
-  fatsecretFoodId: string;
-}) {
-  if (isUsdaLinked) {
-    return `USDA: ${orizonFoodId || "—"}`;
-  }
-  return `FS: ${fatsecretFoodId || orizonFoodId || "—"}`;
-}
-
 function textValue(value: unknown): string {
   return typeof value === "string" && value.trim() ? value.trim() : "";
 }
@@ -577,8 +553,6 @@ export function RecipeEditor({
   isPublishing = false,
   isUnpublishing = false,
   isRefreshingNutrition = false,
-  onApproveOrizonFoodMapping,
-  approvingIngredientIndex = null,
   onUpdateApprovedIngredient,
   updatingApprovedIngredientIndex = null,
   onDeleteIngredient,
@@ -843,10 +817,6 @@ export function RecipeEditor({
     []
   ).filter((name) => name.trim().length > 0);
   const hasConversionErrors = conversionFailedIngredients.length > 0;
-  const unresolvedIngredients =
-    recipe.unresolvedIngredients?.filter((name) => name.trim().length > 0) ??
-    [];
-  const hasUnresolvedIngredients = unresolvedIngredients.length > 0;
 
   const normalizedStatus = String(recipe.status ?? "")
     .trim()
@@ -876,32 +846,10 @@ export function RecipeEditor({
     const quantityDisplay =
       unitStr === "—" ? qtyStr : `${qtyStr} ${unitStr}`;
     const kcal = pickIngredientLineKcal(ing);
-    const matchedName = pickMatchedNameForDiagnostics(row);
     const diagnosticFlags = normalizeDiagnosticFlags(row.diagnosticFlags);
     const flagTooltip =
       diagnosticFlags.length > 0 ? diagnosticFlags.join(" • ") : null;
-    const source =
-      typeof row.source === "string" ? row.source.trim().toLowerCase() : "";
-    const provenance =
-      typeof row.provenance === "string"
-        ? row.provenance.trim().toLowerCase()
-        : "";
-    const databaseSource =
-      typeof row.databaseSource === "string"
-        ? row.databaseSource.trim().toLowerCase()
-        : "";
-    const orizonFoodId =
-      typeof row.orizonFoodId === "string" ? row.orizonFoodId.trim() : "";
-    const fatsecretFoodId =
-      typeof row.fatsecretFoodId === "string" ? row.fatsecretFoodId.trim() : "";
-    const isUsdaLinked = orizonFoodId.toLowerCase().includes("-usda-");
-    const isFatSecretFallback =
-      !isUsdaLinked ||
-      source === "fatsecret" ||
-      provenance === "fatsecret" ||
-      databaseSource === "fatsecret" ||
-      orizonFoodId.startsWith("OF-fs-");
-    const isApproved = row.isApproved === true && !isFatSecretFallback;
+    const aisle = typeof row.aisle === "string" ? row.aisle.trim() : "";
     return {
       label: String(label),
       qtyValue,
@@ -913,16 +861,7 @@ export function RecipeEditor({
       proteinStr: formatIngredientMacro(row.computedProtein),
       carbsStr: formatIngredientMacro(row.computedCarbs),
       fatStr: formatIngredientMacro(row.computedFat),
-      matchedName,
-      isApproved,
-      isFatSecretFallback,
-      sourceIdLabel: sourceIdLabel({
-        isUsdaLinked,
-        orizonFoodId,
-        fatsecretFoodId,
-      }),
-      sourceBadgeLabel: isUsdaLinked ? "USDA" : "FS",
-      orizonFoodId,
+      aisle,
       flagTooltip,
     };
   });
@@ -1120,15 +1059,6 @@ export function RecipeEditor({
               {conversionFailedIngredients.join(", ")}
             </div>
           )}
-          {hasUnresolvedIngredients && (
-            <div
-              className="mb-3 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm font-medium text-amber-900 shadow-sm"
-              role="alert"
-            >
-              Database lookup failed (manual ingredient match needed):{" "}
-              {unresolvedIngredients.join(", ")}
-            </div>
-          )}
           <div className="grid grid-cols-2 gap-2 rounded-xl border border-neutral-200 bg-white p-2 shadow-sm sm:grid-cols-4">
             {macroRows.map((row) => (
               <div
@@ -1169,8 +1099,7 @@ export function RecipeEditor({
               </label>
             </div>
             <p className="mb-2 text-xs text-neutral-600">
-              Columns: approval (golden tick) · ingredient · quantity · kcal ·
-              manual FatSecret search. Per-line kcal from{" "}
+              Columns: ingredient · quantity · kcal. Per-line kcal from{" "}
               <span className="font-mono text-[11px]">kcal</span> /{" "}
               <span className="font-mono text-[11px]">calories</span>. Red (!)
               lists diagnostic flags in one tooltip.
@@ -1178,7 +1107,7 @@ export function RecipeEditor({
                 <>
                   {" "}
                   <span className="font-medium text-neutral-800">
-                    Extra columns: macros and matched / search / display name.
+                    Extra columns: per-line macros and grocery aisle.
                   </span>
                 </>
               )}
@@ -1200,17 +1129,6 @@ export function RecipeEditor({
               >
                 <thead>
                   <tr className="border-b border-neutral-200 bg-neutral-50 text-left text-[10px] font-semibold uppercase tracking-wider text-neutral-800">
-                    <th
-                      className="w-12 whitespace-nowrap px-2 py-3 text-center font-semibold"
-                      title="Golden mapping — green when globally approved; tap circle to approve"
-                    >
-                      <span className="sr-only">Approval</span>
-                      <Check
-                        className="mx-auto h-3.5 w-3.5 text-neutral-400"
-                        strokeWidth={2.5}
-                        aria-hidden
-                      />
-                    </th>
                     {ingredientDiagnosticView && (
                       <th className="whitespace-nowrap px-3 py-3 font-semibold tabular-nums">
                         #
@@ -1218,9 +1136,6 @@ export function RecipeEditor({
                     )}
                     <th className="min-w-[10rem] px-4 py-3 font-semibold">
                       Ingredient
-                    </th>
-                    <th className="min-w-[9rem] whitespace-nowrap px-3 py-3 font-semibold">
-                      Source/ID
                     </th>
                     {ingredientDiagnosticView ? (
                       <>
@@ -1255,8 +1170,8 @@ export function RecipeEditor({
                         <th className="whitespace-nowrap px-3 py-3 text-right font-semibold tabular-nums">
                           Fat (g)
                         </th>
-                        <th className="min-w-[12rem] px-3 py-3 font-semibold">
-                          Matched name
+                        <th className="min-w-[10rem] px-3 py-3 font-semibold">
+                          Aisle
                         </th>
                       </>
                     )}
@@ -1277,58 +1192,8 @@ export function RecipeEditor({
                     return (
                     <tr
                       key={`ing-${i}`}
-                      className={cn(
-                        "border-b border-neutral-100 last:border-b-0",
-                        row.isFatSecretFallback &&
-                          "bg-red-50 outline outline-2 -outline-offset-2 outline-red-500",
-                      )}
-                      title={
-                        row.isFatSecretFallback
-                          ? "FatSecret fallback: USDA/master ingredient missing"
-                          : undefined
-                      }
+                      className="border-b border-neutral-100 last:border-b-0"
                     >
-                      <td className="w-12 px-1 py-2 align-middle">
-                        {row.isApproved ? (
-                          <div
-                            className="mx-auto flex h-8 w-8 cursor-default items-center justify-center rounded-full bg-emerald-600 text-white shadow-sm"
-                            title="Globally approved — this mapping is locked across the app"
-                            aria-label="Globally approved ingredient mapping"
-                          >
-                            <Check className="h-4 w-4" strokeWidth={2.5} aria-hidden />
-                          </div>
-                        ) : (
-                          <button
-                            type="button"
-                            disabled={
-                              approvingIngredientIndex === i ||
-                              !onApproveOrizonFoodMapping
-                            }
-                            onClick={() =>
-                              void onApproveOrizonFoodMapping?.(
-                                recipe._id,
-                                i,
-                              )
-                            }
-                            className="mx-auto flex h-8 w-8 items-center justify-center rounded-full border-2 border-dashed border-amber-400/80 bg-amber-50 text-amber-800 transition-colors hover:border-amber-500 hover:bg-amber-100 disabled:cursor-not-allowed disabled:opacity-50"
-                            title="Approve this FatSecret / Orizon mapping (golden)"
-                            aria-label="Approve ingredient mapping"
-                          >
-                            {approvingIngredientIndex === i ? (
-                              <Loader2
-                                className="h-4 w-4 animate-spin text-amber-900"
-                                aria-hidden
-                              />
-                            ) : (
-                              <Circle
-                                className="h-4 w-4 text-amber-700"
-                                strokeWidth={2}
-                                aria-hidden
-                              />
-                            )}
-                          </button>
-                        )}
-                      </td>
                       {ingredientDiagnosticView && (
                         <td className="whitespace-nowrap px-3 py-2.5 tabular-nums text-neutral-500">
                           {i + 1}
@@ -1386,30 +1251,7 @@ export function RecipeEditor({
                               {row.label}
                             </span>
                           )}
-                          {row.isFatSecretFallback ? (
-                            <span className="shrink-0 rounded-full border border-red-300 bg-red-100 px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-red-800">
-                              FatSecret
-                            </span>
-                          ) : null}
                         </div>
-                      </td>
-                      <td className="whitespace-nowrap px-3 py-2.5 align-middle">
-                        <span
-                          className={cn(
-                            "inline-flex max-w-[11rem] items-center rounded-full border px-2 py-0.5 text-[10px] font-semibold",
-                            row.isFatSecretFallback
-                              ? "border-orange-300 bg-orange-100 text-orange-800"
-                              : "border-emerald-300 bg-emerald-50 text-emerald-800",
-                          )}
-                          title={row.sourceIdLabel}
-                        >
-                          <span className="mr-1 uppercase tracking-wide">
-                            {row.sourceBadgeLabel}
-                          </span>
-                          <span className="truncate font-mono">
-                            {row.sourceIdLabel.replace(/^(USDA|FS):\s*/, "")}
-                          </span>
-                        </span>
                       </td>
                       {ingredientDiagnosticView ? (
                         <>
@@ -1607,9 +1449,9 @@ export function RecipeEditor({
                           <td className="whitespace-nowrap px-3 py-2.5 text-right tabular-nums text-neutral-900">
                             {row.fatStr}
                           </td>
-                          <td className="max-w-[18rem] px-3 py-2.5 text-xs leading-snug text-neutral-800">
-                            <span className="line-clamp-2 break-words" title={row.matchedName}>
-                              {row.matchedName}
+                          <td className="max-w-[12rem] px-3 py-2.5 text-xs leading-snug text-neutral-800">
+                            <span className="line-clamp-2 break-words" title={row.aisle || undefined}>
+                              {row.aisle || "—"}
                             </span>
                           </td>
                         </>
@@ -2247,25 +2089,6 @@ function formatIngredientMacro(value: unknown): string {
   if (typeof value !== "number" || !Number.isFinite(value)) return "—";
   const rounded = Math.round(value * 10) / 10;
   return Number.isInteger(rounded) ? String(rounded) : rounded.toFixed(1);
-}
-
-/** FatSecret match label: fs match → search term → display line (what we use to resolve). */
-function pickMatchedNameForDiagnostics(row: Record<string, unknown>): string {
-  const firstString = (keys: string[]): string | null => {
-    for (const k of keys) {
-      const v = row[k];
-      if (typeof v === "string" && v.trim().length > 0) {
-        return v.trim();
-      }
-    }
-    return null;
-  };
-  return (
-    firstString(["fsMatchedName", "fs_matched_name"]) ??
-    firstString(["searchName"]) ??
-    firstString(["displayString"]) ??
-    "—"
-  );
 }
 
 function normalizeDiagnosticFlags(raw: unknown): string[] {

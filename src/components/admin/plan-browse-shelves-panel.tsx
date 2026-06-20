@@ -5,15 +5,11 @@ import {
   planBrowseShelvesForRecipe,
   stagingRecipeForPlanShelves,
   type PlanBrowseShelfMatch,
+  type PlanShelfRecipeInput,
 } from "@/lib/plan-browse-shelves";
 
 type Props = {
-  recipe: {
-    status?: string;
-    recipeData?: Record<string, unknown>;
-    computedProtein?: number;
-    expectedProtein?: number;
-  };
+  recipe: PlanShelfRecipeInput;
   /** Dark preview chrome vs light editor chrome. */
   variant?: "light" | "dark";
 };

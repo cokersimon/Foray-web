@@ -46,6 +46,15 @@ export type StagingRecipeForShelves = {
   status?: string;
 };
 
+/** Minimal staging row for Plan shelf preview (editor + preview panels). */
+export type PlanShelfRecipeInput = {
+  status?: string;
+  /** Legacy `recipeData` blob — structured interfaces are fine (`unknown`). */
+  recipeData?: unknown;
+  computedProtein?: number;
+  expectedProtein?: number;
+};
+
 const HIGH_PROTEIN_MIN_G = 30;
 const THIRTY_MIN_SEC = 30 * 60;
 
@@ -119,13 +128,14 @@ export function planBrowseShelvesForRecipe(
 }
 
 /** Extract ADR-018 fields from a legacy staging detail row for shelf preview. */
-export function stagingRecipeForPlanShelves(recipe: {
-  status?: string;
-  recipeData?: Record<string, unknown>;
-  computedProtein?: number;
-  expectedProtein?: number;
-}): StagingRecipeForShelves {
-  const data = recipe.recipeData ?? {};
+export function stagingRecipeForPlanShelves(
+  recipe: PlanShelfRecipeInput,
+): StagingRecipeForShelves {
+  const raw = recipe.recipeData;
+  const data =
+    raw != null && typeof raw === "object" && !Array.isArray(raw)
+      ? (raw as Record<string, unknown>)
+      : {};
   const tags = Array.isArray(data.tags)
     ? data.tags.filter((t): t is string => typeof t === "string")
     : [];
