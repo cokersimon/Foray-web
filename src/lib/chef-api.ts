@@ -220,13 +220,37 @@ function legacyCookingGuide(steps: ChefStep[]): Array<Record<string, unknown>> {
   }));
 }
 
+/** Resolve a displayable hero URL without waiting on chef-admin list enrichment. */
+function resolveHeroImageUrl(r: ChefStagingRecipe): string | undefined {
+  if (r.heroPreviewUrl?.trim()) return r.heroPreviewUrl.trim();
+
+  const base = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  if (!base) return undefined;
+
+  const stagingKey = r.heroStagingKey?.trim();
+  if (stagingKey?.startsWith("recipe-heroes/")) {
+    return `${base}/storage/v1/object/public/${stagingKey}`;
+  }
+
+  const seedSlug = r.sourceText?.match(/^seed:(.+)$/)?.[1];
+  if (seedSlug) {
+    return `${base}/storage/v1/object/public/recipe-heroes/${seedSlug}-512.webp`;
+  }
+
+  if (r.liveRecipeId && r.heroStatus === "ready") {
+    return `${base}/storage/v1/object/public/recipe-heroes/${r.liveRecipeId}-512.webp`;
+  }
+
+  return undefined;
+}
+
 export function toLegacySummary(r: ChefStagingRecipe): LegacyStagingSummary {
   return {
     _id: r.id,
     name: r.title,
     status: r.status,
     source: r.model ?? "chef",
-    heroImageUrl: r.heroPreviewUrl ?? undefined,
+    heroImageUrl: resolveHeroImageUrl(r),
     tagsMealType: r.tags,
     computedCalories: r.macros?.kcal,
     expectedCalories: r.sourceReportedMacros?.calories,

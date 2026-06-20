@@ -31,6 +31,8 @@ select status, count(*) from chef.staging_recipes group by status;
 select visibility, count(*) from public.recipes group by visibility;
 ```
 
+**Backfill (SampleCorpus → Published):** the six bundled Plan recipes are mirrored into Supabase by migration `20260620180000_backfill_sample_corpus_published.sql` in the Foray repo. Apply from that repo with `supabase db push`, then redeploy `chef-admin` (hero preview reads public `recipe-heroes/` keys for backfilled rows).
+
 ## Getting started
 
 ```bash
