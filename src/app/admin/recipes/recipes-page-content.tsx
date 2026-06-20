@@ -288,7 +288,10 @@ function RecipesPageInner() {
         stagingId: id,
       });
       refreshDetail();
-      await pollJob(jobId).catch(() => undefined);
+      const job = await pollJob(jobId);
+      if (job.status === "error") {
+        throw new Error(job.error ?? "Image generation failed");
+      }
       refreshDetail();
     },
     [refreshDetail],
