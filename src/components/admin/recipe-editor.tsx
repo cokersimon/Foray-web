@@ -61,8 +61,33 @@ const INGREDIENT_UNIT_OPTIONS = [
   "lb",
 ] as const;
 
-function normalizeIngredientUnitForSelect(unit: unknown): string {
-  if (typeof unit !== "string") return "g";
+const INGREDIENT_COUNT_UNIT_SUGGESTIONS = [
+  "piece",
+  "pack",
+  "drumstick",
+  "rasher",
+  "clove",
+  "bunch",
+  "handful",
+  "can",
+  "jar",
+  "slice",
+  "egg",
+  "fillet",
+  "stick",
+  "head",
+  "sprig",
+] as const;
+
+const INGREDIENT_UNIT_DATALIST = [
+  ...INGREDIENT_UNIT_OPTIONS,
+  ...INGREDIENT_COUNT_UNIT_SUGGESTIONS,
+] as const;
+
+const INGREDIENT_UNIT_DATALIST_ID = "ingredient-unit-suggestions";
+
+function normalizeIngredientUnitForEditor(unit: unknown): string {
+  if (typeof unit !== "string" || !unit.trim()) return "piece";
   const normalized = unit.trim().toLowerCase();
   const aliases: Record<string, string> = {
     gram: "g",
@@ -87,13 +112,79 @@ function normalizeIngredientUnitForSelect(unit: unknown): string {
     lbs: "lb",
     pound: "lb",
     pounds: "lb",
+    pieces: "piece",
+    packs: "pack",
+    drumsticks: "drumstick",
+    rashers: "rasher",
+    cloves: "clove",
+    cans: "can",
+    jars: "jar",
+    slices: "slice",
+    eggs: "egg",
+    fillets: "fillet",
+    sticks: "stick",
+    sprigs: "sprig",
   };
-  const unitValue = aliases[normalized] ?? normalized;
-  return INGREDIENT_UNIT_OPTIONS.includes(
-    unitValue as (typeof INGREDIENT_UNIT_OPTIONS)[number],
-  )
-    ? unitValue
-    : "g";
+  return aliases[normalized] ?? normalized;
+}
+
+function resolveIngredientQuantityFields(row: Record<string, unknown>): {
+  qtyValue: number | null;
+  unitValue: string;
+} {
+  const nested = row.quantity;
+  if (nested != null && typeof nested === "object" && !Array.isArray(nested)) {
+    const quantity = nested as Record<string, unknown>;
+    const rawValue = quantity.value;
+    const qtyValue =
+      typeof rawValue === "number" && Number.isFinite(rawValue) ? rawValue : null;
+    const unitRaw =
+      typeof quantity.unit === "string"
+        ? quantity.unit
+        : typeof row.unit === "string"
+          ? row.unit
+          : "";
+    return {
+      qtyValue,
+      unitValue: normalizeIngredientUnitForEditor(unitRaw),
+    };
+  }
+
+  const qty = row.quantity;
+  const qtyValue =
+    typeof qty === "number" && Number.isFinite(qty) ? qty : null;
+  return {
+    qtyValue,
+    unitValue: normalizeIngredientUnitForEditor(row.unit),
+  };
+}
+
+function IngredientUnitField({
+  value,
+  disabled,
+  onChange,
+  ariaLabel,
+  className,
+}: {
+  value: string;
+  disabled: boolean;
+  onChange: (unit: string) => void;
+  ariaLabel: string;
+  className?: string;
+}) {
+  return (
+    <input
+      list={INGREDIENT_UNIT_DATALIST_ID}
+      value={value}
+      disabled={disabled}
+      onChange={(event) => onChange(event.target.value)}
+      className={
+        className ??
+        "rounded-md border border-neutral-200 bg-white px-2 py-1 text-sm text-neutral-900 shadow-sm transition-colors focus:border-neutral-500 focus:outline-none focus:ring-2 focus:ring-neutral-200 disabled:bg-neutral-50 disabled:text-neutral-500"
+      }
+      aria-label={ariaLabel}
+    />
+  );
 }
 
 function normalizeCookingTokenType(value: unknown): CookingTokenType | null {
@@ -218,19 +309,9 @@ function formatCookingTokenForDisplay(
   const ingredient = ingredientRowForToken(token, ingredients);
 
   if (token.type === "quantity" && ingredient) {
-    const quantity = ingredient.quantity;
-    const quantityText =
-      typeof quantity === "number" && Number.isFinite(quantity)
-        ? String(quantity)
-        : typeof quantity === "string" && quantity.trim()
-          ? quantity.trim()
-          : "";
-    if (quantityText) {
-      const unitText =
-        typeof ingredient.unit === "string" && ingredient.unit.trim()
-          ? ingredient.unit.trim()
-          : "";
-      return unitText ? `${quantityText} ${unitText}` : quantityText;
+    const { qtyValue, unitValue } = resolveIngredientQuantityFields(ingredient);
+    if (qtyValue != null) {
+      return unitValue ? `${qtyValue} ${unitValue}` : String(qtyValue);
     }
   }
 
@@ -832,16 +913,13 @@ export function RecipeEditor({
       [row.displayString, row.description, row.name].find(
         (x) => typeof x === "string" && x.trim().length > 0,
       ) ?? "—";
-    const qty = row.quantity;
-    const unit = row.unit;
-    const qtyValue = typeof qty === "number" && Number.isFinite(qty) ? qty : null;
+    const { qtyValue, unitValue } = resolveIngredientQuantityFields(row);
     const qtyStr =
       qtyValue != null
         ? String(qtyValue)
-        : typeof qty === "string" && qty.trim()
-          ? qty.trim()
+        : typeof row.quantity === "string" && row.quantity.trim()
+          ? row.quantity.trim()
           : "—";
-    const unitValue = normalizeIngredientUnitForSelect(unit);
     const unitStr = unitValue || "—";
     const quantityDisplay =
       unitStr === "—" ? qtyStr : `${qtyStr} ${unitStr}`;
@@ -1055,7 +1133,7 @@ export function RecipeEditor({
               className="mb-3 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm font-medium text-red-800 shadow-sm"
               role="alert"
             >
-              ⚠️ Unrecognised units (0g used in totals):{" "}
+              ⚠️ Nutrition unresolved (excluded from totals):{" "}
               {conversionFailedIngredients.join(", ")}
             </div>
           )}
@@ -1121,6 +1199,11 @@ export function RecipeEditor({
               </div>
             ) : null}
             <div className="max-w-full overflow-x-auto rounded-xl border border-neutral-200 bg-white shadow-sm">
+              <datalist id={INGREDIENT_UNIT_DATALIST_ID}>
+                {INGREDIENT_UNIT_DATALIST.map((unit) => (
+                  <option key={unit} value={unit} />
+                ))}
+              </datalist>
               <table
                 className={cn(
                   "w-full border-collapse text-sm",
@@ -1295,26 +1378,17 @@ export function RecipeEditor({
                           </td>
                           <td className="whitespace-nowrap px-3 py-2.5 text-neutral-800">
                             {canEditIngredientRows ? (
-                              <select
+                              <IngredientUnitField
                                 value={editableUnit}
                                 disabled={
                                   !onUpdateApprovedIngredient ||
                                   isSavingApprovedIngredients
                                 }
-                                onChange={(event) =>
-                                  updateApprovedIngredientDraft(i, {
-                                    unit: event.target.value,
-                                  })
+                                onChange={(unit) =>
+                                  updateApprovedIngredientDraft(i, { unit })
                                 }
-                                className="rounded-md border border-neutral-200 bg-white px-2 py-1 text-sm text-neutral-900 shadow-sm transition-colors focus:border-neutral-500 focus:outline-none focus:ring-2 focus:ring-neutral-200 disabled:bg-neutral-50 disabled:text-neutral-500"
-                                aria-label={`Edit ingredient ${i + 1} unit`}
-                              >
-                                {INGREDIENT_UNIT_OPTIONS.map((unit) => (
-                                  <option key={unit} value={unit}>
-                                    {unit}
-                                  </option>
-                                ))}
-                              </select>
+                                ariaLabel={`Edit ingredient ${i + 1} unit`}
+                              />
                             ) : (
                               row.unitStr
                             )}
@@ -1356,26 +1430,17 @@ export function RecipeEditor({
                                 className="w-28 rounded-md border border-neutral-200 bg-white px-2 py-1 text-right text-sm tabular-nums text-neutral-900 shadow-sm transition-colors focus:border-neutral-500 focus:outline-none focus:ring-2 focus:ring-neutral-200 disabled:bg-neutral-50 disabled:text-neutral-500"
                                 aria-label={`Edit ingredient ${i + 1} quantity`}
                               />
-                              <select
+                              <IngredientUnitField
                                 value={editableUnit}
                                 disabled={
                                   !onUpdateApprovedIngredient ||
                                   isSavingApprovedIngredients
                                 }
-                                onChange={(event) =>
-                                  updateApprovedIngredientDraft(i, {
-                                    unit: event.target.value,
-                                  })
+                                onChange={(unit) =>
+                                  updateApprovedIngredientDraft(i, { unit })
                                 }
-                                className="rounded-md border border-neutral-200 bg-white px-2 py-1 text-sm text-neutral-900 shadow-sm transition-colors focus:border-neutral-500 focus:outline-none focus:ring-2 focus:ring-neutral-200 disabled:bg-neutral-50 disabled:text-neutral-500"
-                                aria-label={`Edit ingredient ${i + 1} unit`}
-                              >
-                                {INGREDIENT_UNIT_OPTIONS.map((unit) => (
-                                  <option key={unit} value={unit}>
-                                    {unit}
-                                  </option>
-                                ))}
-                              </select>
+                                ariaLabel={`Edit ingredient ${i + 1} unit`}
+                              />
                               {isSavingApprovedIngredient ? (
                                 <Loader2
                                   className="h-3.5 w-3.5 animate-spin text-neutral-500"
