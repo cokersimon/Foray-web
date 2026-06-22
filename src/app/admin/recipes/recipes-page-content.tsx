@@ -106,6 +106,7 @@ function RecipesPageInner() {
     number | null
   >(null);
   const [isSavingCookingGuide, setIsSavingCookingGuide] = useState(false);
+  const [isSavingTags, setIsSavingTags] = useState(false);
   const [regeneratingCookingStepIndex, setRegeneratingCookingStepIndex] =
     useState<number | null>(null);
 
@@ -267,6 +268,22 @@ function RecipesPageInner() {
         refreshDetail();
       } finally {
         setIsSavingCookingGuide(false);
+      }
+    },
+    [refreshDetail],
+  );
+
+  const handleUpdateTags = useCallback(
+    async (
+      stagingId: string,
+      patch: { tags?: string[]; dietaryLabels?: string[]; allergenFlags?: string[] },
+    ) => {
+      setIsSavingTags(true);
+      try {
+        await chefAdmin("staging.update", { stagingId, patch });
+        refreshDetail();
+      } finally {
+        setIsSavingTags(false);
       }
     },
     [refreshDetail],
@@ -478,6 +495,8 @@ function RecipesPageInner() {
                 onRegenerateCookingStepTokens={handleRegenerateCookingStepTokens}
                 isSavingCookingGuide={isSavingCookingGuide}
                 regeneratingCookingStepIndex={regeneratingCookingStepIndex}
+                onUpdateTags={handleUpdateTags}
+                isSavingTags={isSavingTags}
               />
             )}
           </div>

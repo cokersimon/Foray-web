@@ -16,6 +16,13 @@ import {
   pickIngredientLineKcal,
 } from "@/lib/resolved-ingredient-kcal";
 import { resolveStagingRecipeTags } from "@/lib/staging-recipe-tags";
+import { splitCuisineTags } from "@/lib/cuisine-taxonomy";
+import {
+  ALLERGEN_VOCAB,
+  DIETARY_VOCAB,
+  MEAL_TYPE_VOCAB,
+  allergenLabel,
+} from "@/lib/recipe-vocab";
 import { formatQuantityLabel, fractionString } from "@/lib/format-quantity";
 import { PlanBrowseShelvesPanel } from "@/components/admin/plan-browse-shelves-panel";
 
@@ -439,7 +446,17 @@ interface RecipeEditorProps {
   ) => Promise<CookingGuideToken[]>;
   isSavingCookingGuide?: boolean;
   regeneratingCookingStepIndex?: number | null;
+  /** Persist a manual tag edit (meal type → `tags`, dietary → `dietaryLabels`,
+   * allergens → `allergenFlags`). When set, the Tags section becomes editable. */
+  onUpdateTags?: (
+    stagingId: string,
+    patch: { tags?: string[]; dietaryLabels?: string[]; allergenFlags?: string[] },
+  ) => void | Promise<void>;
+  isSavingTags?: boolean;
 }
+
+/** The three editable tag categories and the staging field each persists to. */
+type EditableTagGroup = "mealType" | "dietary" | "allergens";
 
 function hasHeroImageUrl(recipe: StagingRecipeDetail): boolean {
   return Boolean(recipe.heroImageUrl?.trim());
@@ -460,6 +477,10 @@ function TagGroups({
   cookSpeed,
   seasonality,
   allergens,
+  editable = false,
+  saving = false,
+  onAddTag,
+  onRemoveTag,
 }: {
   cuisine?: string[];
   mealType?: string[];
@@ -467,6 +488,11 @@ function TagGroups({
   cookSpeed?: string[] | string;
   seasonality?: string[];
   allergens?: string[];
+  /** When true, meal type / dietary / allergens become editable (× to remove, dropdown to add). */
+  editable?: boolean;
+  saving?: boolean;
+  onAddTag?: (group: EditableTagGroup, value: string) => void;
+  onRemoveTag?: (group: EditableTagGroup, value: string) => void;
 }) {
   const toCleanList = (value: string[] | string | undefined): string[] => {
     if (value == null) return [];
@@ -484,6 +510,14 @@ function TagGroups({
   const seasonalityList = toCleanList(seasonality);
   const allergensList = toCleanList(allergens);
 
+  const VOCAB: Record<EditableTagGroup, readonly string[]> = {
+    mealType: MEAL_TYPE_VOCAB,
+    dietary: DIETARY_VOCAB,
+    allergens: ALLERGEN_VOCAB,
+  };
+  const displayLabel = (groupId: string, value: string): string =>
+    groupId === "allergens" ? allergenLabel(value) : value;
+
   const hasAny =
     cuisineList.length > 0 ||
     mealTypeList.length > 0 ||
@@ -492,7 +526,7 @@ function TagGroups({
     seasonalityList.length > 0 ||
     allergensList.length > 0;
 
-  if (!hasAny) {
+  if (!hasAny && !editable) {
     return <span className="text-xs font-medium text-neutral-700">No tags</span>;
   }
 
@@ -503,6 +537,7 @@ function TagGroups({
     swatch: string;
     pill: string;
     prefix: string;
+    editable: boolean;
   }> = [
     {
       id: "cuisine",
@@ -511,6 +546,7 @@ function TagGroups({
       swatch: "bg-sky-500",
       pill: "border-sky-300 bg-sky-50 text-sky-900",
       prefix: "text-sky-700",
+      editable: false,
     },
     {
       id: "mealType",
@@ -519,6 +555,7 @@ function TagGroups({
       swatch: "bg-violet-500",
       pill: "border-violet-300 bg-violet-50 text-violet-900",
       prefix: "text-violet-700",
+      editable,
     },
     {
       id: "dietary",
@@ -527,6 +564,7 @@ function TagGroups({
       swatch: "bg-emerald-500",
       pill: "border-emerald-300 bg-emerald-50 text-emerald-900",
       prefix: "text-emerald-700",
+      editable,
     },
     {
       id: "cookSpeed",
@@ -535,6 +573,7 @@ function TagGroups({
       swatch: "bg-amber-500",
       pill: "border-amber-300 bg-amber-50 text-amber-900",
       prefix: "text-amber-700",
+      editable: false,
     },
     {
       id: "seasonality",
@@ -543,6 +582,7 @@ function TagGroups({
       swatch: "bg-teal-500",
       pill: "border-teal-300 bg-teal-50 text-teal-900",
       prefix: "text-teal-700",
+      editable: false,
     },
     {
       id: "allergens",
@@ -551,25 +591,28 @@ function TagGroups({
       swatch: "bg-rose-500",
       pill: "border-rose-300 bg-rose-50 text-rose-900",
       prefix: "text-rose-700",
+      editable,
     },
   ];
 
   return (
     <div className="space-y-2">
-      {groups.map((g) =>
-        g.values.length === 0 ? null : (
-          <div
-            key={g.id}
-            className="flex flex-wrap items-center gap-1.5"
-          >
+      {groups.map((g) => {
+        // Non-editable empty groups stay hidden; editable ones always render so the add control shows.
+        if (g.values.length === 0 && !g.editable) return null;
+
+        const present = new Set(g.values.map((v) => v.toLowerCase()));
+        const options = g.editable
+          ? VOCAB[g.id as EditableTagGroup].filter((v) => !present.has(v.toLowerCase()))
+          : [];
+
+        return (
+          <div key={g.id} className="flex flex-wrap items-center gap-1.5">
             <span
               className="inline-flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-wider text-neutral-700"
               aria-label={`${g.label} tags`}
             >
-              <span
-                className={cn("h-2 w-2 rounded-full", g.swatch)}
-                aria-hidden
-              />
+              <span className={cn("h-2 w-2 rounded-full", g.swatch)} aria-hidden />
               {g.label}
             </span>
             {g.values.map((tag, idx) => (
@@ -588,12 +631,45 @@ function TagGroups({
                 >
                   {g.label}
                 </span>
-                <span>{tag}</span>
+                <span>{displayLabel(g.id, tag)}</span>
+                {g.editable ? (
+                  <button
+                    type="button"
+                    onClick={() => onRemoveTag?.(g.id as EditableTagGroup, tag)}
+                    disabled={saving}
+                    aria-label={`Remove ${displayLabel(g.id, tag)}`}
+                    className="ml-0.5 inline-flex h-3.5 w-3.5 items-center justify-center rounded-full text-current opacity-60 transition hover:bg-black/10 hover:opacity-100 disabled:cursor-not-allowed disabled:opacity-40"
+                  >
+                    <X className="h-2.5 w-2.5" aria-hidden />
+                  </button>
+                ) : null}
               </span>
             ))}
+            {g.editable ? (
+              <select
+                value=""
+                disabled={saving || options.length === 0}
+                onChange={(event) => {
+                  const value = event.target.value;
+                  if (value) onAddTag?.(g.id as EditableTagGroup, value);
+                  event.currentTarget.selectedIndex = 0;
+                }}
+                aria-label={`Add ${g.label.toLowerCase()}`}
+                className="rounded-full border border-dashed border-neutral-300 bg-white px-2 py-0.5 text-xs font-medium text-neutral-600 transition hover:border-neutral-400 disabled:cursor-not-allowed disabled:opacity-50"
+              >
+                <option value="">
+                  {options.length === 0 ? "All added" : "+ Add"}
+                </option>
+                {options.map((opt) => (
+                  <option key={`${g.id}-opt-${opt}`} value={opt}>
+                    {displayLabel(g.id, opt)}
+                  </option>
+                ))}
+              </select>
+            ) : null}
           </div>
-        ),
-      )}
+        );
+      })}
     </div>
   );
 }
@@ -626,6 +702,8 @@ export function RecipeEditor({
   onRegenerateCookingStepTokens,
   isSavingCookingGuide = false,
   regeneratingCookingStepIndex = null,
+  onUpdateTags,
+  isSavingTags = false,
 }: RecipeEditorProps) {
   const [generateMutationError, setGenerateMutationError] = useState<
     string | null
@@ -867,6 +945,61 @@ export function RecipeEditor({
   const hasHero = hasHeroImageUrl(recipe);
   /** Root + nested `recipeData` + common key aliases (see staging-recipe-tags). */
   const resolvedTags = resolveStagingRecipeTags(recipe);
+
+  // Manual tag editing (× to remove / dropdown to add). Meal type rides the unified `tags` array
+  // (cuisine lives there too and is preserved on every patch); dietary → `dietaryLabels`, allergens
+  // → `allergenFlags`. The dropdowns are constrained to the closed vocab so we never persist a tag
+  // the app cannot filter.
+  const rawTagsFull: string[] = (() => {
+    const nested = recipe.recipeData as Record<string, unknown> | undefined;
+    const t = nested?.tags;
+    if (Array.isArray(t)) {
+      return t
+        .filter((x): x is string => typeof x === "string")
+        .map((s) => s.trim())
+        .filter((s) => s.length > 0);
+    }
+    return resolvedTags.tagsMealType;
+  })();
+  const { cuisine: cuisineInTags, other: mealTypeEditable } =
+    splitCuisineTags(rawTagsFull);
+
+  const tagsEditable = Boolean(onUpdateTags);
+
+  const currentTagValues = (group: EditableTagGroup): string[] => {
+    if (group === "mealType") return mealTypeEditable;
+    if (group === "dietary") return resolvedTags.tagsDietary;
+    return resolvedTags.computedAllergens;
+  };
+
+  const tagPatchFor = (
+    group: EditableTagGroup,
+    nextValues: string[],
+  ): { tags?: string[]; dietaryLabels?: string[]; allergenFlags?: string[] } => {
+    if (group === "mealType") return { tags: [...cuisineInTags, ...nextValues] };
+    if (group === "dietary") return { dietaryLabels: nextValues };
+    return { allergenFlags: nextValues };
+  };
+
+  const handleAddTag = (group: EditableTagGroup, value: string) => {
+    if (!onUpdateTags) return;
+    const current = currentTagValues(group);
+    if (current.some((v) => v.toLowerCase() === value.toLowerCase())) return;
+    void onUpdateTags(recipe._id, tagPatchFor(group, [...current, value]));
+  };
+
+  const handleRemoveTag = (group: EditableTagGroup, value: string) => {
+    if (!onUpdateTags) return;
+    const current = currentTagValues(group);
+    void onUpdateTags(
+      recipe._id,
+      tagPatchFor(
+        group,
+        current.filter((v) => v.toLowerCase() !== value.toLowerCase()),
+      ),
+    );
+  };
+
   const imageGenPending = recipe.imageGenStatus === "pending";
   const serverGenError =
     recipe.imageGenStatus === "error" && recipe.lastImageGenError
@@ -1569,12 +1702,22 @@ export function RecipeEditor({
           </h3>
           <TagGroups
             cuisine={resolvedTags.tagsCuisine}
-            mealType={resolvedTags.tagsMealType}
+            mealType={mealTypeEditable}
             dietary={resolvedTags.tagsDietary}
             cookSpeed={resolvedTags.tagsCookSpeed}
             seasonality={resolvedTags.tagsSeasonality}
             allergens={resolvedTags.computedAllergens}
+            editable={tagsEditable}
+            saving={isSavingTags}
+            onAddTag={handleAddTag}
+            onRemoveTag={handleRemoveTag}
           />
+          {tagsEditable ? (
+            <p className="mt-1.5 text-[11px] text-neutral-500">
+              Allergens are also auto-derived from the ingredients on every edit — a manual
+              change can be re-added by the safety scan if an ingredient still matches.
+            </p>
+          ) : null}
         </div>
 
         <div className="mt-4">
