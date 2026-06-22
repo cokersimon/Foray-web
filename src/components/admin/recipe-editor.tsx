@@ -273,61 +273,6 @@ function emptyCookingToken(): CookingGuideToken {
   };
 }
 
-function formatCookingTokenValue(token: CookingGuideToken): string {
-  const value = String(token.value);
-  return token.unit ? `${value} ${token.unit}` : value;
-}
-
-function ingredientIndexFromToken(token: CookingGuideToken): number | null {
-  if (token.ingredientIndex != null && Number.isInteger(token.ingredientIndex)) {
-    return token.ingredientIndex;
-  }
-  const ref = token.ingredientRef?.trim();
-  if (!ref) return null;
-  const match = ref.match(/^ingredient_(\d+)$/i);
-  if (!match) return null;
-  const parsed = Number.parseInt(match[1], 10);
-  return Number.isInteger(parsed) ? parsed : null;
-}
-
-function ingredientRowForToken(
-  token: CookingGuideToken,
-  ingredients: unknown[],
-): Record<string, unknown> | null {
-  const index = ingredientIndexFromToken(token);
-  if (index == null || index < 0 || index >= ingredients.length) return null;
-  const ingredient = ingredients[index];
-  return ingredient != null && typeof ingredient === "object"
-    ? (ingredient as Record<string, unknown>)
-    : null;
-}
-
-function formatCookingTokenForDisplay(
-  token: CookingGuideToken,
-  ingredients: unknown[],
-): string {
-  const ingredient = ingredientRowForToken(token, ingredients);
-
-  if (token.type === "quantity" && ingredient) {
-    const { qtyValue, unitValue } = resolveIngredientQuantityFields(ingredient);
-    if (qtyValue != null) {
-      return unitValue ? `${qtyValue} ${unitValue}` : String(qtyValue);
-    }
-  }
-
-  if (token.type === "ingredient" && ingredient) {
-    const liveName =
-      textValue(ingredient.ingredient) ||
-      textValue(ingredient.name) ||
-      textValue(ingredient.displayString) ||
-      textValue(ingredient.description) ||
-      textValue(ingredient.searchName);
-    if (liveName) return liveName;
-  }
-
-  return formatCookingTokenValue(token);
-}
-
 function normalizeTokenForSave(token: CookingGuideToken): CookingGuideToken {
   const valueText = String(token.value).trim();
   const numericValue = Number(valueText);
@@ -351,22 +296,6 @@ function normalizeTokenForSave(token: CookingGuideToken): CookingGuideToken {
     ...(token.scale ? { scale: token.scale } : {}),
     ...(token.timerEnabled != null ? { timerEnabled: token.timerEnabled } : {}),
   };
-}
-
-function cookingTokenClassName(type: CookingTokenType): string {
-  switch (type) {
-    case "ingredient":
-      return "bg-green-100 text-green-800 font-medium px-1 rounded";
-    case "quantity":
-      return "bg-orange-100 text-orange-800 font-medium px-1 rounded";
-    case "time":
-      return "bg-blue-100 text-blue-800 font-medium px-1 rounded";
-    case "temperature":
-      return "bg-red-100 text-red-800 font-medium px-1 rounded";
-    case "text":
-    default:
-      return "";
-  }
 }
 
 interface StagingRecipeDetail {
@@ -615,10 +544,6 @@ function TagGroups({
       )}
     </div>
   );
-}
-
-function textValue(value: unknown): string {
-  return typeof value === "string" && value.trim() ? value.trim() : "";
 }
 
 export function RecipeEditor({
@@ -1676,28 +1601,11 @@ export function RecipeEditor({
                           className="w-full rounded-lg border border-neutral-300 bg-white px-3 py-2 text-sm leading-relaxed text-neutral-900 shadow-sm focus:border-neutral-500 focus:outline-none focus:ring-2 focus:ring-neutral-200"
                           aria-label={`Edit cooking step ${step.stepNumber}`}
                         />
-                      ) : step.tokens.length > 0 ? (
-                        <p className="pt-1 text-sm leading-7 text-neutral-900">
-                          {step.tokens.map((token, tokenIndex) =>
-                            token.type === "text" ? (
-                              <span key={`${token.type}-${tokenIndex}`}>
-                                {String(token.value)}
-                              </span>
-                            ) : (
-                              <span
-                                key={`${token.type}-${tokenIndex}`}
-                                className={cn(
-                                  "mx-0.5 inline-block leading-5",
-                                  cookingTokenClassName(token.type),
-                                )}
-                                title={token.ingredientRef ?? token.type}
-                              >
-                                {formatCookingTokenForDisplay(token, rawIngredients)}
-                              </span>
-                            ),
-                          )}
-                        </p>
                       ) : (
+                        // Show the stored, server-rendered step text (ADR-051: tokens are the
+                        // source of truth, `instruction` is their canonical render). The phone
+                        // reads this same string at normal serving size, so the editor and the app
+                        // are identical by construction. Token chips remain in Edit mode below.
                         <p className="pt-1 text-sm leading-relaxed text-neutral-900">
                           {step.instruction}
                         </p>
