@@ -125,6 +125,8 @@ export type ChefStagingRecipe = {
   rejectedReason: string | null;
   liveRecipeId: string | null;
   publishedAt: number | null;
+  /** Admin trending cold-start hint (ADR-019). Copied to public.recipes by publish_recipe. */
+  featured?: boolean;
   heroPreviewUrl?: string | null;
 };
 
@@ -190,6 +192,8 @@ export type LegacyStagingDetail = LegacyStagingSummary & {
   updatedAt?: number;
   imageGenStatus?: "idle" | "pending" | "error";
   lastImageGenError?: string;
+  /** Admin trending cold-start hint (ADR-019) — surfaced as the editor's Featured toggle. */
+  featured?: boolean;
 };
 
 function legacyIngredients(lines: ChefIngredientLine[]): Array<Record<string, unknown>> {
@@ -291,5 +295,6 @@ export function toLegacyDetail(r: ChefStagingRecipe): LegacyStagingDetail {
     imageGenStatus:
       r.heroStatus === "pending" ? "pending" : r.heroStatus === "error" ? "error" : "idle",
     lastImageGenError: r.heroError ?? undefined,
+    featured: r.featured ?? false,
   };
 }

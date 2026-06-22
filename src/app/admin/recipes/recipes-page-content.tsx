@@ -42,6 +42,37 @@ type CookingGuideStep = {
 /** List poll cadence — staging rows appear as chef jobs complete (ADR-019 async ingest). */
 const LIST_POLL_MS = 5000;
 
+/**
+ * Humanise the `chef.publish_recipe` gate errors into a blocking validation message the admin can
+ * act on. The gates fail the whole publish (one SQL transaction), so the recipe must be fixed and
+ * re-run — these messages say what is missing. `PUBLISH_MISSING_LINE_MACROS` mirrors the app's
+ * `hasFullMacroCoverage`: every ingredient line must carry its own per-line macros, or the recipe
+ * would pass publish yet fail every macro-range filter on device (ADR-018 macro-accuracy gate).
+ */
+function humanizePublishError(message: string): string {
+  const code = message.split(":", 1)[0]?.trim() ?? "";
+  switch (code) {
+    case "PUBLISH_MISSING_LINE_MACROS":
+      return "Can't publish: one or more ingredient lines are missing per-line macros. Every line needs its own kcal/protein/carbs/fat (re-run nutrition), or this recipe would be hidden from every macro filter in the app.";
+    case "PUBLISH_UNENRICHED_INGREDIENTS":
+      return "Can't publish: one or more ingredient lines are missing enrichment (aisle / schema). Re-run ingredient enrichment.";
+    case "PUBLISH_ALLERGEN_CHECK_MISSING":
+      return "Can't publish: the allergen scan hasn't run. Refresh nutrition/allergens first.";
+    case "PUBLISH_NO_NUTRITION":
+      return "Can't publish: computed nutrition is missing or zero. Refresh nutrition.";
+    case "PUBLISH_UNTOKENIZED_STEPS":
+      return "Can't publish: one or more steps have no tokens. Regenerate the tokenized steps.";
+    case "PUBLISH_HERO_NOT_APPROVED":
+      return "Can't publish: the hero image isn't approved yet.";
+    case "PUBLISH_NO_INGREDIENTS":
+      return "Can't publish: this recipe has no ingredients.";
+    case "PUBLISH_NO_STEPS":
+      return "Can't publish: this recipe has no steps.";
+    default:
+      return message;
+  }
+}
+
 function RecipesPageInner() {
   const searchParams = useSearchParams();
   const router = useRouter();
@@ -68,6 +99,7 @@ function RecipesPageInner() {
   const [deleteError, setDeleteError] = useState<string | null>(null);
   const [unpublishError, setUnpublishError] = useState<string | null>(null);
   const [isUnpublishing, setIsUnpublishing] = useState(false);
+  const [isTogglingFeatured, setIsTogglingFeatured] = useState(false);
   const [updatingApprovedIngredientIndex, setUpdatingApprovedIngredientIndex] =
     useState<number | null>(null);
   const [deletingIngredientIndex, setDeletingIngredientIndex] = useState<
@@ -313,9 +345,9 @@ function RecipesPageInner() {
         setSelectedId(null);
         refreshList();
       } catch (e) {
-        const msg =
+        const raw =
           e instanceof Error ? e.message : "Publish failed — check the chef job logs";
-        setPublishError(msg);
+        setPublishError(humanizePublishError(raw));
       } finally {
         setIsPublishing(false);
       }
@@ -348,6 +380,22 @@ function RecipesPageInner() {
       }
     },
     [refreshList],
+  );
+
+  const handleToggleFeatured = useCallback(
+    async (id: string, featured: boolean) => {
+      setIsTogglingFeatured(true);
+      try {
+        await chefAdmin("staging.update", { stagingId: id, patch: { featured } });
+        refreshDetail();
+        refreshList();
+      } catch (e) {
+        console.error("toggle featured failed", e);
+      } finally {
+        setIsTogglingFeatured(false);
+      }
+    },
+    [refreshDetail, refreshList],
   );
 
   const handleDeleteStagingRecipe = useCallback(
@@ -410,6 +458,8 @@ function RecipesPageInner() {
                 onUnpublish={handleUnpublish}
                 publishError={publishError}
                 unpublishError={unpublishError}
+                onToggleFeatured={handleToggleFeatured}
+                isTogglingFeatured={isTogglingFeatured}
                 onDeleteStagingRecipe={handleDeleteStagingRecipe}
                 deletingStagingId={deletingStagingId}
                 deleteError={deleteError}

@@ -2,7 +2,13 @@
  * Resolves recipe tag fields for admin UI. Tags may live on the Convex document
  * root (preferred) or inside `recipeData` (legacy / alternate ingest paths).
  * Multiple key spellings are accepted so badges always show when data exists.
+ *
+ * Cuisine is a CLOSED category that now rides the unified `tags` array (ADR-018): the Chef emits
+ * cuisine into `tags`, so cuisine is classified out of `tags` against `CLOSED_CUISINES` (single
+ * source = chef.taxonomy) rather than read from the legacy free-text `tagsCuisine` bucket.
  */
+
+import { isCuisine } from "./cuisine-taxonomy";
 
 export type ResolvedStagingTags = {
   tagsCuisine: string[];
@@ -67,12 +73,19 @@ export function resolveStagingRecipeTags(recipe: unknown): ResolvedStagingTags {
 
   const sources = [doc, nested];
 
+  // Cuisine rides the unified `tags` array (ADR-018). Classify it out against the closed
+  // vocabulary first; fall back to the legacy free-text buckets only if `tags` carried none.
+  const unifiedTags = mergeListsFromSources(sources, ["tags"]);
+  const cuisineFromTags = unifiedTags.filter((t) => isCuisine(t.toLowerCase()));
+
   return {
-    tagsCuisine: mergeListsFromSources(sources, [
-      "tagsCuisine",
-      "tags_cuisine",
-      "cuisineTags",
-    ]),
+    tagsCuisine: cuisineFromTags.length > 0
+      ? cuisineFromTags
+      : mergeListsFromSources(sources, [
+          "tagsCuisine",
+          "tags_cuisine",
+          "cuisineTags",
+        ]),
     tagsMealType: mergeListsFromSources(sources, [
       "tagsMealType",
       "tags_meal_type",

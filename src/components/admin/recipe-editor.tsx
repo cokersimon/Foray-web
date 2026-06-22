@@ -405,6 +405,8 @@ interface StagingRecipeDetail {
   updatedAt?: number;
   imageGenStatus?: ImageGenStatus;
   lastImageGenError?: string;
+  /** Admin trending cold-start hint (ADR-019) — toggled via the Featured switch. */
+  featured?: boolean;
 }
 
 interface RecipeEditorProps {
@@ -419,6 +421,9 @@ interface RecipeEditorProps {
   publishError?: string | null;
   /** Last unpublish mutation error (from parent), cleared when selection changes. */
   unpublishError?: string | null;
+  /** Toggle the admin "featured" cold-start hint (ADR-019). */
+  onToggleFeatured?: (id: string, featured: boolean) => void | Promise<void>;
+  isTogglingFeatured?: boolean;
   /** Permanently remove this staging row (any status); confirm lives in parent handler. */
   onDeleteStagingRecipe?: (id: string) => void | Promise<void>;
   deletingStagingId?: string | null;
@@ -624,6 +629,8 @@ export function RecipeEditor({
   onUnpublish,
   publishError = null,
   unpublishError = null,
+  onToggleFeatured,
+  isTogglingFeatured = false,
   onDeleteStagingRecipe,
   deletingStagingId = null,
   deleteError = null,
@@ -2033,6 +2040,41 @@ export function RecipeEditor({
           </div>
         </div>
       )}
+
+      {(normalizedStatus === "approved" || normalizedStatus === "published") &&
+        onToggleFeatured && (
+          <div className="shrink-0 border-t border-neutral-200 bg-white p-4">
+            <label className="flex items-center justify-between gap-3">
+              <span className="flex flex-col">
+                <span className="text-sm font-semibold text-neutral-900">Featured</span>
+                <span className="text-xs text-neutral-600">
+                  Cold-start ordering hint: featured recipes lead Trending only while unrated.
+                  Ratings always win once they exist.
+                </span>
+              </span>
+              <button
+                type="button"
+                role="switch"
+                aria-checked={recipe.featured === true}
+                disabled={isTogglingFeatured}
+                onClick={() =>
+                  void onToggleFeatured(String(recipe._id), !(recipe.featured === true))
+                }
+                className={cn(
+                  "relative inline-flex h-6 w-11 shrink-0 items-center rounded-full transition-colors disabled:opacity-60",
+                  recipe.featured === true ? "bg-sky-600" : "bg-neutral-300",
+                )}
+              >
+                <span
+                  className={cn(
+                    "inline-block h-5 w-5 transform rounded-full bg-white shadow transition-transform",
+                    recipe.featured === true ? "translate-x-5" : "translate-x-0.5",
+                  )}
+                />
+              </button>
+            </label>
+          </div>
+        )}
 
       {normalizedStatus === "approved" && onPublish && (
         <div className="shrink-0 border-t border-neutral-200 bg-neutral-50/80 p-4 backdrop-blur-sm">
