@@ -274,6 +274,57 @@ function emptyCookingToken(): CookingGuideToken {
   };
 }
 
+function cookingTokenClassName(type: CookingTokenType): string {
+  switch (type) {
+    case "ingredient":
+      return "bg-green-100 text-green-800 font-medium px-1 rounded";
+    case "quantity":
+      return "bg-orange-100 text-orange-800 font-medium px-1 rounded";
+    case "time":
+      return "bg-blue-100 text-blue-800 font-medium px-1 rounded";
+    case "temperature":
+      return "bg-red-100 text-red-800 font-medium px-1 rounded";
+    case "text":
+    default:
+      return "";
+  }
+}
+
+/** Render a token chip from the token's OWN value so it matches the stored instruction (and the
+ * phone) exactly: quantities as kitchen fractions ("½ tin"), times/temperatures naturally. This
+ * does NOT re-derive from the live ingredient rows (which showed the raw "0.5"). */
+function formatCookingTokenChip(token: CookingGuideToken): string {
+  const numericValue =
+    typeof token.value === "number" ? token.value : Number(token.value);
+  switch (token.type) {
+    case "quantity":
+      return Number.isFinite(numericValue)
+        ? formatQuantityLabel(numericValue, token.unit)
+        : String(token.value);
+    case "time": {
+      if (!Number.isFinite(numericValue)) return String(token.value);
+      const base = (token.unit ?? "minutes").trim();
+      const singular = base.endsWith("s") ? base.slice(0, -1) : base;
+      const n = Number.isInteger(numericValue)
+        ? String(numericValue)
+        : numericValue.toFixed(1);
+      return `${n} ${numericValue === 1 ? singular : `${singular}s`}`;
+    }
+    case "temperature": {
+      if (!Number.isFinite(numericValue)) return String(token.value);
+      const symbol = (token.unit ?? "C").toUpperCase().includes("F") ? "F" : "C";
+      const n = Number.isInteger(numericValue)
+        ? String(numericValue)
+        : numericValue.toFixed(1);
+      return `${n}°${symbol}`;
+    }
+    case "ingredient":
+    case "text":
+    default:
+      return String(token.value);
+  }
+}
+
 function normalizeTokenForSave(token: CookingGuideToken): CookingGuideToken {
   const valueText = String(token.value).trim();
   const numericValue = Number(valueText);
@@ -1608,11 +1659,33 @@ export function RecipeEditor({
                           className="w-full rounded-lg border border-neutral-300 bg-white px-3 py-2 text-sm leading-relaxed text-neutral-900 shadow-sm focus:border-neutral-500 focus:outline-none focus:ring-2 focus:ring-neutral-200"
                           aria-label={`Edit cooking step ${step.stepNumber}`}
                         />
+                      ) : step.tokens.length > 0 ? (
+                        // Highlighted token chips, each formatted from its OWN value (ADR-051:
+                        // tokens are the source of truth). Quantities render as kitchen fractions
+                        // ("½ tin") so the chips match the stored instruction and the phone — never
+                        // the raw "0.5" the old re-derive-from-ingredient-rows path produced.
+                        <p className="pt-1 text-sm leading-7 text-neutral-900">
+                          {step.tokens.map((token, tokenIndex) =>
+                            token.type === "text" ? (
+                              <span key={`${token.type}-${tokenIndex}`}>
+                                {String(token.value)}
+                              </span>
+                            ) : (
+                              <span
+                                key={`${token.type}-${tokenIndex}`}
+                                className={cn(
+                                  "mx-0.5 inline-block leading-5",
+                                  cookingTokenClassName(token.type),
+                                )}
+                                title={token.ingredientRef ?? token.type}
+                              >
+                                {formatCookingTokenChip(token)}
+                              </span>
+                            ),
+                          )}
+                        </p>
                       ) : (
-                        // Show the stored, server-rendered step text (ADR-051: tokens are the
-                        // source of truth, `instruction` is their canonical render). The phone
-                        // reads this same string at normal serving size, so the editor and the app
-                        // are identical by construction. Token chips remain in Edit mode below.
+                        // Tokenless step (e.g. legacy import): show the stored instruction string.
                         <p className="pt-1 text-sm leading-relaxed text-neutral-900">
                           {step.instruction}
                         </p>
