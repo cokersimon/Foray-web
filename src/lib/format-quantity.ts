@@ -14,6 +14,14 @@ const NON_PLURAL_UNITS = new Set([
   "fl oz", "pt", "pint", "qt", "quart", "gal", "gallon",
 ]);
 
+// Generic count placeholders read as a bare number so the ingredient name carries the noun
+// ("½ onion", not "½ piece"). Mirrors `GENERIC_COUNT_WORDS` in the server render.ts / Swift
+// UnitConversion (ADR-051 amends ADR-046 §7).
+const GENERIC_COUNT_WORDS = new Set([
+  "serving", "servings", "item", "items", "whole", "each", "unit", "units",
+  "piece", "pieces",
+]);
+
 /** Snap a count/measure to the nearest quarter — the granularity a kitchen works in. */
 function snapQuarter(value: number): number {
   return Math.round(value * 4) / 4;
@@ -53,6 +61,6 @@ export function formatQuantityLabel(value: number, unit: string | null | undefin
   const snapped = snapQuarter(value);
   const n = fractionString(snapped);
   const u = (unit ?? "").trim();
-  if (!u) return n;
+  if (!u || GENERIC_COUNT_WORDS.has(u.toLowerCase())) return n;
   return `${n} ${pluralize(u, snapped)}`;
 }
