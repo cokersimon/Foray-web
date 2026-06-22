@@ -16,6 +16,7 @@ import {
   pickIngredientLineKcal,
 } from "@/lib/resolved-ingredient-kcal";
 import { resolveStagingRecipeTags } from "@/lib/staging-recipe-tags";
+import { formatQuantityLabel, fractionString } from "@/lib/format-quantity";
 import { PlanBrowseShelvesPanel } from "@/components/admin/plan-browse-shelves-panel";
 
 type ImageGenStatus = "idle" | "pending" | "error" | undefined;
@@ -848,13 +849,19 @@ export function RecipeEditor({
     const { qtyValue, unitValue } = resolveIngredientQuantityFields(row);
     const qtyStr =
       qtyValue != null
-        ? String(qtyValue)
+        ? fractionString(qtyValue)
         : typeof row.quantity === "string" && row.quantity.trim()
           ? row.quantity.trim()
           : "—";
     const unitStr = unitValue || "—";
+    // Render the kitchen way ("½ tin", "1 tin", "1½ tins") so the table matches the step text and
+    // the phone — never a raw "0.5". Falls back to bare value when the unit is unknown.
     const quantityDisplay =
-      unitStr === "—" ? qtyStr : `${qtyStr} ${unitStr}`;
+      qtyValue != null
+        ? formatQuantityLabel(qtyValue, unitValue || undefined)
+        : unitStr === "—"
+          ? qtyStr
+          : `${qtyStr} ${unitStr}`;
     const kcal = pickIngredientLineKcal(ing);
     const diagnosticFlags = normalizeDiagnosticFlags(row.diagnosticFlags);
     const flagTooltip =

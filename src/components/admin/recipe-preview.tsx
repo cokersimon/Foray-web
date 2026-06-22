@@ -7,6 +7,7 @@ import {
   pickIngredientLineKcal,
 } from "@/lib/resolved-ingredient-kcal";
 import { resolveStagingRecipeTags } from "@/lib/staging-recipe-tags";
+import { formatQuantityLabel } from "@/lib/format-quantity";
 import { PlanBrowseShelvesPanel } from "@/components/admin/plan-browse-shelves-panel";
 import {
   describeUnresolvedReason,
@@ -342,7 +343,7 @@ export function RecipePreview({
               {ingredients.map((ing, i) => {
                 const qtyLabel =
                   ing.quantity != null
-                    ? `${ing.quantity}${ing.unit ? ` ${ing.unit}` : ""}`
+                    ? formatQuantityLabel(ing.quantity, ing.unit)
                     : "—";
                 return (
                   <div
