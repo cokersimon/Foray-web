@@ -33,11 +33,15 @@ only); high-confidence auto-accepts get the deterministic gate plus the singleto
 
 ## Shared facts point to the matcher doc
 
-`isIngredient` rulings and `semanticBase` conventions are defined once in the
-[matcher skill doc](grocery-semantic-matching-skill.md). The auditor **applies** them but does not
-restate them, so the two docs cannot drift as the matcher doc accumulates ratified deltas. Only
-audit-specific logic lives here. (The variant *vocabulary* is the deliberate exception — the auditor
-must not read it.)
+`isIngredient` rulings, `semanticBase` conventions, **and the closed ~20-value aisle vocabulary**
+are defined once in the [matcher skill doc](grocery-semantic-matching-skill.md) (which mirrors
+`grocery-aisle-lexicon.json`). The auditor **applies** them but does not restate them, so the two
+docs cannot drift as the matcher doc accumulates ratified deltas. Only audit-specific logic lives
+here. (The variant *vocabulary* is the deliberate exception — the auditor must not read it.)
+
+When the auditor re-derives `aisle` it must produce one of the matcher doc's aisle slugs, derived
+from the product's own name (never a retailer grouping). Disagreements resolve by the standard
+third-pass adjudication.
 
 ## Cross-checks the auditor runs
 

@@ -65,6 +65,15 @@ Controlled variant vocabulary (grown via ratified deltas; mirror in `skill.ts`):
 salted`, `eggs → medium`, `sugar → granulated`, `olive oil → extra virgin`. A line that says only
 "milk" resolves to the default variant, **never "cheapest across all variants."**
 
+## Name-composition dedup rule (standing instruction)
+
+When composing `semanticName` from `variant + base`, **verify the variant token is not already
+contained in the base, and never emit a repeated token.** Examples: variant `clotted` + base
+`clotted cream` → `clotted cream` (not "clotted clotted cream"); base `orzo` variant `orzo` → `orzo`.
+This is a string-composition guard — the base and variant values themselves are still correct; only
+the composed display string is deduplicated. Implemented in `composeName` (`match.ts`) and applied
+to existing rows by backfill, so no semantic re-derivation is needed.
+
 ## The ambiguous-modifier default (A1d)
 
 When unsure whether a modifier is a real variant or just a tier/marketing signal, **treat it as a
@@ -92,11 +101,64 @@ rulings (so the matcher does not coin-flip per batch):
 
 Test: "would a recipe list this by name as an ingredient?" If yes → `true`.
 
-## Aisle & category placement
+## Aisle placement — the sole store-navigation taxonomy (v2)
 
-The aisle is frozen upstream by the A0 consensus pass; the matcher works within one frozen aisle at
-a time, and the candidate SKUs it sees are scoped to that aisle. Categories are the swap group nested
-under the aisle (see [`grocery-category-lexicon.json`](../../supabase/functions/_shared/grocery-category-lexicon.json)).
+`aisle` is the **single source of truth** for store navigation across the whole app (grocery list,
+in-store store-search sheet, and all three retailers). It is a closed, flat ~20-value vocabulary —
+no parent/child nesting — defined once in
+[`grocery-aisle-lexicon.json`](../../supabase/functions/_shared/grocery-aisle-lexicon.json) and
+mirrored into `skill.ts`. Canonical value is the **slug**; the human label is display-only
+(localized on iOS). The aisle is frozen upstream by the A0 consensus pass; the matcher works within
+one frozen aisle at a time, scoped to that aisle's candidate SKUs.
+
+| slug | label |
+|------|-------|
+| `fruit-veg` | Fruit & Vegetables |
+| `meat-fish` | Meat & Fish |
+| `dairy-chilled` | Dairy, Eggs & Chilled |
+| `bakery` | Bakery |
+| `frozen` | Frozen |
+| `tins-cans` | Tins & Cans |
+| `pasta-rice-noodles` | Pasta, Rice & Noodles |
+| `cooking-oils` | Cooking Ingredients & Oils |
+| `herbs-spices` | Herbs, Spices & Seasoning |
+| `condiments-sauces` | Condiments & Sauces |
+| `baking` | Baking |
+| `breakfast-cereals` | Breakfast Cereals |
+| `snacks-confectionery` | Snacks, Crisps & Confectionery |
+| `nuts-seeds-dried-fruit` | Nuts, Seeds & Dried Fruit |
+| `drinks` | Drinks |
+| `world-foods` | World Foods |
+| `household` | Household (non-food: cleaning, toiletries, paper, pet) |
+| `other` | Other (final fallback only — target <3% of SKUs; more than that means the vocab has a gap) |
+
+The granular store-cupboard aisles (`tins-cans`, `pasta-rice-noodles`, `cooking-oils`,
+`herbs-spices`, `condiments-sauces`) are deliberate: they replace one oversized "Food Cupboard" so
+the matcher's per-aisle candidate sets stay small — that tight search space is what the accuracy
+model depends on.
+
+**Worked examples** (the cases the old coarse vocab misfiled):
+
+- ambient baking goods (cocoa, yeast, vanilla, chocolate chips, flour, sugar, icing) → `baking`, not `other`
+- salt, pepper, dried herbs, bay leaves, ground spices, curry powder → `herbs-spices`
+- pesto, Worcester sauce, ketchup, mustard, soy sauce, jam, honey, peanut butter → `condiments-sauces`
+- olives, cooking oils, vinegars, stock, tomato purée, passata → `cooking-oils`
+- chia, sunflower seeds, whole almonds, cashews, dried fruit → `nuts-seeds-dried-fruit`, not `snacks-confectionery`
+- raw popping corn → `baking`; oats, porridge, granola, muesli → `breakfast-cereals` (not snacks)
+- baguette, fresh bread, wraps, bagels, croissants → `bakery`, not `pasta-rice-noodles`
+- dry pasta, rice, orzo, noodles, couscous → `pasta-rice-noodles`
+- tinned tomatoes, beans, tuna, sweetcorn, tinned soup → `tins-cans`
+- juice, water, squash, tea, coffee → `drinks`
+- coconut milk, cornmeal, miso, and store-range Asian/Caribbean lines → `world-foods`
+
+### `category` is the swap layer, not navigation
+
+`category` still exists, but **only** to scope swaps *within* an aisle (it powers the swap sheet —
+`listCategoryAlternatives` → `CatalogSwapSheet`). An aisle still contains multiple non-swappable
+concept groups (`cooking-oils` holds oils, vinegars, stock, olives), so category groups the
+swappable ones (swap olive oil → sunflower oil, never → tomato purée). It is **not** retailer
+merchandising data (that lives in `rawPayload`/`retailerTags`) and it is **not** a navigation layer.
+See [`grocery-category-lexicon.json`](../../supabase/functions/_shared/grocery-category-lexicon.json).
 
 ## Multi-aisle ingredients (A5-N)
 

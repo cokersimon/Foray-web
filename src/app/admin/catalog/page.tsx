@@ -6,7 +6,8 @@ import { chefAdmin } from "@/lib/chef-api";
 import { useChefQuery } from "@/lib/use-chef-query";
 import { cn } from "@/lib/cn";
 import {
-  AISLES,
+  AISLE_OPTIONS,
+  aisleLabel,
   type CatalogListResponse,
   type CatalogRunStats,
   type CatalogSkuRow,
@@ -182,7 +183,7 @@ export default function CatalogPage() {
 
       {/* Filters */}
       <div className="mt-5 flex flex-wrap items-center gap-2">
-        <Select value={aisle} onChange={(v) => { setAisle(v); setOffset(0); }} label="All aisles" options={AISLES} />
+        <Select value={aisle} onChange={(v) => { setAisle(v); setOffset(0); }} label="All aisles" options={AISLE_OPTIONS} />
         <Select value={band} onChange={(v) => { setBand(v); setOffset(0); }} label="All bands" options={["high", "medium", "unmatched"]} />
         <Select value={tagged} onChange={(v) => { setTagged(v); setOffset(0); }} label="Tagged + untagged" options={[["tagged", "Tagged"], ["untagged", "Untagged"]]} />
         <input
@@ -239,7 +240,7 @@ export default function CatalogPage() {
                     {row.variant ? <div className="text-xs text-neutral-400">variant: {row.variant}</div> : null}
                   </td>
                   <td className="px-4 py-2.5">
-                    <span className="text-neutral-600">{row.aisle ?? "—"}</span>
+                    <span className="text-neutral-600">{aisleLabel(row.aisle)}</span>
                     {row.aisleConsensus && row.aisleConsensus !== "agreed" ? (
                       <div className={cn("text-xs", row.aisleConsensus === "low_consensus" ? "text-amber-600" : "text-neutral-400")}>{row.aisleConsensus}</div>
                     ) : null}

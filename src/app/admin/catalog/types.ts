@@ -9,10 +9,45 @@ export const STORES = [
 
 export type StoreDomain = (typeof STORES)[number]["domain"];
 
+// v2 aisle vocab (mirror of supabase/functions/_shared/grocery-aisle-lexicon.json). Canonical value
+// is the slug; AISLE_LABELS gives the display form for the table + filter dropdown.
 export const AISLES = [
-  "dairy", "produce", "protein", "grains", "oils", "frozen",
-  "canned", "beverages", "snacks", "household", "other",
+  "fruit-veg", "meat-fish", "dairy-chilled", "bakery", "frozen", "tins-cans",
+  "pasta-rice-noodles", "cooking-oils", "herbs-spices", "condiments-sauces", "baking",
+  "breakfast-cereals", "snacks-confectionery", "nuts-seeds-dried-fruit", "drinks",
+  "world-foods", "household", "other",
 ] as const;
+
+export const AISLE_LABELS: Record<string, string> = {
+  "fruit-veg": "Fruit & Vegetables",
+  "meat-fish": "Meat & Fish",
+  "dairy-chilled": "Dairy, Eggs & Chilled",
+  "bakery": "Bakery",
+  "frozen": "Frozen",
+  "tins-cans": "Tins & Cans",
+  "pasta-rice-noodles": "Pasta, Rice & Noodles",
+  "cooking-oils": "Cooking Ingredients & Oils",
+  "herbs-spices": "Herbs, Spices & Seasoning",
+  "condiments-sauces": "Condiments & Sauces",
+  "baking": "Baking",
+  "breakfast-cereals": "Breakfast Cereals",
+  "snacks-confectionery": "Snacks, Crisps & Confectionery",
+  "nuts-seeds-dried-fruit": "Nuts, Seeds & Dried Fruit",
+  "drinks": "Drinks",
+  "world-foods": "World Foods",
+  "household": "Household",
+  "other": "Other",
+};
+
+/** [slug, label] options for the aisle filter dropdown. */
+export const AISLE_OPTIONS: ReadonlyArray<[string, string]> = AISLES.map(
+  (a) => [a, AISLE_LABELS[a]] as [string, string],
+);
+
+export function aisleLabel(slug: string | null | undefined): string {
+  if (!slug) return "—";
+  return AISLE_LABELS[slug] ?? slug;
+}
 
 export type CatalogSkuRow = {
   id: string;
