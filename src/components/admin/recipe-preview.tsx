@@ -7,6 +7,7 @@ import {
   pickIngredientLineKcal,
 } from "@/lib/resolved-ingredient-kcal";
 import { resolveStagingRecipeTags } from "@/lib/staging-recipe-tags";
+import { formatQuantityLabel } from "@/lib/format-quantity";
 import { PlanBrowseShelvesPanel } from "@/components/admin/plan-browse-shelves-panel";
 import {
   describeUnresolvedReason,
