@@ -10,6 +10,7 @@ import {
   CreditCard,
   AlertTriangle,
   BarChart3,
+  ShoppingBasket,
 } from "lucide-react";
 import { supabaseBrowser } from "@/lib/supabase/client";
 import { useSupabaseSession } from "@/components/providers";
@@ -24,6 +25,7 @@ const navItems = [
     icon: Wand2,
     exactMatch: false,
   },
+  { label: "Catalogue", href: "/admin/catalog", icon: ShoppingBasket },
   { label: "Checkout", href: "/admin/checkout", icon: CreditCard },
   { label: "Reports", href: "/admin/reports", icon: Flag },
   { label: "Errors", href: "/admin/errors", icon: AlertTriangle },

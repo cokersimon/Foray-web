@@ -1,0 +1,318 @@
+"use client";
+
+import { useState } from "react";
+import { BookOpen, Play, RefreshCw, Sparkles } from "lucide-react";
+import { chefAdmin } from "@/lib/chef-api";
+import { useChefQuery } from "@/lib/use-chef-query";
+import { cn } from "@/lib/cn";
+import {
+  AISLES,
+  type CatalogListResponse,
+  type CatalogRunStats,
+  type CatalogSkuRow,
+  fmtPence,
+  STORES,
+  type StoreDomain,
+} from "./types";
+import { SkuDetailDrawer } from "./sku-detail-drawer";
+import { SkillDocsModal } from "./skill-docs-modal";
+
+const PAGE = 100;
+
+export default function CatalogPage() {
+  const [store, setStore] = useState<StoreDomain>(STORES[0].domain);
+  const [aisle, setAisle] = useState<string>("");
+  const [band, setBand] = useState<string>("");
+  const [tagged, setTagged] = useState<string>("");
+  const [pilotOnly, setPilotOnly] = useState(false);
+  const [search, setSearch] = useState("");
+  const [offset, setOffset] = useState(0);
+  const [selected, setSelected] = useState<CatalogSkuRow | null>(null);
+  const [showSkill, setShowSkill] = useState(false);
+  const [busy, setBusy] = useState<string | null>(null);
+  const [toast, setToast] = useState<string | null>(null);
+
+  const stats = useChefQuery<CatalogRunStats>("catalog.runStats", { storeDomain: store }, { pollMs: 15000 });
+  const list = useChefQuery<CatalogListResponse>("catalog.list", {
+    storeDomain: store,
+    aisle: aisle || undefined,
+    matchBand: band || undefined,
+    tagged: tagged || undefined,
+    pilotOnly: pilotOnly || undefined,
+    search: search || undefined,
+    limit: PAGE,
+    offset,
+  });
+
+  const refresh = () => {
+    stats.refetch();
+    list.refetch();
+  };
+
+  // Run a batch-bounded pipeline action to completion (re-invoke until remaining 0). Fully
+  // automated, AI-adjudicated — this just drives the loop the Edge function exposes.
+  async function runToCompletion(action: string, label: string) {
+    setBusy(label);
+    setToast(null);
+    try {
+      for (let i = 0; i < 200; i++) {
+        const r = await chefAdmin<{ remaining?: number; status?: string }>(action, {
+          storeDomain: store,
+          pilotOnly: pilotOnly || undefined,
+        });
+        refresh();
+        if ((r.remaining ?? 0) === 0 || r.status === "complete") break;
+      }
+      setToast(`${label} complete`);
+    } catch (e) {
+      setToast(e instanceof Error ? e.message : `${label} failed`);
+    } finally {
+      setBusy(null);
+      refresh();
+    }
+  }
+
+  async function runOnce(action: string, label: string, args: Record<string, unknown> = {}) {
+    setBusy(label);
+    setToast(null);
+    try {
+      const r = await chefAdmin<Record<string, unknown>>(action, { storeDomain: store, ...args });
+      setToast(`${label}: ${JSON.stringify(r).slice(0, 160)}`);
+    } catch (e) {
+      setToast(e instanceof Error ? e.message : `${label} failed`);
+    } finally {
+      setBusy(null);
+      refresh();
+    }
+  }
+
+  const counts = stats.data?.counts;
+  const latestRun = stats.data?.runs?.[0];
+
+  return (
+    <div className="p-8 lg:p-12">
+      <div className="flex items-start justify-between gap-4">
+        <div>
+          <h1 className="text-2xl font-bold tracking-tight text-neutral-900">Catalogue</h1>
+          <p className="mt-2 max-w-2xl text-sm text-neutral-500">
+            Review the semantic matching for each supermarket — every SKU with its thumbnail, price,
+            date, the matcher&rsquo;s semantic name + tier, and the auditor&rsquo;s verdict. Run the
+            pilot, inspect the work, then scale to the full store.
+          </p>
+        </div>
+        <div className="flex shrink-0 gap-2">
+          <button
+            type="button"
+            onClick={() => setShowSkill(true)}
+            className="flex items-center gap-2 rounded-lg border border-neutral-200 px-3 py-2 text-sm text-neutral-600 transition-colors hover:bg-neutral-50"
+          >
+            <BookOpen className="h-4 w-4" /> Skill docs
+          </button>
+          <button
+            type="button"
+            onClick={refresh}
+            className="flex items-center gap-2 rounded-lg border border-neutral-200 px-3 py-2 text-sm text-neutral-600 transition-colors hover:bg-neutral-50"
+          >
+            <RefreshCw className="h-4 w-4" /> Refresh
+          </button>
+        </div>
+      </div>
+
+      {/* Store tabs */}
+      <div className="mt-6 flex gap-2">
+        {STORES.map((s) => (
+          <button
+            key={s.domain}
+            type="button"
+            onClick={() => {
+              setStore(s.domain);
+              setOffset(0);
+            }}
+            className={cn(
+              "rounded-lg border px-4 py-2 text-sm font-medium transition-colors",
+              store === s.domain
+                ? "border-neutral-900 bg-neutral-900 text-white"
+                : "border-neutral-200 text-neutral-600 hover:bg-neutral-50",
+            )}
+          >
+            {s.label}
+          </button>
+        ))}
+      </div>
+
+      {/* Run status header */}
+      <div className="mt-5 grid gap-3 sm:grid-cols-3 lg:grid-cols-6">
+        <StatCard label="SKUs" value={counts?.total ?? "—"} />
+        <StatCard label="Aisle frozen" value={counts ? `${counts.aisleFrozen}/${counts.total}` : "—"} />
+        <StatCard label="Matched" value={counts ? `${counts.matched}/${counts.total}` : "—"} />
+        <StatCard label="Pilot" value={counts?.pilot ?? "—"} />
+        <StatCard label="Low consensus" value={counts?.lowConsensus ?? "—"} tone={counts && counts.lowConsensus > 0 ? "warn" : "default"} />
+        <StatCard
+          label="Run status"
+          value={latestRun?.status ?? "none"}
+          tone={latestRun?.status === "needs_review" ? "warn" : "default"}
+          sub={latestRun ? `${latestRun.scope} · skill ${latestRun.skillVersion ?? "—"}` : undefined}
+        />
+      </div>
+
+      {/* Pipeline controls */}
+      <div className="mt-4 flex flex-wrap items-center gap-2">
+        <button type="button" disabled={!!busy} onClick={() => runOnce("catalog.pilot.select", "Select pilot", { perAisle: 8 })} className={actionBtn}>
+          <Sparkles className="h-4 w-4" /> Select pilot (~8/aisle)
+        </button>
+        <button type="button" disabled={!!busy} onClick={() => runToCompletion("catalog.freezeAisles", "Freeze aisles")} className={actionBtn}>
+          <Play className="h-4 w-4" /> A0 · Freeze aisles
+        </button>
+        <button type="button" disabled={!!busy} onClick={() => runToCompletion("catalog.match", "Match")} className={actionBtn}>
+          <Play className="h-4 w-4" /> A1–A4 · Match
+        </button>
+        <button type="button" disabled={!!busy} onClick={() => runOnce("catalog.golden.run", "Golden set")} className={actionBtn}>
+          Golden tripwire
+        </button>
+        <label className="ml-2 flex items-center gap-2 text-sm text-neutral-600">
+          <input type="checkbox" checked={pilotOnly} onChange={(e) => { setPilotOnly(e.target.checked); setOffset(0); }} />
+          Pilot only
+        </label>
+        {busy ? <span className="text-sm text-neutral-500">{busy}…</span> : null}
+      </div>
+
+      {toast ? (
+        <div className="mt-3 rounded-lg border border-neutral-200 bg-neutral-50 px-4 py-2 text-xs text-neutral-600">{toast}</div>
+      ) : null}
+
+      {/* Filters */}
+      <div className="mt-5 flex flex-wrap items-center gap-2">
+        <Select value={aisle} onChange={(v) => { setAisle(v); setOffset(0); }} label="All aisles" options={AISLES} />
+        <Select value={band} onChange={(v) => { setBand(v); setOffset(0); }} label="All bands" options={["high", "medium", "unmatched"]} />
+        <Select value={tagged} onChange={(v) => { setTagged(v); setOffset(0); }} label="Tagged + untagged" options={[["tagged", "Tagged"], ["untagged", "Untagged"]]} />
+        <input
+          type="search"
+          value={search}
+          onChange={(e) => { setSearch(e.target.value); setOffset(0); }}
+          placeholder="Search name / semantic / handle"
+          className="min-w-56 flex-1 rounded-lg border border-neutral-200 px-3 py-2 text-sm"
+        />
+      </div>
+
+      {/* SKU list */}
+      <div className="mt-4 overflow-hidden rounded-2xl border border-neutral-200 bg-white">
+        <table className="w-full border-collapse text-left text-sm">
+          <thead>
+            <tr className="border-b border-neutral-200 bg-neutral-50 text-xs uppercase tracking-wider text-neutral-500">
+              <th className="px-4 py-3 font-medium" />
+              <th className="px-4 py-3 font-medium">Product</th>
+              <th className="px-4 py-3 font-medium">Semantic</th>
+              <th className="px-4 py-3 font-medium">Aisle</th>
+              <th className="px-4 py-3 font-medium">Tier</th>
+              <th className="px-4 py-3 font-medium">Price</th>
+              <th className="px-4 py-3 font-medium">Audit</th>
+            </tr>
+          </thead>
+          <tbody>
+            {list.isLoading ? (
+              <tr><td colSpan={7} className="px-4 py-12 text-center text-neutral-400">Loading…</td></tr>
+            ) : (list.data?.skus.length ?? 0) === 0 ? (
+              <tr><td colSpan={7} className="px-4 py-12 text-center text-neutral-400">No SKUs match.</td></tr>
+            ) : (
+              list.data!.skus.map((row) => (
+                <tr
+                  key={row.id}
+                  onClick={() => setSelected(row)}
+                  className="cursor-pointer border-b border-neutral-100 transition-colors hover:bg-neutral-50"
+                >
+                  <td className="px-4 py-2.5">
+                    {row.imageUrl ? (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img src={row.imageUrl} alt="" className="h-9 w-9 rounded-md object-contain ring-1 ring-neutral-100" />
+                    ) : <div className="h-9 w-9 rounded-md bg-neutral-100" />}
+                  </td>
+                  <td className="px-4 py-2.5">
+                    <div className="max-w-xs truncate text-neutral-800">{row.rawName}</div>
+                    <div className="text-xs text-neutral-400">{row.quantityStr ?? ""} · {row.skuHandle ?? ""}</div>
+                  </td>
+                  <td className="px-4 py-2.5">
+                    {row.semanticName ? (
+                      <span className="text-neutral-700">{row.semanticName}</span>
+                    ) : (
+                      <span className="text-xs text-neutral-400">untagged</span>
+                    )}
+                    {row.variant ? <div className="text-xs text-neutral-400">variant: {row.variant}</div> : null}
+                  </td>
+                  <td className="px-4 py-2.5">
+                    <span className="text-neutral-600">{row.aisle ?? "—"}</span>
+                    {row.aisleConsensus && row.aisleConsensus !== "agreed" ? (
+                      <div className={cn("text-xs", row.aisleConsensus === "low_consensus" ? "text-amber-600" : "text-neutral-400")}>{row.aisleConsensus}</div>
+                    ) : null}
+                  </td>
+                  <td className="px-4 py-2.5">
+                    {row.budgetTier ? <Badge tone={tierTone(row.budgetTier)}>{row.budgetTier}</Badge> : <span className="text-xs text-neutral-300">—</span>}
+                    {row.tierContested ? <div className="text-xs text-amber-600">contested</div> : null}
+                  </td>
+                  <td className="px-4 py-2.5 font-mono text-xs text-neutral-700">{fmtPence(row.currentPrice, row.currency ?? "GBP")}</td>
+                  <td className="px-4 py-2.5">
+                    {row.matchBand ? <Badge tone={bandTone(row.matchBand)}>{row.matchBand}</Badge> : null}
+                    {row.resolutionState === "auto_resolved_low_consensus" ? <div className="text-xs text-amber-600">auto-resolved</div> : null}
+                  </td>
+                </tr>
+              ))
+            )}
+          </tbody>
+        </table>
+      </div>
+
+      {/* Pagination */}
+      {list.data && list.data.total > PAGE ? (
+        <div className="mt-4 flex items-center justify-between text-sm text-neutral-500">
+          <span>{offset + 1}–{Math.min(offset + PAGE, list.data.total)} of {list.data.total}</span>
+          <div className="flex gap-2">
+            <button type="button" disabled={offset === 0} onClick={() => setOffset(Math.max(0, offset - PAGE))} className="rounded-lg border border-neutral-200 px-3 py-1.5 disabled:opacity-40">Prev</button>
+            <button type="button" disabled={offset + PAGE >= list.data.total} onClick={() => setOffset(offset + PAGE)} className="rounded-lg border border-neutral-200 px-3 py-1.5 disabled:opacity-40">Next</button>
+          </div>
+        </div>
+      ) : null}
+
+      {selected ? <SkuDetailDrawer sku={selected} onClose={() => setSelected(null)} /> : null}
+      {showSkill ? <SkillDocsModal onClose={() => setShowSkill(false)} /> : null}
+    </div>
+  );
+}
+
+const actionBtn = "flex items-center gap-2 rounded-lg border border-neutral-200 px-3 py-2 text-sm text-neutral-700 transition-colors hover:bg-neutral-50 disabled:opacity-40";
+
+function StatCard({ label, value, sub, tone }: { label: string; value: string | number; sub?: string; tone?: "default" | "warn" }) {
+  return (
+    <div className="rounded-xl border border-neutral-200 bg-white p-3">
+      <div className="text-[10px] font-medium uppercase tracking-wider text-neutral-400">{label}</div>
+      <div className={cn("mt-1 text-lg font-bold", tone === "warn" ? "text-amber-600" : "text-neutral-900")}>{value}</div>
+      {sub ? <div className="text-[10px] text-neutral-400">{sub}</div> : null}
+    </div>
+  );
+}
+
+function Select({ value, onChange, label, options }: { value: string; onChange: (v: string) => void; label: string; options: readonly (string | [string, string])[] }) {
+  return (
+    <select value={value} onChange={(e) => onChange(e.target.value)} className="rounded-lg border border-neutral-200 px-3 py-2 text-sm text-neutral-700">
+      <option value="">{label}</option>
+      {options.map((o) => {
+        const [val, lbl] = Array.isArray(o) ? o : [o, o];
+        return <option key={val} value={val}>{lbl}</option>;
+      })}
+    </select>
+  );
+}
+
+function Badge({ children, tone }: { children: React.ReactNode; tone: string }) {
+  return <span className={cn("rounded-full border px-2 py-0.5 text-xs font-medium", tone)}>{children}</span>;
+}
+
+function tierTone(t: string): string {
+  return t === "premium" ? "border-violet-200 bg-violet-50 text-violet-700"
+    : t === "value" ? "border-emerald-200 bg-emerald-50 text-emerald-700"
+    : "border-neutral-200 bg-neutral-50 text-neutral-600";
+}
+
+function bandTone(b: string): string {
+  return b === "high" ? "border-emerald-200 bg-emerald-50 text-emerald-700"
+    : b === "medium" ? "border-amber-200 bg-amber-50 text-amber-700"
+    : "border-neutral-200 bg-neutral-100 text-neutral-500";
+}
