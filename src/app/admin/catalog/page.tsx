@@ -26,6 +26,7 @@ export default function CatalogPage() {
   const [band, setBand] = useState<string>("");
   const [tagged, setTagged] = useState<string>("");
   const [pilotOnly, setPilotOnly] = useState(false);
+  const [batchSize, setBatchSize] = useState(100);
   const [search, setSearch] = useState("");
   const [offset, setOffset] = useState(0);
   const [selected, setSelected] = useState<CatalogSkuRow | null>(null);
@@ -164,12 +165,30 @@ export default function CatalogPage() {
         <button type="button" disabled={!!busy} onClick={() => runToCompletion("catalog.freezeAisles", "Freeze aisles")} className={actionBtn}>
           <Play className="h-4 w-4" /> A0 · Freeze aisles
         </button>
-        <button type="button" disabled={!!busy} onClick={() => runToCompletion("catalog.match", "Match")} className={actionBtn}>
-          <Play className="h-4 w-4" /> A1–A4 · Match
+        <button type="button" disabled={!!busy} onClick={() => runOnce("catalog.match", "Match one batch", { pilotOnly: pilotOnly || undefined, batchSize })} className={actionBtn}>
+          <Play className="h-4 w-4" /> A1–A4 · Match one batch
+        </button>
+        <button type="button" disabled={!!busy} onClick={() => runToCompletion("catalog.match", "Match (all)")} className={actionBtn}>
+          <Play className="h-4 w-4" /> Match all
+        </button>
+        <button type="button" disabled={!!busy} onClick={() => { if (confirm(`Wipe semantic + aisle output for ${pilotOnly ? "the pilot" : "the WHOLE store"} so it re-runs under the current skill version?`)) runOnce("catalog.reset", "Reset", { scope: "both", pilotOnly: pilotOnly || undefined }); }} className={actionBtn}>
+          <RefreshCw className="h-4 w-4" /> Reset / re-run
         </button>
         <button type="button" disabled={!!busy} onClick={() => runOnce("catalog.golden.run", "Golden set")} className={actionBtn}>
           Golden tripwire
         </button>
+        <label className="ml-2 flex items-center gap-2 text-sm text-neutral-600">
+          Batch
+          <input
+            type="number"
+            min={10}
+            max={500}
+            step={10}
+            value={batchSize}
+            onChange={(e) => setBatchSize(Math.min(500, Math.max(10, Number(e.target.value) || 100)))}
+            className="w-20 rounded-md border border-neutral-200 px-2 py-1 text-sm"
+          />
+        </label>
         <label className="ml-2 flex items-center gap-2 text-sm text-neutral-600">
           <input type="checkbox" checked={pilotOnly} onChange={(e) => { setPilotOnly(e.target.checked); setOffset(0); }} />
           Pilot only

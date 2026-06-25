@@ -7,6 +7,7 @@ applies_to: [UK, EU]
 blocking: false
 related: ["grocery-catalogue-pipeline.md", "grocery-semantic-matching-skill.md", "../99-decisions/ADR-053-catalogue-aware-grocery-resolution.md"]
 updated: 2026-06-25
+version: audit-v3
 ---
 
 # Grocery semantic-audit skill (the auditor's procedure)
@@ -56,6 +57,15 @@ third-pass adjudication.
    pipeline lacks — everything else verifies precision.
 5. **Tier is NOT an AI job.** The auditor never "vibe-checks" a price ranking; tier correctness is
    verified deterministically by the gate (price-order + 10× outlier).
+6. **Name-composition dedup (no repeated tokens).** A composed `semanticName` must never repeat a
+   word — "clotted clotted cream", "orzo orzo". The rule itself is defined once in the
+   [matcher skill doc](grocery-semantic-matching-skill.md) ("Name-composition dedup rule"); the
+   auditor only **flags** any composed name where a token appears twice. This is belt-and-braces over
+   the deterministic `composeName` guard in `match.ts` — if the auditor ever sees a repeat, the guard
+   was bypassed and the row needs recomposing, not re-derivation.
+7. **Chilled ≠ dairy.** When sanity-checking aisle, a chilled cured/deli/cooked meat (salami, ham,
+   chorizo, deli slices, pâté) belongs in `meat-fish`, never `dairy-chilled`. Flag any deli meat the
+   matcher filed under dairy.
 
 ## Banding policy (A4b)
 

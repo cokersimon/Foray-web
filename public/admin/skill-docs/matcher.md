@@ -71,8 +71,11 @@ When composing `semanticName` from `variant + base`, **verify the variant token 
 contained in the base, and never emit a repeated token.** Examples: variant `clotted` + base
 `clotted cream` → `clotted cream` (not "clotted clotted cream"); base `orzo` variant `orzo` → `orzo`.
 This is a string-composition guard — the base and variant values themselves are still correct; only
-the composed display string is deduplicated. Implemented in `composeName` (`match.ts`) and applied
-to existing rows by backfill, so no semantic re-derivation is needed.
+the composed display string is deduplicated. Implemented in `composeName` (`match.ts`) at write time,
+so it applies on every match and re-match (no separate backfill: the `catalogSku.semanticName →
+catalogSemantic` FK and the concept spine make an in-place SQL rewrite unsafe, and a re-match
+recomposes + re-upserts the clean concept anyway). The auditor also flags any repeated token it sees
+(cross-check 6 in the audit skill doc) as belt-and-braces.
 
 ## The ambiguous-modifier default (A1d)
 
@@ -141,15 +144,45 @@ model depends on.
 
 - ambient baking goods (cocoa, yeast, vanilla, chocolate chips, flour, sugar, icing) → `baking`, not `other`
 - salt, pepper, dried herbs, bay leaves, ground spices, curry powder → `herbs-spices`
-- pesto, Worcester sauce, ketchup, mustard, soy sauce, jam, honey, peanut butter → `condiments-sauces`
+- pesto, Worcester sauce, ketchup, mustard, soy sauce → `condiments-sauces`
+- spreads (peanut butter, jam, marmalade, honey, chocolate/nut spread) → `condiments-sauces`, not `baking`
 - olives, cooking oils, vinegars, stock, tomato purée, passata → `cooking-oils`
+- dry coatings & crumbs (breadcrumbs, panko, golden/southern-fried coating, Paxo stuffing mix) → `cooking-oils`, not `baking`
 - chia, sunflower seeds, whole almonds, cashews, dried fruit → `nuts-seeds-dried-fruit`, not `snacks-confectionery`
-- raw popping corn → `baking`; oats, porridge, granola, muesli → `breakfast-cereals` (not snacks)
+- raw popping corn kernels → `nuts-seeds-dried-fruit` (a raw dried good, not `baking`); oats, porridge, granola, muesli → `breakfast-cereals` (not snacks)
 - baguette, fresh bread, wraps, bagels, croissants → `bakery`, not `pasta-rice-noodles`
 - dry pasta, rice, orzo, noodles, couscous → `pasta-rice-noodles`
 - tinned tomatoes, beans, tuna, sweetcorn, tinned soup → `tins-cans`
 - juice, water, squash, tea, coffee → `drinks`
 - coconut milk, cornmeal, miso, and store-range Asian/Caribbean lines → `world-foods`
+
+### Pilot corrections (Sainsbury's 80-SKU pilot, 2026-06-25)
+
+These are the patterns the first pilot got wrong or left ambiguous. They are **rules, not per-SKU
+fixes** — each repeats across the full catalogue, so pinning them here is what keeps the 1,540-SKU
+run consistent.
+
+- **Chilled cured / deli / cooked meats → `meat-fish`, NEVER `dairy-chilled`.** Salami, ham,
+  chorizo, pepperoni/Peperami, prosciutto, salami sticks, deli slices, pâté, cooked/sliced meats.
+  They are chilled, but **"chilled" alone never means dairy.** `dairy-chilled` is **only** milk,
+  cheese, butter, yoghurt, cream, and eggs. A UK shopper looks for ham in the meat/deli aisle, not
+  beside the milk. (Every deli meat in the catalogue tripped this; it is the one true pattern error.)
+- **Raw popping corn kernels → `nuts-seeds-dried-fruit`.** Unpopped kernels are a raw dried good,
+  not a baking ingredient and not a snack (the bagged crisps/sweets sense).
+- **Olives → `cooking-oils`** (decision, not default). There is no antipasti/deli aisle; olives are
+  jarred ambient goods used in cooking, so they live in the food-cupboard `cooking-oils` aisle. The
+  `category` swap layer keeps them distinct from oils within that aisle. Always `cooking-oils`, never
+  `snacks-confectionery`.
+- **Spreads (peanut butter, jam, marmalade, honey, chocolate/nut spread) → `condiments-sauces`**
+  (decision). There is no dedicated spreads aisle; group them with `condiments-sauces` so `baking`
+  stays strictly for baking *inputs* (flour, sugar, cocoa, raising agents).
+- **Dry coatings & crumbs (breadcrumbs, panko, golden/southern-fried coating, Paxo) → `cooking-oils`**
+  (decision). They are cooking-prep goods, not baking inputs; keep all three breadcrumb lines together.
+
+**Confirmed-correct placements** (called out because they look surprising but are right): cocoa &
+chocolate chips → `baking`; turkey bacon, pork, sea bass → `meat-fish`; tinned tuna/beans/sweetcorn/
+plum tomatoes/mushy peas → `tins-cans`; cornmeal & red split lentils (Dunn's River, Laila) →
+`world-foods`.
 
 ### `category` is the swap layer, not navigation
 
