@@ -6,20 +6,68 @@ import { chefAdmin } from "@/lib/chef-api";
 import { cn } from "@/lib/cn";
 import type { SkillDocs } from "./types";
 
+type SkillManifest = {
+  matcher: { version: string; path: string };
+  auditor: { version: string; path: string };
+};
+
+async function loadBundledSkillDocs(): Promise<SkillDocs> {
+  const manifest = (await fetch("/admin/skill-docs/manifest.json").then((r) => {
+    if (!r.ok) throw new Error("manifest missing");
+    return r.json();
+  })) as SkillManifest;
+
+  const [matcherText, auditorText] = await Promise.all([
+    fetch(manifest.matcher.path).then((r) => {
+      if (!r.ok) throw new Error("matcher doc missing");
+      return r.text();
+    }),
+    fetch(manifest.auditor.path).then((r) => {
+      if (!r.ok) throw new Error("auditor doc missing");
+      return r.text();
+    }),
+  ]);
+
+  return {
+    matcher: { version: manifest.matcher.version, text: matcherText },
+    auditor: { version: manifest.auditor.version, text: auditorText },
+  };
+}
+
 /**
- * Skill-doc viewer (plan C4) — tap to read the compiled matcher + auditor procedures the agents
- * follow, version-stamped. Read-only v1; the canonical markdown lives in docs/05-architecture/.
+ * Skill-doc viewer (plan C4) — tap to read the matcher + auditor procedures the agents follow,
+ * version-stamped. Bundled markdown in public/admin/skill-docs/ works offline from Supabase; falls
+ * back to chef-admin when the Edge function is deployed.
  */
 export function SkillDocsModal({ onClose }: { onClose: () => void }) {
   const [docs, setDocs] = useState<SkillDocs | null>(null);
   const [tab, setTab] = useState<"matcher" | "auditor">("matcher");
   const [error, setError] = useState<string | null>(null);
+  const [source, setSource] = useState<"bundled" | "api" | null>(null);
 
   useEffect(() => {
     let cancelled = false;
-    chefAdmin<SkillDocs>("catalog.skillDocs.get")
-      .then((d) => !cancelled && setDocs(d))
-      .catch((e) => !cancelled && setError(e instanceof Error ? e.message : "Failed to load"));
+
+    (async () => {
+      try {
+        const bundled = await loadBundledSkillDocs();
+        if (cancelled) return;
+        setDocs(bundled);
+        setSource("bundled");
+      } catch {
+        try {
+          const api = await chefAdmin<SkillDocs>("catalog.skillDocs.get");
+          if (cancelled) return;
+          setDocs(api);
+          setSource("api");
+        } catch (e) {
+          if (!cancelled) {
+            setError(e instanceof Error ? e.message : "Failed to load skill docs");
+          }
+        }
+      }
+    })();
+
     return () => {
       cancelled = true;
     };
@@ -34,7 +82,14 @@ export function SkillDocsModal({ onClose }: { onClose: () => void }) {
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex items-center justify-between border-b border-neutral-200 px-6 py-4">
-          <h2 className="text-base font-semibold text-neutral-900">Semantic-matching skill</h2>
+          <div>
+            <h2 className="text-base font-semibold text-neutral-900">Semantic-matching skill</h2>
+            {source ? (
+              <p className="mt-0.5 text-xs text-neutral-400">
+                {source === "bundled" ? "Bundled markdown (docs/05-architecture mirror)" : "Live from chef-admin"}
+              </p>
+            ) : null}
+          </div>
           <button type="button" onClick={onClose} className="rounded-lg p-1.5 text-neutral-400 hover:bg-neutral-100" aria-label="Close">
             <X className="h-5 w-5" />
           </button>

@@ -1,0 +1,4 @@
+{
+  "matcher": { "version": "match-v1", "path": "/admin/skill-docs/matcher.md" },
+  "auditor": { "version": "audit-v1", "path": "/admin/skill-docs/auditor.md" }
+}
