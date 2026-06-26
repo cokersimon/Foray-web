@@ -27,7 +27,7 @@ export default function CatalogPage() {
   const [band, setBand] = useState<string>("");
   const [tagged, setTagged] = useState<string>("");
   const [pilotOnly, setPilotOnly] = useState(false);
-  const [batchSize, setBatchSize] = useState(100);
+  const [batchSize, setBatchSize] = useState(50);
   const [search, setSearch] = useState("");
   const [offset, setOffset] = useState(0);
   const [selected, setSelected] = useState<CatalogSkuRow | null>(null);
@@ -255,7 +255,7 @@ export default function CatalogPage() {
             max={500}
             step={10}
             value={batchSize}
-            onChange={(e) => setBatchSize(Math.min(500, Math.max(10, Number(e.target.value) || 100)))}
+            onChange={(e) => setBatchSize(Math.min(500, Math.max(10, Number(e.target.value) || 50)))}
             className="w-20 rounded-md border border-neutral-200 px-2 py-1 text-sm"
           />
         </label>
