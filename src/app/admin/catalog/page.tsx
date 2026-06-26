@@ -1,19 +1,20 @@
 "use client";
 
 import { useState } from "react";
-import { BookOpen, Play, RefreshCw, Sparkles } from "lucide-react";
+import { BookOpen, Check, Pencil, Play, RefreshCw, Sparkles } from "lucide-react";
 import { chefAdmin } from "@/lib/chef-api";
 import { useChefQuery } from "@/lib/use-chef-query";
 import { cn } from "@/lib/cn";
 import {
   AISLE_OPTIONS,
-  aisleLabel,
   type CatalogListResponse,
   type CatalogRunStats,
   type CatalogSkuRow,
   fmtPence,
+  type SkuEdit,
   STORES,
   type StoreDomain,
+  TIER_OPTIONS,
 } from "./types";
 import { SkuDetailDrawer } from "./sku-detail-drawer";
 import { SkillDocsModal } from "./skill-docs-modal";
@@ -33,6 +34,47 @@ export default function CatalogPage() {
   const [showSkill, setShowSkill] = useState(false);
   const [busy, setBusy] = useState<string | null>(null);
   const [toast, setToast] = useState<string | null>(null);
+
+  // Inline manual edits, keyed by SKU id. Only changed fields are stored; a Save pass persists
+  // them via catalog.updateSku. `editingName` holds the row whose semantic field is open for text edit.
+  const [edits, setEdits] = useState<Record<string, SkuEdit>>({});
+  const [editingName, setEditingName] = useState<string | null>(null);
+  const dirtyCount = Object.keys(edits).length;
+
+  function setEdit(id: string, field: keyof SkuEdit, value: string, original: string) {
+    setEdits((prev) => {
+      const next = { ...prev };
+      const row = { ...(next[id] ?? {}) };
+      // Drop the field if the user reverted it to the original value.
+      if (value === original) delete row[field];
+      else row[field] = value;
+      if (Object.keys(row).length === 0) delete next[id];
+      else next[id] = row;
+      return next;
+    });
+  }
+
+  async function saveEdits() {
+    const entries = Object.entries(edits);
+    if (entries.length === 0) return;
+    setBusy(`Saving ${entries.length} change${entries.length === 1 ? "" : "s"}`);
+    setToast(null);
+    let saved = 0;
+    try {
+      for (const [skuId, patch] of entries) {
+        await chefAdmin("catalog.updateSku", { skuId, ...patch });
+        saved++;
+      }
+      setEdits({});
+      setEditingName(null);
+      setToast(`Saved ${saved} change${saved === 1 ? "" : "s"}`);
+    } catch (e) {
+      setToast(`Saved ${saved}/${entries.length}; ${e instanceof Error ? e.message : "save failed"}`);
+    } finally {
+      setBusy(null);
+      refresh();
+    }
+  }
 
   const stats = useChefQuery<CatalogRunStats>("catalog.runStats", { storeDomain: store }, { pollMs: 15000 });
   const list = useChefQuery<CatalogListResponse>("catalog.list", {
@@ -103,6 +145,16 @@ export default function CatalogPage() {
           </p>
         </div>
         <div className="flex shrink-0 gap-2">
+          {dirtyCount > 0 ? (
+            <button
+              type="button"
+              disabled={!!busy}
+              onClick={saveEdits}
+              className="flex items-center gap-2 rounded-lg border border-emerald-600 bg-emerald-600 px-3 py-2 text-sm font-medium text-white transition-colors hover:bg-emerald-700 disabled:opacity-40"
+            >
+              <Check className="h-4 w-4" /> Save {dirtyCount} change{dirtyCount === 1 ? "" : "s"}
+            </button>
+          ) : null}
           <button
             type="button"
             onClick={() => setShowSkill(true)}
@@ -234,47 +286,104 @@ export default function CatalogPage() {
             ) : (list.data?.skus.length ?? 0) === 0 ? (
               <tr><td colSpan={7} className="px-4 py-12 text-center text-neutral-400">No SKUs match.</td></tr>
             ) : (
-              list.data!.skus.map((row) => (
+              list.data!.skus.map((row) => {
+                const e = edits[row.id] ?? {};
+                const semVal = e.semanticName ?? row.semanticName ?? "";
+                const aisleVal = e.aisle ?? row.aisle ?? "";
+                const tierVal = e.budgetTier ?? row.budgetTier ?? "";
+                const rowDirty = !!edits[row.id];
+                const isEditingName = editingName === row.id;
+                return (
                 <tr
                   key={row.id}
-                  onClick={() => setSelected(row)}
-                  className="cursor-pointer border-b border-neutral-100 transition-colors hover:bg-neutral-50"
+                  className={cn(
+                    "border-b border-neutral-100 transition-colors hover:bg-neutral-50",
+                    rowDirty ? "bg-amber-50/60" : null,
+                  )}
                 >
-                  <td className="px-4 py-2.5">
+                  <td className="cursor-pointer px-4 py-2.5" onClick={() => setSelected(row)}>
                     {row.imageUrl ? (
                       // eslint-disable-next-line @next/next/no-img-element
                       <img src={row.imageUrl} alt="" className="h-9 w-9 rounded-md object-contain ring-1 ring-neutral-100" />
                     ) : <div className="h-9 w-9 rounded-md bg-neutral-100" />}
                   </td>
-                  <td className="px-4 py-2.5">
+                  <td className="cursor-pointer px-4 py-2.5" onClick={() => setSelected(row)}>
                     <div className="max-w-xs truncate text-neutral-800">{row.rawName}</div>
                     <div className="text-xs text-neutral-400">{row.quantityStr ?? ""} · {row.skuHandle ?? ""}</div>
                   </td>
+                  {/* Semantic — pencil opens an inline text editor */}
                   <td className="px-4 py-2.5">
-                    {row.semanticName ? (
-                      <span className="text-neutral-700">{row.semanticName}</span>
+                    {isEditingName ? (
+                      <div className="flex items-center gap-1">
+                        <input
+                          autoFocus
+                          value={semVal}
+                          onChange={(ev) => setEdit(row.id, "semanticName", ev.target.value, row.semanticName ?? "")}
+                          onKeyDown={(ev) => { if (ev.key === "Enter") setEditingName(null); if (ev.key === "Escape") { setEdit(row.id, "semanticName", row.semanticName ?? "", row.semanticName ?? ""); setEditingName(null); } }}
+                          className="w-44 rounded-md border border-neutral-300 px-2 py-1 text-sm"
+                        />
+                        <button type="button" onClick={() => setEditingName(null)} className="rounded p-1 text-emerald-600 hover:bg-emerald-50" aria-label="Done">
+                          <Check className="h-4 w-4" />
+                        </button>
+                      </div>
                     ) : (
-                      <span className="text-xs text-neutral-400">untagged</span>
+                      <div className="group flex items-center gap-1.5">
+                        {semVal ? (
+                          <span className={cn("text-neutral-700", e.semanticName ? "font-medium text-amber-700" : null)}>{semVal}</span>
+                        ) : (
+                          <span className="text-xs text-neutral-400">untagged</span>
+                        )}
+                        <button type="button" onClick={() => setEditingName(row.id)} className="rounded p-1 text-neutral-300 opacity-0 transition-opacity hover:bg-neutral-100 hover:text-neutral-600 group-hover:opacity-100" aria-label="Edit semantic name">
+                          <Pencil className="h-3.5 w-3.5" />
+                        </button>
+                      </div>
                     )}
                     {row.variant ? <div className="text-xs text-neutral-400">variant: {row.variant}</div> : null}
                   </td>
+                  {/* Aisle — dropdown pre-populated with the current aisle */}
                   <td className="px-4 py-2.5">
-                    <span className="text-neutral-600">{aisleLabel(row.aisle)}</span>
+                    <select
+                      value={aisleVal}
+                      onChange={(ev) => setEdit(row.id, "aisle", ev.target.value, row.aisle ?? "")}
+                      className={cn(
+                        "max-w-[12rem] rounded-md border px-2 py-1 text-sm",
+                        e.aisle ? "border-amber-400 bg-amber-50 text-amber-800" : "border-neutral-200 text-neutral-600",
+                      )}
+                    >
+                      <option value="">—</option>
+                      {AISLE_OPTIONS.map(([slug, label]) => (
+                        <option key={slug} value={slug}>{label}</option>
+                      ))}
+                    </select>
                     {row.aisleConsensus && row.aisleConsensus !== "agreed" ? (
-                      <div className={cn("text-xs", row.aisleConsensus === "low_consensus" ? "text-amber-600" : "text-neutral-400")}>{row.aisleConsensus}</div>
+                      <div className={cn("mt-0.5 text-xs", row.aisleConsensus === "low_consensus" ? "text-amber-600" : "text-neutral-400")}>{row.aisleConsensus}</div>
                     ) : null}
                   </td>
+                  {/* Tier — dropdown (value/mid/premium) */}
                   <td className="px-4 py-2.5">
-                    {row.budgetTier ? <Badge tone={tierTone(row.budgetTier)}>{row.budgetTier}</Badge> : <span className="text-xs text-neutral-300">—</span>}
-                    {row.tierContested ? <div className="text-xs text-amber-600">contested</div> : null}
+                    <select
+                      value={tierVal}
+                      onChange={(ev) => setEdit(row.id, "budgetTier", ev.target.value, row.budgetTier ?? "")}
+                      className={cn(
+                        "rounded-md border px-2 py-1 text-sm capitalize",
+                        e.budgetTier ? "border-amber-400 bg-amber-50 text-amber-800" : "border-neutral-200 text-neutral-600",
+                      )}
+                    >
+                      <option value="">—</option>
+                      {TIER_OPTIONS.map((t) => (
+                        <option key={t} value={t}>{t}</option>
+                      ))}
+                    </select>
+                    {row.tierContested ? <div className="mt-0.5 text-xs text-amber-600">contested</div> : null}
                   </td>
-                  <td className="px-4 py-2.5 font-mono text-xs text-neutral-700">{fmtPence(row.currentPrice, row.currency ?? "GBP")}</td>
-                  <td className="px-4 py-2.5">
+                  <td className="cursor-pointer px-4 py-2.5 font-mono text-xs text-neutral-700" onClick={() => setSelected(row)}>{fmtPence(row.currentPrice, row.currency ?? "GBP")}</td>
+                  <td className="cursor-pointer px-4 py-2.5" onClick={() => setSelected(row)}>
                     {row.matchBand ? <Badge tone={bandTone(row.matchBand)}>{row.matchBand}</Badge> : null}
                     {row.resolutionState === "auto_resolved_low_consensus" ? <div className="text-xs text-amber-600">auto-resolved</div> : null}
                   </td>
                 </tr>
-              ))
+                );
+              })
             )}
           </tbody>
         </table>
@@ -323,12 +432,6 @@ function Select({ value, onChange, label, options }: { value: string; onChange: 
 
 function Badge({ children, tone }: { children: React.ReactNode; tone: string }) {
   return <span className={cn("rounded-full border px-2 py-0.5 text-xs font-medium", tone)}>{children}</span>;
-}
-
-function tierTone(t: string): string {
-  return t === "premium" ? "border-violet-200 bg-violet-50 text-violet-700"
-    : t === "value" ? "border-emerald-200 bg-emerald-50 text-emerald-700"
-    : "border-neutral-200 bg-neutral-50 text-neutral-600";
 }
 
 function bandTone(b: string): string {

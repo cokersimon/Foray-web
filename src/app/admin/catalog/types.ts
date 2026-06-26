@@ -49,6 +49,16 @@ export function aisleLabel(slug: string | null | undefined): string {
   return AISLE_LABELS[slug] ?? slug;
 }
 
+/** Budget tiers for the inline tier dropdown (price-derived value/mid/premium). */
+export const TIER_OPTIONS = ["value", "mid", "premium"] as const;
+
+/** A manual edit to one SKU from the review table, persisted via catalog.updateSku. */
+export type SkuEdit = {
+  semanticName?: string;
+  aisle?: string;
+  budgetTier?: string;
+};
+
 export type CatalogSkuRow = {
   id: string;
   skuRef: string;
