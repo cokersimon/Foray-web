@@ -93,19 +93,37 @@ export default function CatalogPage() {
     list.refetch();
   };
 
-  // Run a batch-bounded pipeline action to completion (re-invoke until remaining 0). Fully
-  // automated, AI-adjudicated — this just drives the loop the Edge function exposes.
-  async function runToCompletion(action: string, label: string) {
+  // Drive a batch-bounded pipeline action to completion. The Edge function is resumable — it only
+  // touches still-pending SKUs — so each call continues where the last left off and never restarts.
+  // We deliberately request a SMALL unit of work per call (`extraArgs`) so each request returns well
+  // inside the Edge wall-clock limit, then auto-continue. A timed-out / failed call is retried (the
+  // committed batch persists), so a transient gateway timeout never aborts the whole run.
+  async function runToCompletion(action: string, label: string, extraArgs: Record<string, unknown> = {}) {
     setBusy(label);
     setToast(null);
+    let consecutiveErrors = 0;
     try {
-      for (let i = 0; i < 200; i++) {
-        const r = await chefAdmin<{ remaining?: number; status?: string }>(action, {
-          storeDomain: store,
-          pilotOnly: pilotOnly || undefined,
-        });
+      for (let i = 0; i < 2000; i++) {
+        let r: { remaining?: number; status?: string };
+        try {
+          r = await chefAdmin<{ remaining?: number; status?: string }>(action, {
+            storeDomain: store,
+            pilotOnly: pilotOnly || undefined,
+            ...extraArgs,
+          });
+          consecutiveErrors = 0;
+        } catch (e) {
+          consecutiveErrors++;
+          if (consecutiveErrors >= 6) throw e;
+          setBusy(`${label} · retrying (${consecutiveErrors}/6)`);
+          await new Promise((res) => setTimeout(res, 2500));
+          refresh();
+          continue;
+        }
         refresh();
-        if ((r.remaining ?? 0) === 0 || r.status === "complete") break;
+        const remaining = r.remaining ?? 0;
+        setBusy(remaining > 0 ? `${label} · ${remaining} remaining` : label);
+        if (remaining === 0 || r.status === "complete") break;
       }
       setToast(`${label} complete`);
     } catch (e) {
@@ -214,13 +232,13 @@ export default function CatalogPage() {
         <button type="button" disabled={!!busy} onClick={() => runOnce("catalog.pilot.select", "Select pilot", { perAisle: 8 })} className={actionBtn}>
           <Sparkles className="h-4 w-4" /> Select pilot (~8/aisle)
         </button>
-        <button type="button" disabled={!!busy} onClick={() => runToCompletion("catalog.freezeAisles", "Freeze aisles")} className={actionBtn}>
+        <button type="button" disabled={!!busy} onClick={() => runToCompletion("catalog.freezeAisles", "Freeze aisles", { maxBatches: 1 })} className={actionBtn}>
           <Play className="h-4 w-4" /> A0 · Freeze aisles
         </button>
         <button type="button" disabled={!!busy} onClick={() => runOnce("catalog.match", "Match one batch", { pilotOnly: pilotOnly || undefined, batchSize })} className={actionBtn}>
           <Play className="h-4 w-4" /> A1–A4 · Match one batch
         </button>
-        <button type="button" disabled={!!busy} onClick={() => runToCompletion("catalog.match", "Match (all)")} className={actionBtn}>
+        <button type="button" disabled={!!busy} onClick={() => runToCompletion("catalog.match", "Match (all)", { batchSize })} className={actionBtn}>
           <Play className="h-4 w-4" /> Match all
         </button>
         <button type="button" disabled={!!busy} onClick={() => { if (confirm(`Wipe semantic + aisle output for ${pilotOnly ? "the pilot" : "the WHOLE store"} so it re-runs under the current skill version?`)) runOnce("catalog.reset", "Reset", { scope: "both", pilotOnly: pilotOnly || undefined }); }} className={actionBtn}>
