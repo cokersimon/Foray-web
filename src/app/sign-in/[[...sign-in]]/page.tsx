@@ -16,12 +16,44 @@ export default function SignInPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
+  const [info, setInfo] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isSendingReset, setIsSendingReset] = useState(false);
+
+  const resetRedirect = useCallback(() => {
+    if (typeof window === "undefined") return "";
+    return `${window.location.origin}/auth/callback?next=${encodeURIComponent("/auth/reset-password")}`;
+  }, []);
+
+  const handleForgotPassword = useCallback(async () => {
+    setError(null);
+    setInfo(null);
+    const trimmed = email.trim();
+    if (!trimmed) {
+      setError("Enter your email first, then tap Forgot password.");
+      return;
+    }
+    setIsSendingReset(true);
+    try {
+      const { error: resetError } = await supabaseBrowser().auth.resetPasswordForEmail(
+        trimmed,
+        { redirectTo: resetRedirect() },
+      );
+      if (resetError) {
+        setError(resetError.message);
+        return;
+      }
+      setInfo("Reset link sent — check your inbox (one link only; wait a minute before retrying).");
+    } finally {
+      setIsSendingReset(false);
+    }
+  }, [email, resetRedirect]);
 
   const handleSubmit = useCallback(
     async (e: React.FormEvent) => {
       e.preventDefault();
       setError(null);
+      setInfo(null);
       setIsSubmitting(true);
       try {
         const { data, error: signInError } =
@@ -69,6 +101,15 @@ export default function SignInPage() {
           </div>
         ) : null}
 
+        {info ? (
+          <div
+            className="mt-4 rounded-lg border border-emerald-500/30 bg-emerald-500/10 px-3 py-2 text-sm text-emerald-200"
+            role="status"
+          >
+            {info}
+          </div>
+        ) : null}
+
         <label className="mt-6 block text-xs font-semibold uppercase tracking-wider text-neutral-400">
           Email
           <input
@@ -92,6 +133,15 @@ export default function SignInPage() {
             className="mt-1.5 w-full rounded-lg border border-white/10 bg-neutral-900 px-3 py-2 text-sm text-neutral-100 placeholder:text-neutral-500 focus:border-neutral-500 focus:outline-none"
           />
         </label>
+
+        <button
+          type="button"
+          onClick={handleForgotPassword}
+          disabled={isSendingReset}
+          className="mt-3 text-sm text-neutral-400 underline-offset-2 hover:text-neutral-200 hover:underline disabled:opacity-50"
+        >
+          {isSendingReset ? "Sending reset link…" : "Forgot password?"}
+        </button>
 
         <button
           type="submit"

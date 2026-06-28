@@ -1,0 +1,140 @@
+"use client";
+
+import { useCallback, useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import { Loader2 } from "lucide-react";
+import { supabaseBrowser } from "@/lib/supabase/client";
+import { Wordmark } from "@/components/brand/wordmark";
+
+/**
+ * Recovery landing page — after the emailed reset link, the user sets a new password here
+ * (`updateUser`) before entering the admin portal.
+ */
+export default function ResetPasswordPage() {
+  const router = useRouter();
+  const [password, setPassword] = useState("");
+  const [confirm, setConfirm] = useState("");
+  const [error, setError] = useState<string | null>(null);
+  const [ready, setReady] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  useEffect(() => {
+    const supabase = supabaseBrowser();
+    supabase.auth.getSession().then(({ data }) => {
+      if (data.session) setReady(true);
+    });
+    const { data: subscription } = supabase.auth.onAuthStateChange((event, session) => {
+      if (event === "PASSWORD_RECOVERY" || session) setReady(true);
+    });
+    return () => subscription.subscription.unsubscribe();
+  }, []);
+
+  const handleSubmit = useCallback(
+    async (e: React.FormEvent) => {
+      e.preventDefault();
+      setError(null);
+      if (!ready) {
+        setError("Open the reset link from your email — this page needs an active recovery session.");
+        return;
+      }
+      if (password.length < 8) {
+        setError("Use at least 8 characters.");
+        return;
+      }
+      if (password !== confirm) {
+        setError("Passwords do not match.");
+        return;
+      }
+      setIsSubmitting(true);
+      try {
+        const supabase = supabaseBrowser();
+        const { error: updateError } = await supabase.auth.updateUser({ password });
+        if (updateError) {
+          setError(updateError.message);
+          return;
+        }
+        const { data, error: sessionError } = await supabase.auth.getUser();
+        if (sessionError || !data.user) {
+          setError("Session expired — request a new reset link.");
+          return;
+        }
+        const role = (data.user.app_metadata as Record<string, unknown> | undefined)?.role;
+        if (role !== "admin") {
+          setError("This account does not have admin access.");
+          await supabase.auth.signOut();
+          return;
+        }
+        router.push("/admin/recipes");
+        router.refresh();
+      } finally {
+        setIsSubmitting(false);
+      }
+    },
+    [confirm, password, ready, router],
+  );
+
+  return (
+    <div className="dark-theme flex min-h-screen items-center justify-center bg-background text-foreground">
+      <form
+        onSubmit={handleSubmit}
+        className="mx-auto w-full max-w-sm rounded-2xl border border-white/10 bg-neutral-950 p-8"
+      >
+        <h1 className="flex items-baseline gap-2 text-lg">
+          <Wordmark />
+          <span className="text-sm font-medium uppercase tracking-wider text-neutral-500">
+            Admin
+          </span>
+        </h1>
+        <p className="mt-1 text-sm text-neutral-400">
+          {ready
+            ? "Choose a new password."
+            : "Waiting for your reset link… open the email link once only."}
+        </p>
+
+        {error ? (
+          <div
+            className="mt-4 rounded-lg border border-red-500/30 bg-red-500/10 px-3 py-2 text-sm text-red-300"
+            role="alert"
+          >
+            {error}
+          </div>
+        ) : null}
+
+        <label className="mt-6 block text-xs font-semibold uppercase tracking-wider text-neutral-400">
+          New password
+          <input
+            type="password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            autoComplete="new-password"
+            required
+            minLength={8}
+            className="mt-1.5 w-full rounded-lg border border-white/10 bg-neutral-900 px-3 py-2 text-sm text-neutral-100 placeholder:text-neutral-500 focus:border-neutral-500 focus:outline-none"
+          />
+        </label>
+
+        <label className="mt-4 block text-xs font-semibold uppercase tracking-wider text-neutral-400">
+          Confirm password
+          <input
+            type="password"
+            value={confirm}
+            onChange={(e) => setConfirm(e.target.value)}
+            autoComplete="new-password"
+            required
+            minLength={8}
+            className="mt-1.5 w-full rounded-lg border border-white/10 bg-neutral-900 px-3 py-2 text-sm text-neutral-100 placeholder:text-neutral-500 focus:border-neutral-500 focus:outline-none"
+          />
+        </label>
+
+        <button
+          type="submit"
+          disabled={isSubmitting || !password || !confirm}
+          className="mt-6 inline-flex w-full items-center justify-center gap-2 rounded-lg bg-neutral-100 px-4 py-2.5 text-sm font-semibold text-neutral-950 transition-colors hover:bg-white disabled:cursor-not-allowed disabled:opacity-50"
+        >
+          {isSubmitting ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
+          Save password
+        </button>
+      </form>
+    </div>
+  );
+}
