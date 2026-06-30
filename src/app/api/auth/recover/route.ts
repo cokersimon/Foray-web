@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
-import { passwordResetCallbackUrl } from "@/lib/auth-redirect";
+import { passwordResetRedirectUrl } from "@/lib/auth-redirect";
 
 /**
  * Server-side password recovery — always emails a link to forayapp.co.uk, even when
@@ -25,7 +25,7 @@ export async function POST(request: Request) {
   );
 
   const { error } = await supabase.auth.resetPasswordForEmail(email, {
-    redirectTo: passwordResetCallbackUrl(),
+    redirectTo: passwordResetRedirectUrl(),
   });
 
   if (error) {
