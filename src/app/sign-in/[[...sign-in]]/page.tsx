@@ -3,6 +3,7 @@
 import { useCallback, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Loader2 } from "lucide-react";
+import { passwordResetCallbackUrl } from "@/lib/auth-redirect";
 import { supabaseBrowser } from "@/lib/supabase/client";
 import { Wordmark } from "@/components/brand/wordmark";
 
@@ -20,11 +21,6 @@ export default function SignInPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSendingReset, setIsSendingReset] = useState(false);
 
-  const resetRedirect = useCallback(() => {
-    if (typeof window === "undefined") return "";
-    return `${window.location.origin}/auth/callback?next=${encodeURIComponent("/auth/reset-password")}`;
-  }, []);
-
   const handleForgotPassword = useCallback(async () => {
     setError(null);
     setInfo(null);
@@ -37,7 +33,7 @@ export default function SignInPage() {
     try {
       const { error: resetError } = await supabaseBrowser().auth.resetPasswordForEmail(
         trimmed,
-        { redirectTo: resetRedirect() },
+        { redirectTo: passwordResetCallbackUrl() },
       );
       if (resetError) {
         setError(resetError.message);
@@ -47,7 +43,7 @@ export default function SignInPage() {
     } finally {
       setIsSendingReset(false);
     }
-  }, [email, resetRedirect]);
+  }, [email]);
 
   const handleSubmit = useCallback(
     async (e: React.FormEvent) => {
