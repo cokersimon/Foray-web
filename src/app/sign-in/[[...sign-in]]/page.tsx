@@ -1,9 +1,9 @@
 "use client";
 
-import { useCallback, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useCallback, useEffect, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import { Loader2 } from "lucide-react";
-import { passwordResetCallbackUrl } from "@/lib/auth-redirect";
+import { SITE_URL } from "@/lib/site";
 import { supabaseBrowser } from "@/lib/supabase/client";
 import { Wordmark } from "@/components/brand/wordmark";
 
@@ -14,12 +14,41 @@ import { Wordmark } from "@/components/brand/wordmark";
  */
 export default function SignInPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [info, setInfo] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSendingReset, setIsSendingReset] = useState(false);
+  const [isLocalhost, setIsLocalhost] = useState(false);
+
+  useEffect(() => {
+    const onLocalhost = window.location.hostname === "localhost";
+    setIsLocalhost(onLocalhost);
+
+    const queryEmail = searchParams.get("email")?.trim();
+    if (queryEmail) setEmail(queryEmail);
+
+    const queryError = searchParams.get("error");
+    if (queryError) {
+      setError(decodeURIComponent(queryError));
+    }
+
+    const hash = window.location.hash.startsWith("#")
+      ? window.location.hash.slice(1)
+      : "";
+    const hashParams = new URLSearchParams(hash);
+    const hashError = hashParams.get("error_description") ?? hashParams.get("error");
+    if (hashError) {
+      setError(decodeURIComponent(hashError.replace(/\+/g, " ")));
+      window.history.replaceState(null, "", window.location.pathname);
+    }
+
+    if (searchParams.get("recover") === "1" && queryEmail) {
+      setInfo("Tap Forgot password? to email a reset link to forayapp.co.uk.");
+    }
+  }, [searchParams]);
 
   const handleForgotPassword = useCallback(async () => {
     setError(null);
@@ -29,21 +58,31 @@ export default function SignInPage() {
       setError("Enter your email first, then tap Forgot password.");
       return;
     }
+
+    if (isLocalhost) {
+      window.location.href = `${SITE_URL}/sign-in?email=${encodeURIComponent(trimmed)}&recover=1`;
+      return;
+    }
+
     setIsSendingReset(true);
     try {
-      const { error: resetError } = await supabaseBrowser().auth.resetPasswordForEmail(
-        trimmed,
-        { redirectTo: passwordResetCallbackUrl() },
-      );
-      if (resetError) {
-        setError(resetError.message);
+      const response = await fetch("/api/auth/recover", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: trimmed }),
+      });
+      const payload = (await response.json()) as { error?: string };
+      if (!response.ok) {
+        setError(payload.error ?? "Could not send reset link.");
         return;
       }
-      setInfo("Reset link sent — check your inbox (one link only; wait a minute before retrying).");
+      setInfo(
+        "Reset link sent — open it once on this device. Links expire after one use.",
+      );
     } finally {
       setIsSendingReset(false);
     }
-  }, [email]);
+  }, [email, isLocalhost]);
 
   const handleSubmit = useCallback(
     async (e: React.FormEvent) => {
@@ -87,6 +126,16 @@ export default function SignInPage() {
           </span>
         </h1>
         <p className="mt-1 text-sm text-neutral-400">Sign in to continue.</p>
+
+        {isLocalhost ? (
+          <p className="mt-3 rounded-lg border border-amber-500/30 bg-amber-500/10 px-3 py-2 text-sm text-amber-100">
+            Password reset must run on{" "}
+            <a href={`${SITE_URL}/sign-in`} className="underline underline-offset-2">
+              {SITE_URL.replace("https://", "")}
+            </a>{" "}
+            — reset links cannot open on localhost from your phone.
+          </p>
+        ) : null}
 
         {error ? (
           <div
