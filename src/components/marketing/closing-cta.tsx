@@ -22,7 +22,7 @@ export function ClosingCta() {
           Dinner, minus the faff<span className="text-brand-dot">.</span>
         </h2>
         <p className="mt-4 max-w-md text-base leading-relaxed text-muted">
-          Be first in line when Foray opens in the UK — recipes in, groceries
+          Be first in line when Foray opens in the UK. Recipes in, groceries
           out, five clicks to dinner.
         </p>
         <div className="mt-8">

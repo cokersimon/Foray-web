@@ -19,7 +19,7 @@ const QUOTES = [
   },
   {
     quote:
-      "The deduped trolley is the bit that got me — two recipes, one onion. Finally.",
+      "The deduped trolley is the bit that got me. Two recipes, one onion. Finally.",
     name: "Placeholder",
     place: "Manchester",
     tint: "bg-brand-dot/[0.06]",

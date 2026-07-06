@@ -165,7 +165,7 @@ export function WaitlistModal() {
                     Join the waitlist
                   </h2>
                   <p className="mt-2 text-base leading-relaxed text-muted">
-                    Recipes in, groceries out — be first in line when Foray
+                    Recipes in, groceries out. Be first in line when Foray
                     opens in the UK.
                   </p>
 
@@ -214,8 +214,8 @@ export function WaitlistModal() {
                   </form>
 
                   <p className="mt-6 text-center text-xs leading-relaxed text-muted">
-                    We&rsquo;ll only email you about Foray — unsubscribe any
-                    time. By joining you agree to our{" "}
+                    We&rsquo;ll only email you about Foray, and you can
+                    unsubscribe any time. By joining you agree to our{" "}
                     <Link
                       href="/privacy"
                       className="underline underline-offset-2 transition-colors hover:text-foreground"

@@ -9,31 +9,31 @@ const FAQS = [
   {
     question: "Is Foray free to try?",
     answer:
-      "Yes — your first week is free, with the whole loop included: imports, swipe planning, the sorted trolley, checkout and cook mode. After that, Foray is an in-app subscription you can manage or cancel any time in the App Store.",
+      "Yes. Your first week is free, with the whole loop included: imports, swipe planning, the sorted trolley, checkout and cook mode. After that, Foray is an in-app subscription you can manage or cancel any time in the App Store.",
   },
   {
     question: `What's the £${CHECKOUT_FEE_GBP} fee?`,
-    answer: `Online checkout adds a £${CHECKOUT_FEE_GBP} convenience fee per order — that's what it costs us to hand your trolley to the supermarket. Shopping in-store with the sorted list is always free.`,
+    answer: `Online checkout adds a £${CHECKOUT_FEE_GBP} convenience fee per order. That's what it costs us to hand your trolley to the supermarket, and shopping in-store with the sorted list is always free.`,
   },
   {
     question: "How does importing a recipe work?",
     answer:
-      "Paste a link from TikTok, Instagram, YouTube or any food blog. Foray's AI Chef reads it and pulls out the ingredients and steps for you — usually in seconds. You can also add recipes by hand.",
+      "Paste a link from TikTok, Instagram, YouTube or any food blog. Foray's AI Chef reads it and pulls out the ingredients and steps for you, usually in seconds. You can also pick from the recipes already in Foray or add your own by hand.",
   },
   {
     question: "Which supermarkets does it work with?",
     answer:
-      "Foray builds your trolley at UK supermarket prices and hands it over for online checkout or an in-store shop. We're starting with major UK supermarkets and adding more — the app always shows what's available in your area.",
+      "Foray builds your trolley at UK supermarket prices and hands it over for online checkout or an in-store shop. We're starting with major UK supermarkets and adding more, and the app always shows what's available in your area.",
   },
   {
     question: "Do I need an iPhone?",
     answer:
-      "For now, yes — Foray is launching on iPhone in the UK first. Join the waitlist and we'll let you know the moment that changes.",
+      "For now, yes. Foray is launching on iPhone in the UK first. Join the waitlist and we'll let you know the moment that changes.",
   },
   {
     question: "How do I cancel?",
     answer:
-      "In the App Store, like any other subscription — Settings, your name, Subscriptions, Foray. No emails to send, no hoops. Your plan and recipes stay put if you come back.",
+      "In the App Store, like any other subscription: Settings, your name, Subscriptions, Foray. No emails to send, no hoops. Your plan and recipes stay put if you come back.",
   },
 ];
 

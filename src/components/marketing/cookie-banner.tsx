@@ -45,7 +45,7 @@ export function CookieBanner() {
           <div className="mx-auto flex max-w-3xl flex-col gap-4 rounded-3xl border border-border bg-surface p-5 shadow-[0_8px_40px_rgba(0,0,0,0.12)] md:flex-row md:items-center md:gap-6 md:p-6">
             <p className="flex-1 text-xs leading-relaxed text-muted md:text-sm">
               We use one optional analytics cookie to understand how people
-              find Foray — nothing loads unless you accept. See our{" "}
+              find Foray. Nothing loads unless you accept. See our{" "}
               <Link
                 href="/privacy"
                 className="underline underline-offset-2 transition-colors hover:text-foreground"

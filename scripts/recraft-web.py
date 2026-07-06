@@ -13,10 +13,11 @@ Run locally with your key (never committed):
 
     RECRAFT_API_KEY=... python3 scripts/recraft-web.py [--force] [asset ...]
 
-Hand-authored fallbacks already ship in public/brand/ (vp-swipe.svg,
-vp-trolley.svg, vp-clicks.svg) — this script only *replaces* them when the
-Recraft output actually meets the spec, per the design doc's own guidance:
-inspect every result against the locked Groceries reference before shipping.
+Hand-authored fallbacks already ship in public/brand/ (vp-*.svg for the value
+props, step-*.svg for the five-step promise row) — this script only *replaces*
+them when the Recraft output actually meets the spec, per the design doc's own
+guidance: inspect every result against the locked Groceries reference before
+shipping.
 """
 
 from __future__ import annotations
@@ -33,25 +34,77 @@ MODEL = "recraftv4_1_pro_vector"
 OUT_DIR = Path(__file__).resolve().parent.parent / "public" / "brand"
 
 STICKER_SPEC = (
-    "Flat vector sticker illustration. Exactly three colours: ink #1C1C1E, "
-    "pure white #FFFFFF, mid grey #8E8E93. Every shape has a thick pure-white "
-    "sticker halo outline. Single bold stroke weight throughout. Flat fills "
-    "only — no gradients, no texture, no sketch grain. One primary object plus "
-    "at most two satellite objects, centred on a transparent background."
+    "Flat vector sticker illustration in a locked brand style. Use exactly "
+    "three colours and nothing else: ink #1C1C1E, pure white #FFFFFF, and mid "
+    "grey #8E8E93. Every shape is wrapped in a thick pure-white sticker halo "
+    "outline (like a die-cut sticker). One single bold stroke weight "
+    "throughout, no thin lines, no multi-line hatching. Flat colour fills "
+    "only: no gradients, no shadows, no texture, no sketch grain. Composition "
+    "is one clear primary object plus at most two small satellite objects, "
+    "generously padded and centred on a transparent background. Shapes are "
+    "simple and geometric with large corner radii, as if built from SF Symbol "
+    "silhouettes. No text or lettering anywhere."
 )
 
 ASSETS: dict[str, str] = {
+    # --- Value-prop cards (large, ~160px display) --------------------------
     "vp-swipe": (
-        "A recipe swipe card with a rounded photo area and a bold heart below "
-        "it, one plain card peeking out behind it. "
+        "Primary object: an upright recipe swipe card tilted a few degrees "
+        "clockwise, containing a rounded grey photo placeholder in its top "
+        "half and two rounded text-line bars below the photo. A round ink-"
+        "coloured badge containing a white heart is stamped overlapping the "
+        "card's bottom-right corner, meaning this recipe was chosen. "
+        "Satellite: one plain grey card tilted the opposite way peeking out "
+        "from behind the left edge, meaning a recipe that was skipped. "
     ),
     "vp-trolley": (
-        "A shopping basket with a curved handle and three vertical slats, one "
-        "round tick-mark badge overlapping its corner. "
+        "Primary object: a wide shopping basket with a single curved carry "
+        "handle arching over the top and three vertical grey slats on its "
+        "body. Satellite: one round ink-coloured badge containing a bold "
+        "white tick mark, stamped overlapping the basket's bottom-right "
+        "corner, meaning the list is combined and complete. "
     ),
     "vp-clicks": (
-        "A large rounded rectangular button containing a bold tick mark, one "
-        "small tap ripple of two concentric circles beside it. "
+        "Primary object: a bank payment card in landscape orientation with a "
+        "horizontal grey magnetic stripe band across its upper third, a small "
+        "rounded grey chip on the lower left, and two small curved "
+        "contactless-payment arcs on the lower right. Satellite: one round "
+        "ink-coloured badge containing a bold white tick mark stamped "
+        "overlapping the card's bottom-right corner, meaning checkout is "
+        "paid and done. "
+    ),
+    # --- Five-step promise row thumbnails (small, ~80px display) -----------
+    "step-import": (
+        "Primary object: a single rounded app tile containing two rounded "
+        "grey text-line bars in its lower half, with a bold downward arrow "
+        "dropping into the tile from above, meaning a recipe being imported "
+        "and saved. No other objects. Very simple, reads clearly at small "
+        "thumbnail size. "
+    ),
+    "step-swipe": (
+        "Primary object: an upright recipe card tilted slightly clockwise "
+        "with a rounded grey photo placeholder in its top half and a bold "
+        "ink-coloured heart in its lower half, meaning swipe right to keep "
+        "this recipe. Satellite: one plain grey card peeking out behind it, "
+        "tilted the opposite way. Very simple, reads clearly at small "
+        "thumbnail size. "
+    ),
+    "step-cart": (
+        "Primary object: a shopping basket with a single curved carry handle "
+        "and three vertical grey slats on its body. No satellites. Very "
+        "simple, reads clearly at small thumbnail size. "
+    ),
+    "step-checkout": (
+        "Primary object: a bank payment card in landscape orientation with a "
+        "horizontal grey magnetic stripe band across its upper third, a "
+        "small rounded grey chip on the lower left and one short grey "
+        "number bar on the lower right. No satellites. Very simple, reads "
+        "clearly at small thumbnail size. "
+    ),
+    "step-cook": (
+        "Primary object: a classic puffy chef's hat (toque) with a rounded "
+        "three-lobed top and a grey band at its base. No satellites. Very "
+        "simple, reads clearly at small thumbnail size. "
     ),
 }
 

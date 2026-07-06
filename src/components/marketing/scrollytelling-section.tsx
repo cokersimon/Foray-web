@@ -45,14 +45,14 @@ interface CardDef {
 const FEATURES: Feature[] = [
   {
     id: "import",
-    title: "Import any recipe.",
+    title: "Create your plan.",
     subtitle:
-      "Paste a link from TikTok, Instagram, or any food blog. Foray's AI Chef reads it and pulls out the ingredients and steps for you.",
+      "Pick from hundreds of recipes in Foray, or import your favourites from TikTok, Instagram and food blogs. The AI Chef turns them into ingredients and steps for you.",
     screen: <ImportScreen />,
     cards: [
       {
         icon: <Link2 className="h-4 w-4 text-brand-dot" />,
-        label: "Paste a link",
+        label: "Pick or import",
         value: "TikTok, Insta, web",
         rotation: -6,
         desktopClass:
@@ -80,7 +80,7 @@ const FEATURES: Feature[] = [
     id: "plan",
     title: "Swipe to fork.",
     subtitle:
-      "Flick through recipes one thumb at a time. Swipe to fork the ones you fancy into this week's plan — no spreadsheets, no decision fatigue.",
+      "Flick through recipes one thumb at a time and swipe to fork the ones you fancy into this week's plan. No spreadsheets, no decision fatigue.",
     screen: <PlanScreen />,
     cards: [
       {
@@ -113,7 +113,7 @@ const FEATURES: Feature[] = [
     id: "cart",
     title: "One sorted trolley.",
     subtitle:
-      "Every forked recipe rolls into a single shopping list — deduped, combined, and sorted by aisle. Two recipes that need an onion? That's one onion.",
+      "Every forked recipe rolls into a single shopping list that's deduped, combined, and sorted by aisle. Two recipes that need an onion? That's one onion.",
     screen: <CartScreen />,
     cards: [
       {

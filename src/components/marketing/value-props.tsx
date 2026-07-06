@@ -7,12 +7,12 @@ const PROPS = [
   {
     image: "/brand/vp-swipe.svg",
     title: "Less decision fatigue",
-    body: "Deciding what's for dinner is the hard part. Swipe through recipes one thumb at a time and fork the ones you fancy — no lists of links, no spreadsheet.",
+    body: "Deciding what's for dinner is the hard part. Swipe through recipes one thumb at a time and fork the ones you fancy. No lists of links, no spreadsheet.",
   },
   {
     image: "/brand/vp-trolley.svg",
     title: "One trolley, no duplicates",
-    body: "Every forked recipe rolls into a single shopping list — deduped, combined, and sorted by aisle. Two recipes that need an onion? That's one onion.",
+    body: "Every forked recipe rolls into a single shopping list that's deduped, combined, and sorted by aisle. Two recipes that need an onion? That's one onion.",
   },
   {
     image: "/brand/vp-clicks.svg",

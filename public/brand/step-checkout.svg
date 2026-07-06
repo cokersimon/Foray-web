@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="456 592 1136 864" width="1136" height="864">
+  <!-- Hand-authored from Groceries spec: ink #1C1C1E, white #FFFFFF, mid #8E8E93, halo 56, rx 72 -->
+  <!-- Step "Checkout": payment card with magstripe band and chip. -->
+  <rect x="544" y="680" width="960" height="640" rx="72" fill="#FFFFFF" stroke="#1C1C1E" stroke-width="56"/>
+  <rect x="544" y="812" width="960" height="130" fill="#8E8E93"/>
+  <rect x="544" y="680" width="960" height="640" rx="72" fill="none" stroke="#1C1C1E" stroke-width="56"/>
+  <rect x="656" y="1060" width="180" height="130" rx="32" fill="#8E8E93"/>
+  <rect x="920" y="1156" width="420" height="52" rx="26" fill="#8E8E93"/>
+</svg>
