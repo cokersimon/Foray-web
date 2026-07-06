@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="464 504 1280 1280" width="1280" height="1280">
+  <!-- Hand-authored from Groceries spec: ink #1C1C1E, white #FFFFFF, mid #8E8E93, halo 56, rx 72 -->
+  <!-- "Five clicks, done": checkout button + tap-ripple satellite. -->
+  <rect x="544" y="744" width="960" height="560" rx="72" fill="#FFFFFF" stroke="#1C1C1E" stroke-width="56"/>
+  <path d="M 848 1030 L 972 1158 L 1216 890" fill="none" stroke="#1C1C1E" stroke-width="72" stroke-linecap="round" stroke-linejoin="round"/>
+  <circle cx="1460" cy="1348" r="200" fill="none" stroke="#8E8E93" stroke-width="48"/>
+  <circle cx="1460" cy="1348" r="104" fill="#1C1C1E" stroke="#FFFFFF" stroke-width="48"/>
+</svg>

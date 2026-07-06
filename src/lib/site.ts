@@ -13,3 +13,18 @@ export const SITE_URL = "https://forayapp.co.uk";
 
 /** Convenience fee charged at online checkout (GBP), surfaced in pricing copy. */
 export const CHECKOUT_FEE_GBP = "2.49";
+
+/**
+ * Social-proof sections (same gate pattern as APP_STORE_LIVE). Placeholder
+ * quotes on a public pre-launch site read as fabricated social proof, so these
+ * stay false until at least two real TestFlight quotes exist — then flip.
+ */
+export const SHOW_TESTIMONIALS = false;
+export const SHOW_PRESS = false;
+
+/** Social accounts (mirrors the iOS app's AboutView). */
+export const SOCIAL_LINKS = {
+  instagram: "https://www.instagram.com/foray_app",
+  tiktok: "https://www.tiktok.com/@forayapp",
+  x: "https://x.com/forayapp",
+} as const;

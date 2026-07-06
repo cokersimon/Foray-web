@@ -1,30 +1,134 @@
 import Link from "next/link";
-import { Wordmark } from "@/components/brand/wordmark";
+import { SOCIAL_LINKS } from "@/lib/site";
 
-const footerLinks = [
+const FOOTER_LINKS = [
   { label: "Privacy", href: "/privacy" },
   { label: "Terms", href: "/terms" },
+  { label: "Contact", href: "mailto:hello@forayapp.co.uk" },
+];
+
+/** Instagram mark — this lucide version has no brand icons, so inline paths
+ * (same 24px grid). */
+function InstagramIcon({ className }: { className?: string }) {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.8"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+      className={className}
+    >
+      <rect x="2.5" y="2.5" width="19" height="19" rx="5" />
+      <circle cx="12" cy="12" r="4.2" />
+      <circle cx="17.2" cy="6.8" r="0.6" fill="currentColor" stroke="none" />
+    </svg>
+  );
+}
+
+/** TikTok mark — not in lucide, so a minimal inline path (same 24px grid). */
+function TikTokIcon({ className }: { className?: string }) {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      fill="currentColor"
+      aria-hidden="true"
+      className={className}
+    >
+      <path d="M19.32 5.56a5.12 5.12 0 0 1-3.01-2.6 5.09 5.09 0 0 1-.44-1.46h-3.14v12.8a2.68 2.68 0 1 1-2.68-2.68c.28 0 .54.04.8.12V8.5a5.88 5.88 0 0 0-.8-.06 5.9 5.9 0 1 0 5.9 5.9V9.02a8.24 8.24 0 0 0 4.4 1.27V7.15c-.36 0-.71-.04-1.05-.1a5.1 5.1 0 0 1-.98-.3 5.13 5.13 0 0 1 1-1.19Z" />
+    </svg>
+  );
+}
+
+/** X (Twitter) mark — minimal inline path. */
+function XIcon({ className }: { className?: string }) {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      fill="currentColor"
+      aria-hidden="true"
+      className={className}
+    >
+      <path d="M18.9 2.5h3.4l-7.4 8.4 8.7 11.6h-6.8l-5.3-7-6.1 7H1.9l7.9-9L1.4 2.5h7l4.8 6.4 5.7-6.4Zm-1.2 18h1.9L7.4 4.4H5.4l12.3 16.1Z" />
+    </svg>
+  );
+}
+
+const SOCIALS = [
+  {
+    label: "Instagram",
+    href: SOCIAL_LINKS.instagram,
+    icon: <InstagramIcon className="h-5 w-5" />,
+  },
+  {
+    label: "TikTok",
+    href: SOCIAL_LINKS.tiktok,
+    icon: <TikTokIcon className="h-5 w-5" />,
+  },
+  {
+    label: "X",
+    href: SOCIAL_LINKS.x,
+    icon: <XIcon className="h-4.5 w-4.5" />,
+  },
 ];
 
 export function Footer() {
   return (
-    <footer className="border-t border-border px-6 py-12">
-      <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-6 md:flex-row">
-        <Wordmark className="text-sm" />
-        <div className="flex gap-6">
-          {footerLinks.map((link) => (
-            <Link
-              key={link.label}
-              href={link.href}
-              className="text-sm text-muted transition-colors hover:text-foreground"
+    <footer className="overflow-hidden border-t border-border">
+      <div className="mx-auto flex max-w-7xl flex-col gap-6 px-6 pt-12 md:flex-row md:items-center md:justify-between md:px-10">
+        {/* Socials */}
+        <div className="flex items-center gap-5">
+          {SOCIALS.map((social) => (
+            <a
+              key={social.label}
+              href={social.href}
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label={`Foray on ${social.label}`}
+              className="text-muted transition-colors hover:text-foreground"
             >
-              {link.label}
-            </Link>
+              {social.icon}
+            </a>
           ))}
         </div>
+
+        {/* Links */}
+        <nav className="flex flex-wrap items-center gap-x-6 gap-y-2">
+          {FOOTER_LINKS.map((link) =>
+            link.href.startsWith("/") ? (
+              <Link
+                key={link.label}
+                href={link.href}
+                className="text-sm text-muted transition-colors hover:text-foreground"
+              >
+                {link.label}
+              </Link>
+            ) : (
+              <a
+                key={link.label}
+                href={link.href}
+                className="text-sm text-muted transition-colors hover:text-foreground"
+              >
+                {link.label}
+              </a>
+            ),
+          )}
+        </nav>
+
         <span className="text-xs text-muted">
           &copy; {new Date().getFullYear()} Foray. All rights reserved.
         </span>
+      </div>
+
+      {/* Giant clipped wordmark (Cherrypick-style sign-off) */}
+      <div
+        aria-hidden="true"
+        className="pointer-events-none -mb-[0.28em] mt-8 select-none text-center font-bold leading-none tracking-tighter text-foreground"
+        style={{ fontSize: "clamp(5rem, 22vw, 22rem)" }}
+      >
+        Foray<span className="text-brand-dot">.</span>
       </div>
     </footer>
   );

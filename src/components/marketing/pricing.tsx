@@ -16,7 +16,7 @@ export function Pricing() {
   const { open } = useWaitlist();
 
   return (
-    <section className="px-6 py-24 md:py-32">
+    <section id="pricing" className="scroll-mt-16 px-6 py-24 md:py-32">
       <div className="mx-auto max-w-xl">
         <div className="rounded-3xl border border-border bg-surface p-8 text-center md:p-12">
           <h2 className="text-3xl font-bold tracking-tight text-foreground md:text-4xl">
@@ -61,6 +61,11 @@ export function Pricing() {
           <p className="mt-4 text-xs text-muted">
             iPhone · UK · subscription terms shown in-app
           </p>
+          {!APP_STORE_LIVE && (
+            <p className="mt-2 text-xs font-medium uppercase tracking-widest text-muted">
+              Coming soon to the App Store
+            </p>
+          )}
         </div>
       </div>
     </section>

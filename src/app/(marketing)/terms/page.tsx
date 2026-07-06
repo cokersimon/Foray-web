@@ -23,13 +23,7 @@ function Section({
 
 export default function TermsPage() {
   return (
-    <main className="mx-auto max-w-3xl px-6 py-24 lg:py-32">
-      <Link
-        href="/"
-        className="mb-12 inline-block text-sm text-muted transition-colors hover:text-foreground"
-      >
-        &larr; Back to home
-      </Link>
+    <div className="mx-auto max-w-3xl px-6 py-16 lg:py-24">
 
       <h1 className="text-4xl font-bold tracking-tight text-foreground">
         Terms &amp; Conditions
@@ -187,6 +181,6 @@ export default function TermsPage() {
           </p>
         </Section>
       </div>
-    </main>
+    </div>
   );
 }

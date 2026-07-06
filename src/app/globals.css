@@ -43,13 +43,40 @@
   --color-border-glass: var(--border-glass);
   --color-border-glass-dark: var(--border-glass-dark);
   --color-brand-dot: var(--brand-dot);
-  /* SF Pro is the only typeface (Foray design system); fall back to the system stack. */
+  /* SF Pro is the primary typeface (Foray design system). Inter (self-hosted via
+     next/font, --font-inter) is the stand-in on non-Apple devices — closest
+     metrics to SF Pro, so tight-tracked headlines look intentional everywhere. */
   --font-sans: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display",
-    "Helvetica Neue", system-ui, sans-serif;
+    var(--font-inter, "Inter"), "Helvetica Neue", system-ui, sans-serif;
   /* Foray radius scale (8 / 12 / 20). */
   --radius-sm: 8px;
   --radius-md: 12px;
   --radius-lg: 20px;
+
+  /* Above-the-fold entrance. CSS (not Framer) so the server-rendered hero is
+     never shipped with opacity:0 — LCP paints without JS. `both` keeps
+     staggered elements hidden only during their animation-delay. */
+  --animate-rise: rise 0.6s cubic-bezier(0.22, 1, 0.36, 1) both;
+
+  @keyframes rise {
+    from {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+
+  /* Ticker-bar marquee: content is duplicated once, so -50% loops seamlessly. */
+  --animate-marquee: marquee 40s linear infinite;
+
+  @keyframes marquee {
+    to {
+      transform: translateX(-50%);
+    }
+  }
 }
 
 html {

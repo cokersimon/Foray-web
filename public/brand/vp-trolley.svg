@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="448 480 1280 1280" width="1280" height="1280">
+  <!-- Hand-authored from Groceries spec: ink #1C1C1E, white #FFFFFF, mid #8E8E93, halo 56, rx 72 -->
+  <!-- "One trolley, no duplicates": basket + tick badge satellite. -->
+  <path d="M 568 848 L 1480 848 L 1384 1440 C 1376 1490 1336 1524 1288 1524 L 760 1524 C 712 1524 672 1490 664 1440 Z" fill="#FFFFFF" stroke="#1C1C1E" stroke-width="56"/>
+  <path d="M 800 848 C 800 680 896 568 1024 568 C 1152 568 1248 680 1248 848" fill="none" stroke="#1C1C1E" stroke-width="56" stroke-linecap="round"/>
+  <rect x="840" y="1000" width="52" height="360" rx="26" fill="#8E8E93"/>
+  <rect x="998" y="1000" width="52" height="360" rx="26" fill="#8E8E93"/>
+  <rect x="1156" y="1000" width="52" height="360" rx="26" fill="#8E8E93"/>
+  <circle cx="1456" cy="1360" r="192" fill="#1C1C1E" stroke="#FFFFFF" stroke-width="56"/>
+  <path d="M 1368 1364 L 1428 1428 L 1552 1292" fill="none" stroke="#FFFFFF" stroke-width="52" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>

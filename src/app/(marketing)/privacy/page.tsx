@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 import { DraftBanner } from "@/components/legal/draft-banner";
 
 export const metadata: Metadata = {
@@ -61,13 +60,7 @@ function Section({
 
 export default function PrivacyPage() {
   return (
-    <main className="mx-auto max-w-3xl px-6 py-24 lg:py-32">
-      <Link
-        href="/"
-        className="mb-12 inline-block text-sm text-muted transition-colors hover:text-foreground"
-      >
-        &larr; Back to home
-      </Link>
+    <div className="mx-auto max-w-3xl px-6 py-16 lg:py-24">
 
       <h1 className="text-4xl font-bold tracking-tight text-foreground">
         Privacy Policy
@@ -230,7 +223,21 @@ export default function PrivacyPage() {
           </p>
         </Section>
 
-        <Section title="12. Changes & contact">
+        <Section title="12. Cookies on this website">
+          <p>
+            This website sets no marketing or tracking cookies by default. When
+            you make a choice in our cookie banner, we store it as{" "}
+            <code className="text-foreground">foray-consent</code> (a
+            strictly-necessary cookie plus a browser localStorage entry, kept
+            for about 6 months) so we don&rsquo;t ask again. Only if you choose
+            &ldquo;Accept&rdquo; do we load Google Analytics, which sets its own
+            cookies to help us understand how people find Foray. Choosing
+            &ldquo;Reject&rdquo; means no analytics loads at all. Signing in to
+            the admin area uses strictly-necessary authentication cookies.
+          </p>
+        </Section>
+
+        <Section title="13. Changes & contact">
           <p>
             We may update this policy and will revise the &ldquo;last
             updated&rdquo; date, notifying you in-app or by email for material
@@ -239,6 +246,6 @@ export default function PrivacyPage() {
           </p>
         </Section>
       </div>
-    </main>
+    </div>
   );
 }

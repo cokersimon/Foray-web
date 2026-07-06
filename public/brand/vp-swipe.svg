@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="336 368 1376 1376" width="1376" height="1376">
+  <!-- Hand-authored from Groceries spec: ink #1C1C1E, white #FFFFFF, mid #8E8E93, halo 56, rx 72 -->
+  <!-- "Less decision fatigue": swipe card being forked. One card + heart + skip satellite. -->
+  <rect x="448" y="640" width="600" height="800" rx="72" fill="#8E8E93" stroke="#FFFFFF" stroke-width="56" transform="rotate(-8 748 1040)"/>
+  <rect x="728" y="544" width="680" height="880" rx="72" fill="#FFFFFF" stroke="#1C1C1E" stroke-width="56" transform="rotate(4 1068 984)"/>
+  <rect x="808" y="648" width="520" height="360" rx="48" fill="#8E8E93" transform="rotate(4 1068 984)"/>
+  <path d="M 1068 1320 C 948 1220 908 1140 968 1080 C 1020 1030 1068 1070 1068 1110 C 1068 1070 1116 1030 1168 1080 C 1228 1140 1188 1220 1068 1320 Z" fill="#1C1C1E" stroke="#FFFFFF" stroke-width="40" transform="rotate(4 1068 984)"/>
+</svg>

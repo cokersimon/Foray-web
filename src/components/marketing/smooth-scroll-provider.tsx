@@ -14,6 +14,8 @@ export function SmoothScrollProvider({
         lerp: 0.1,
         duration: 1.2,
         smoothWheel: true,
+        // Let Lenis drive #anchor jumps so smooth scroll doesn't fight them.
+        anchors: true,
       }}
     >
       {children}

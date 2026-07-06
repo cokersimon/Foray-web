@@ -11,7 +11,9 @@ const STEPS = [
   { icon: ChefHat, label: "Cook" },
 ];
 
-export function Promise() {
+/** The five-step "recipe to dinner" promise row (renamed from `Promise` — that
+ * name shadowed the global `Promise` constructor for any file importing it). */
+export function FiveClicks() {
   return (
     <section className="px-6 py-24 md:py-32">
       <div className="mx-auto max-w-4xl text-center">

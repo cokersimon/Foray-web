@@ -1,10 +1,36 @@
 "use server";
 
+import { headers } from "next/headers";
 import { Resend } from "resend";
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 
-function buildWelcomeEmail(_email: string): string {
+/**
+ * Best-effort, per-instance rate limiting. This is an open server action, so
+ * without it anyone can script signups against our Resend quota. A Map is fine
+ * pre-launch: it resets per serverless instance, but blunts naive abuse.
+ */
+const RATE_WINDOW_MS = 10 * 60 * 1000;
+const RATE_MAX_ATTEMPTS = 5;
+const attemptsByIp = new Map<string, number[]>();
+
+function isRateLimited(ip: string): boolean {
+  const now = Date.now();
+  const recent = (attemptsByIp.get(ip) ?? []).filter(
+    (t) => now - t < RATE_WINDOW_MS,
+  );
+  recent.push(now);
+  attemptsByIp.set(ip, recent);
+  // Opportunistic prune so the map doesn't grow unbounded.
+  if (attemptsByIp.size > 1000) {
+    for (const [key, times] of attemptsByIp) {
+      if (times.every((t) => now - t >= RATE_WINDOW_MS)) attemptsByIp.delete(key);
+    }
+  }
+  return recent.length > RATE_MAX_ATTEMPTS;
+}
+
+function buildWelcomeEmail(): string {
   const year = new Date().getFullYear();
   return `
 <!DOCTYPE html>
@@ -45,45 +71,61 @@ function buildWelcomeEmail(_email: string): string {
 
 export async function joinWaitlist(
   email: string,
+  honeypot = "",
 ): Promise<{ success: boolean; error?: string }> {
+  // Bots that autofill the hidden field get a silent "success" and no email.
+  if (honeypot.trim() !== "") {
+    return { success: true };
+  }
+
   if (!email || !email.includes("@")) {
     return { success: false, error: "Please enter a valid e-mail address." };
   }
 
-  console.log("Waitlist Triggered for:", email);
-
-  try {
-    await resend.contacts.create({
-      email,
-      firstName: "",
-      lastName: "",
-      unsubscribed: false,
-    });
-  } catch (contactErr: unknown) {
-    console.error(
-      "Waitlist global contact save failed (non-fatal); continuing to send e-mail:",
-      contactErr,
-    );
+  const requestHeaders = await headers();
+  const ip =
+    requestHeaders.get("x-forwarded-for")?.split(",")[0]?.trim() ?? "unknown";
+  if (isRateLimited(ip)) {
+    return {
+      success: false,
+      error: "Too many attempts. Please try again in a few minutes.",
+    };
   }
 
   try {
-    await resend.emails.send({
+    const audienceId = process.env.RESEND_AUDIENCE_ID;
+    const { error: contactError } = await resend.contacts.create({
+      email,
+      unsubscribed: false,
+      ...(audienceId ? { segments: [{ id: audienceId }] } : {}),
+    });
+
+    if (contactError) {
+      const message = contactError.message?.toLowerCase() ?? "";
+      // Repeat signup: already on the list — don't re-send the welcome email.
+      if (message.includes("already exist") || contactError.statusCode === 409) {
+        return { success: true };
+      }
+      // Contact save failed for another reason; log and still try the welcome
+      // email so the signup isn't silently lost.
+      console.error("Waitlist contact save failed (non-fatal):", contactError);
+    }
+
+    const { error: sendError } = await resend.emails.send({
       // NOTE: forayapp.co.uk must be a verified sending domain in Resend, or sends fail.
       from: "Foray <hello@forayapp.co.uk>",
       to: email,
       subject: "You're on the Foray waitlist",
-      html: buildWelcomeEmail(email),
+      html: buildWelcomeEmail(),
     });
+
+    if (sendError) {
+      console.error("Waitlist welcome email failed:", sendError);
+      return { success: false, error: "Something went wrong. Please try again." };
+    }
 
     return { success: true };
   } catch (err: unknown) {
-    const message =
-      err instanceof Error ? err.message : "An unexpected error occurred.";
-
-    if (message.toLowerCase().includes("already exists")) {
-      return { success: true };
-    }
-
     console.error("Waitlist signup error:", err);
     return { success: false, error: "Something went wrong. Please try again." };
   }

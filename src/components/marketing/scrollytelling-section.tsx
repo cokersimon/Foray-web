@@ -1,6 +1,7 @@
 "use client";
 
 import { useRef } from "react";
+import Image from "next/image";
 import {
   motion,
   useScroll,
@@ -23,8 +24,10 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/cn";
 
+type FeatureId = "import" | "plan" | "cart" | "checkout";
+
 interface Feature {
-  id: string;
+  id: FeatureId;
   title: string;
   subtitle: string;
   screen: React.ReactNode;
@@ -353,7 +356,7 @@ function CheckoutScreen() {
 function IPhoneFrame({ children }: { children: React.ReactNode }) {
   return (
     <div className="relative w-full">
-      <div className="max-h-[55vh] overflow-hidden rounded-[2.5rem] border-[3px] border-neutral-300 bg-black shadow-xl shadow-black/10">
+      <div className="max-h-[45svh] overflow-hidden rounded-[2.5rem] border-[3px] border-neutral-300 bg-black shadow-xl shadow-black/10 md:max-h-[55vh]">
         <div className="relative flex justify-center bg-black pt-2.5 pb-1.5">
           <div className="h-6 w-[90px] rounded-full border border-neutral-800 bg-black" />
         </div>
@@ -433,7 +436,7 @@ function FloatingCard({
     <motion.div
       style={{ opacity, visibility, y, scale, rotate: card.rotation }}
       className={cn(
-        "rounded-2xl border border-black/[0.06] bg-white p-3 shadow-sm backdrop-blur-md md:rounded-3xl md:p-4",
+        "rounded-2xl border border-border bg-surface p-3 shadow-sm backdrop-blur-md md:rounded-3xl md:p-4",
         "absolute hidden md:block",
         card.desktopClass,
       )}
@@ -449,14 +452,14 @@ function FloatingCard({
 
 function MobileStackRow({ card }: { card: CardDef }) {
   return (
-    <div className="w-full rounded-2xl border border-black/[0.06] bg-white p-3 shadow-sm backdrop-blur-md">
-      <div className="mb-1.5 flex items-center gap-2">
-        {card.icon}
-        <span className="text-[10px] font-semibold text-muted">
-          {card.label}
-        </span>
-      </div>
-      <div className="text-xs font-semibold text-foreground">{card.value}</div>
+    <div className="flex w-full flex-col items-center gap-1 rounded-2xl border border-border bg-surface p-2.5 text-center shadow-sm">
+      {card.icon}
+      <span className="text-[9px] font-semibold leading-tight text-muted">
+        {card.label}
+      </span>
+      <span className="text-[10px] font-semibold leading-tight text-foreground">
+        {card.value}
+      </span>
     </div>
   );
 }
@@ -479,7 +482,7 @@ function MobileFeatureStack({
   return (
     <motion.div
       style={{ opacity, visibility }}
-      className="absolute inset-x-0 top-0 flex flex-col gap-2"
+      className="absolute inset-x-2 top-0 grid grid-cols-3 gap-2"
     >
       {feature.cards.map((card) => (
         <MobileStackRow key={card.label} card={card} />
@@ -519,14 +522,33 @@ function FeatureCards({
 // Phone screen crossfade
 // ---------------------------------------------------------------------------
 
-function PhoneScreens({ progress }: { progress: MotionValue<number> }) {
+function PhoneScreens({
+  progress,
+  screenshots,
+}: {
+  progress: MotionValue<number>;
+  screenshots: ScreenshotMap;
+}) {
   return (
     <div className="relative h-full w-full">
-      {FEATURES.map((feature, i) => (
-        <PhoneScreen key={feature.id} index={i} progress={progress}>
-          {feature.screen}
-        </PhoneScreen>
-      ))}
+      {FEATURES.map((feature, i) => {
+        const screenshot = screenshots[feature.id];
+        return (
+          <PhoneScreen key={feature.id} index={i} progress={progress}>
+            {screenshot ? (
+              <Image
+                src={screenshot}
+                alt={feature.title}
+                fill
+                sizes="250px"
+                className="object-cover"
+              />
+            ) : (
+              feature.screen
+            )}
+          </PhoneScreen>
+        );
+      })}
     </div>
   );
 }
@@ -557,7 +579,15 @@ function PhoneScreen({
 // Main section
 // ---------------------------------------------------------------------------
 
-export function ScrollytellingSection() {
+/** feature id → public URL of a real Simulator capture, or undefined/null to
+ * fall back to the coded mockup. Resolved server-side in page.tsx. */
+export type ScreenshotMap = Partial<Record<FeatureId, string | null>>;
+
+export function ScrollytellingSection({
+  screenshots = {},
+}: {
+  screenshots?: ScreenshotMap;
+}) {
   const containerRef = useRef<HTMLDivElement>(null);
   const { scrollYProgress } = useScroll({
     target: containerRef,
@@ -569,21 +599,21 @@ export function ScrollytellingSection() {
   return (
     <section
       ref={containerRef}
-      className="relative"
-      style={{ height: `calc(100vh * ${FEATURE_COUNT})` }}
+      id="how-it-works"
+      className="relative scroll-mt-16"
+      /* svh (not vh) so scroll progress doesn't jump when the iOS Safari
+         toolbar collapses mid-scroll. */
+      style={{ height: `calc(100svh * ${FEATURE_COUNT})` }}
     >
-      <div
-        className="sticky top-0 flex h-screen flex-col items-center justify-start overflow-hidden pt-[10vh] md:pt-[12vh]"
-        style={{
-          maskImage:
-            "linear-gradient(to bottom, black 80%, transparent 100%)",
-          WebkitMaskImage:
-            "linear-gradient(to bottom, black 80%, transparent 100%)",
-        }}
-      >
-        {/* Headline area — auto height */}
-        <div className="relative mb-8 w-full max-w-2xl shrink-0 px-4 text-center md:mb-10 md:px-6">
-          <div className="relative min-h-[80px] md:min-h-[100px]">
+      {/* Bottom fade mask is md+ only — on mobile it was eating the card
+          stack at the bottom of the viewport. */}
+      {/* Top padding must clear the sticky navbar (~57px), which overlays the
+          sticky viewport. */}
+      <div className="sticky top-0 flex h-dvh flex-col items-center justify-start overflow-hidden pt-[72px] md:pt-[12vh] md:[mask-image:linear-gradient(to_bottom,black_80%,transparent_100%)]">
+        {/* Headline area — reserves the height of the tallest beat so
+            absolutely-positioned copy never collides with the phone. */}
+        <div className="relative mb-4 w-full max-w-2xl shrink-0 px-4 text-center md:mb-10 md:px-6">
+          <div className="relative min-h-[140px] md:min-h-[164px] lg:min-h-[176px]">
             {FEATURES.map((feature, i) => (
               <FeatureHeadline
                 key={feature.id}
@@ -610,14 +640,14 @@ export function ScrollytellingSection() {
               ))}
             </div>
 
-            <div className="relative z-20 mx-auto w-[200px] md:absolute md:left-1/2 md:top-1/2 md:w-[230px] lg:w-[250px] md:-translate-x-1/2 md:-translate-y-1/2">
+            <div className="relative z-20 mx-auto w-[150px] sm:w-[200px] md:absolute md:left-1/2 md:top-1/2 md:w-[230px] lg:w-[250px] md:-translate-x-1/2 md:-translate-y-1/2">
               <IPhoneFrame>
-                <PhoneScreens progress={progress} />
+                <PhoneScreens progress={progress} screenshots={screenshots} />
               </IPhoneFrame>
             </div>
 
-            {/* Mobile: vertical bento stack directly under phone */}
-            <div className="relative z-10 mx-auto mt-4 min-h-[200px] w-full max-w-[210px] md:hidden">
+            {/* Mobile: compact 3-up card row under the phone (fits 375x667). */}
+            <div className="relative z-10 mx-auto mt-3 min-h-[88px] w-full max-w-[360px] px-2 md:hidden">
               {FEATURES.map((feature, i) => (
                 <MobileFeatureStack
                   key={feature.id}
