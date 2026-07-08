@@ -1,10 +1,11 @@
 import Link from "next/link";
+import { LEGAL_ENTITY } from "@/lib/legal-entity";
 import { SOCIAL_LINKS } from "@/lib/site";
 
 const FOOTER_LINKS = [
   { label: "Privacy", href: "/privacy" },
   { label: "Terms", href: "/terms" },
-  { label: "Contact", href: "mailto:hello@forayapp.co.uk" },
+  { label: "Contact", href: `mailto:${LEGAL_ENTITY.supportEmail}` },
 ];
 
 /** Instagram mark — this lucide version has no brand icons, so inline paths

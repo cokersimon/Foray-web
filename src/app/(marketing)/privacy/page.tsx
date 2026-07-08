@@ -1,250 +1,319 @@
 import type { Metadata } from "next";
-import { DraftBanner } from "@/components/legal/draft-banner";
+import { LegalSection } from "@/components/legal/legal-section";
+import {
+  dataControllerLine,
+  LEGAL_ENTITY,
+  postalContactLine,
+} from "@/lib/legal-entity";
 
 export const metadata: Metadata = {
   title: "Privacy Policy — Foray",
 };
 
-const SUBPROCESSORS: { name: string; purpose: string; data: string }[] = [
+const SUBPROCESSORS: {
+  name: string;
+  purpose: string;
+  data: string;
+  region: string;
+}[] = [
   {
-    name: "Supabase",
-    purpose: "Backend, database, hosting and authentication (account sync, Sign in with Apple + email code).",
-    data: "Account, recipes, plans, lists, settings, auth identifier and session metadata.",
-  },
-  {
-    name: "Pepesto",
-    purpose: "Grocery pricing and online-checkout handoff to retailers.",
-    data: "Cart items and store selection. No Foray-held card data.",
-  },
-  {
-    name: "Stripe",
-    purpose: "Processing the online-checkout convenience fee, presented via an Apple Pay sheet.",
-    data: "Transaction status only. We never receive or store your full card details.",
-  },
-  {
-    name: "Google (Gemini)",
-    purpose: 'Our AI parser ("the Chef") that turns imported recipe links into structured recipes.',
-    data: "The recipe content you import (link text / photo). Not used to train models per our agreement.",
-  },
-  {
-    name: "Recraft",
-    purpose: "Generating recipe hero imagery in our recipe pipeline.",
-    data: "Recipe titles and prompts. No user personal data.",
+    name: "Supabase (incl. Supabase Auth)",
+    purpose:
+      "Backend, database, storage, authentication, and hosting (sync, Chef pipeline, Sign in with Apple + email sign-in).",
+    data: "Account, auth identifier, recipes, plans, lists, shopping history, settings, AI usage records, private import images, session metadata.",
+    region: "AWS eu-west-1 (Ireland, EEA)",
   },
   {
     name: "Resend",
-    purpose: "Sending transactional and waitlist emails (e.g. confirmations, account messages).",
-    data: "Your email address and message content.",
+    purpose: "Sending authentication emails (the 6-digit sign-in code).",
+    data: "Your email address + the code email.",
+    region: "United States; SCCs / UK Addendum",
   },
   {
-    name: "Apple (App Store & APNs)",
-    purpose: "Billing premium subscriptions and delivering push notifications you enable.",
-    data: "Purchase/entitlement status; device token and notification payload.",
+    name: "Pepesto",
+    purpose: "Grocery catalogue/pricing and online-checkout handoff to retailers.",
+    data: "Cart items, store selection; no Foray-held card data.",
+    region: "Safeguarded per section 5",
+  },
+  {
+    name: "Google (Gemini API)",
+    purpose:
+      'The AI provider behind "the Chef" — parsing imports, generating recipes, photo identification, product matching.',
+    data: "Imported link content/text, generation prompts, dish/recipe/ingredient photos.",
+    region: "Google Cloud; paid API terms; SCCs / UK Addendum",
+  },
+  {
+    name: "Apple (Private Cloud Compute / on-device intelligence)",
+    purpose:
+      "Where your device supports it, parts of AI processing run on-device or on Apple's Private Cloud Compute.",
+    data: "The content being processed; Apple states PCC data is not retained or accessible to Apple.",
+    region: "Apple infrastructure",
+  },
+  {
+    name: "Recraft",
+    purpose: "Generating illustrated hero images for AI-created recipes.",
+    data: "Recipe title/description only — no personal data.",
+    region: "No personal data is shared",
+  },
+  {
+    name: "Apple (APNs)",
+    purpose: "Delivering push notifications.",
+    data: "Device token + notification payload.",
+    region: "Apple infrastructure",
+  },
+  {
+    name: "Apple (App Store / StoreKit)",
+    purpose:
+      "Billing the Pro subscription (incl. App Store Server Notifications for renewals/refunds).",
+    data: "Purchase/entitlement status.",
+    region: "Apple is the seller of the subscription",
+  },
+  {
+    name: "Sentry",
+    purpose: "Crash and error diagnostics (only if you opt in to diagnostics).",
+    data: "Crash context only: screen id, build, OS, device model — no names, recipe text, or tokens.",
+    region: "EU data-residency deployment",
+  },
+  {
+    name: "Stripe",
+    purpose:
+      "Processing the online-checkout convenience fee (presented via an Apple Pay sheet).",
+    data: "Transaction status; no Foray-held full card data.",
+    region: "SCCs / UK Addendum",
+  },
+  {
+    name: "Logo.dev",
+    purpose: "Rendering retailer brand logos in the store picker.",
+    data: "Retailer domain + publishable API token only — no user personal data.",
+    region: "No personal data is shared",
   },
 ];
-
-function Section({
-  title,
-  children,
-}: {
-  title: string;
-  children: React.ReactNode;
-}) {
-  return (
-    <section className="space-y-4">
-      <h2 className="pt-4 text-xl font-semibold text-foreground">{title}</h2>
-      {children}
-    </section>
-  );
-}
 
 export default function PrivacyPage() {
   return (
     <div className="mx-auto max-w-3xl px-6 py-16 lg:py-24">
-
       <h1 className="text-4xl font-bold tracking-tight text-foreground">
         Privacy Policy
       </h1>
-      <p className="mt-3 text-sm text-muted">Last updated: 3 June 2026 · Effective date: [set at publication]</p>
+      <p className="mt-3 text-sm text-muted">
+        Effective date: {LEGAL_ENTITY.effectiveDate} · Last updated:{" "}
+        {LEGAL_ENTITY.lastUpdated}
+      </p>
 
-      <div className="mt-10">
-        <DraftBanner />
-      </div>
-
-      <div className="space-y-6 text-base leading-relaxed text-muted">
+      <div className="mt-10 space-y-6 text-base leading-relaxed text-muted">
         <p>
-          This policy explains what personal data Foray (&ldquo;Foray,&rdquo;
-          &ldquo;we,&rdquo; &ldquo;us&rdquo;) collects, why, who we share it
-          with, and the rights you have. It covers the Foray iOS app, this
-          website, and related services. Foray turns social-media recipes into
-          meal plans, a deduplicated grocery list, online or in-person checkout,
-          and a cook mode.
+          This policy explains what personal data {LEGAL_ENTITY.legalName}{" "}
+          (&ldquo;Foray,&rdquo; &ldquo;we,&rdquo; &ldquo;us&rdquo;) collects,
+          why, who we share it with, and the rights you have. It covers the Foray
+          iOS app, this website, and related services.
         </p>
 
-        <Section title="1. Who we are">
+        <LegalSection title="1. Who we are">
           <p>
-            The data controller is [LEGAL ENTITY NAME], [REGISTERED ADDRESS, UK].
-            For privacy questions, contact [privacy@forayapp.co.uk]. For UK/EU
-            users, the relevant supervisory authority is the UK Information
-            Commissioner&rsquo;s Office (ICO), and your local EU data protection
-            authority for EU residents.
+            <strong className="text-foreground">Service:</strong> Foray — turns
+            social-media recipes into meal plans, a deduplicated grocery list,
+            online/in-person checkout, and a cook mode.
           </p>
-        </Section>
-
-        <Section title="2. The data we collect, and why">
           <p>
-            We practise data minimisation: the only universally required
-            personal data is your <strong className="text-foreground">name</strong>.
+            <strong className="text-foreground">Data controller:</strong>{" "}
+            {dataControllerLine()}
+          </p>
+          <p>
+            <strong className="text-foreground">Contact (privacy):</strong>{" "}
+            <a
+              href={`mailto:${LEGAL_ENTITY.privacyEmail}`}
+              className="text-foreground underline"
+            >
+              {LEGAL_ENTITY.privacyEmail}
+            </a>
+          </p>
+          <p>
+            We have not appointed a Data Protection Officer, as we are not
+            required to do so given the nature and scale of our processing.
+          </p>
+          <p>
+            For UK/EU users, the relevant supervisory authority is the UK
+            Information Commissioner&rsquo;s Office (ICO) (and your local EU
+            data protection authority for EU residents).
+          </p>
+        </LegalSection>
+
+        <LegalSection title="2. The data we collect, and why">
+          <p>
+            We practise data minimisation: the only universally required personal
+            data is your <strong className="text-foreground">name</strong>.
             Everything else is collected only when a feature you use needs it —
-            for example your account identifier (Apple ID or email), the recipes
-            you import, your meal plans and grocery lists, locale and units,
-            subscription status, and (with your permission) approximate location
-            for finding nearby stores and notification tokens.
+            for example your account identifier, saved and AI-generated recipes,
+            meal plans, grocery lists, shopping history, store preference (chosen
+            manually), dietary/allergen settings, subscription status, and (with
+            permission) notification tokens.
           </p>
           <p>
             Diagnostics and product analytics are{" "}
             <strong className="text-foreground">opt-in and off by default</strong>{" "}
-            in the UK/EU. We do not collect unnecessary demographics or your
-            contacts, and we do not perform tracking-based advertising.
+            in the UK/EU. We do not collect your location — you choose your store
+            manually. We do not collect unnecessary demographics or your contacts,
+            and we do not perform tracking-based advertising.
           </p>
-        </Section>
+        </LegalSection>
 
-        <Section title="3. Payments — what we do not collect">
+        <LegalSection title="3. Payments — what we do not collect">
           <p>
-            Foray is <strong className="text-foreground">not the merchant of record</strong>{" "}
+            Foray is{" "}
+            <strong className="text-foreground">not the merchant of record</strong>{" "}
             for groceries. Grocery payment happens in the retailer/partner
-            surface, and we do not collect or store your card details. App
-            subscriptions are billed by Apple via the App Store. The
-            online-checkout convenience fee is processed by Stripe through an
-            Apple Pay sheet — we receive only the transaction status, never your
-            full card details.
+            surface. We do not collect or store your card or payment-card details.
+            App subscriptions are billed by Apple via the App Store. The
+            online-checkout convenience charge is processed by Stripe through an
+            Apple Pay sheet — we receive only transaction status from Stripe, never
+            your full card details.
           </p>
-        </Section>
+        </LegalSection>
 
-        <Section title="4. Imported recipe content">
+        <LegalSection title="4. AI recipe creation and imported social content">
           <p>
-            When you paste or share a recipe link or photo, we send that content
-            to our AI parser (the Chef) to extract structured facts (ingredients,
-            quantities, steps). We store the structured result and a link back to
-            the original, and keep your imported text/photo privately as a
-            fidelity buffer tied to your account. We do not republish it to other
-            users or re-host creators&rsquo; media. AI output may be inaccurate —
-            always verify ingredients, especially allergens.
+            Foray offers four ways to create a recipe, all processed by our AI
+            pipeline (&ldquo;the Chef&rdquo;): import from a link; generate from a
+            prompt (including via Siri); photo of a dish or written recipe; pantry
+            photo of ingredients you have (you confirm before generating — we do
+            not build a kitchen inventory). Content you provide is sent to our AI
+            provider to produce a structured recipe. We store the result privately
+            on your account; for social imports we keep a link back to the original
+            and do not republish your imports to other users.
           </p>
-        </Section>
+          <p>
+            AI output may be inaccurate — always verify ingredients, and never
+            rely on it for allergen safety.
+          </p>
+        </LegalSection>
 
-        <Section title="5. Who we share data with (subprocessors)">
+        <LegalSection title="5. Who we share data with (subprocessors)">
           <p>
             We share the minimum necessary with vetted providers acting on our
-            instructions under data-processing agreements. The current list:
+            instructions under data-processing agreements:
           </p>
           <div className="overflow-hidden rounded-2xl border border-border">
             <table className="w-full border-collapse text-left text-sm">
               <thead>
                 <tr className="border-b border-border bg-surface">
-                  <th className="px-4 py-3 font-semibold text-foreground">Subprocessor</th>
-                  <th className="px-4 py-3 font-semibold text-foreground">Purpose</th>
-                  <th className="px-4 py-3 font-semibold text-foreground">Data involved</th>
+                  <th className="px-4 py-3 font-semibold text-foreground">
+                    Subprocessor
+                  </th>
+                  <th className="px-4 py-3 font-semibold text-foreground">
+                    Purpose
+                  </th>
+                  <th className="px-4 py-3 font-semibold text-foreground">
+                    Data involved
+                  </th>
+                  <th className="px-4 py-3 font-semibold text-foreground">
+                    Region
+                  </th>
                 </tr>
               </thead>
               <tbody>
                 {SUBPROCESSORS.map((sp) => (
-                  <tr key={sp.name} className="border-b border-border last:border-0 align-top">
-                    <td className="px-4 py-3 font-medium text-foreground">{sp.name}</td>
+                  <tr
+                    key={sp.name}
+                    className="border-b border-border align-top last:border-0"
+                  >
+                    <td className="px-4 py-3 font-medium text-foreground">
+                      {sp.name}
+                    </td>
                     <td className="px-4 py-3">{sp.purpose}</td>
                     <td className="px-4 py-3">{sp.data}</td>
+                    <td className="px-4 py-3">{sp.region}</td>
                   </tr>
                 ))}
               </tbody>
             </table>
           </div>
-          <p>
-            We may add or change subprocessors as integrations evolve and will
-            keep this list current. Error-tracking (e.g. Sentry) is not yet
-            enabled; if we enable it, crash data will exclude names, recipe text,
-            and tokens, and this list will be updated first.
-          </p>
-        </Section>
+        </LegalSection>
 
-        <Section title="6. International transfers">
+        <LegalSection title="6. International transfers">
           <p>
-            Where data is processed outside the UK/EEA, we rely on appropriate
-            safeguards — the UK International Data Transfer Agreement/Addendum
-            and/or EU Standard Contractual Clauses — plus supplementary measures.
-            We will confirm and document each subprocessor&rsquo;s processing
-            region before launch.
+            Our primary data processing takes place in the EEA (AWS eu-west-1,
+            Ireland). Where data is processed outside the UK/EEA, we rely on the
+            UK International Data Transfer Agreement / Addendum and/or EU Standard
+            Contractual Clauses, plus supplementary measures where appropriate.
           </p>
-        </Section>
+        </LegalSection>
 
-        <Section title="7. Retention">
+        <LegalSection title="7. Retention">
           <p>
-            We keep your personal data while your account is active. When you{" "}
-            <strong className="text-foreground">delete your account</strong> (in
-            Settings), we delete your Supabase records, wipe local on-device
-            data, and revoke your tokens. Deletion is irreversible, subject to any
-            short rollback window and legally required retention (e.g.
-            transaction records for the convenience fee). [Confirm windows with
-            legal.]
+            We keep your personal data while your account is active. When you
+            delete your account, we delete your records, wipe local on-device
+            data, and revoke tokens; backup copies are purged within 30 days.
+            Diagnostics (if opted in) are retained up to 90 days; analytics up
+            to 12 months. Transaction records for the convenience charge are
+            retained as required by law (generally 6 years in the UK).
           </p>
-        </Section>
+        </LegalSection>
 
-        <Section title="8. Your rights">
+        <LegalSection title="8. Your rights">
           <p>
             You can access, export, rectify, and erase your data, and restrict or
-            object to certain processing, from in-app Settings or by contacting
-            us. UK/EU users have rights under UK and EU GDPR and may complain to
-            the ICO or their local DPA. US/California residents have rights to
-            know, access, delete, and correct — we do not sell or share personal
-            data as those terms are defined.
+            object to certain processing, from in-app Settings or by contacting{" "}
+            {LEGAL_ENTITY.privacyEmail}. UK/EU users have rights under UK and EU
+            GDPR. US/California residents have rights to know, access, delete,
+            and correct — we do not sell or share personal data as those terms are
+            defined.
           </p>
-        </Section>
+        </LegalSection>
 
-        <Section title="9. Children">
+        <LegalSection title="9. Children">
           <p>
             Foray is intended for users aged 13 and over. We do not knowingly
-            collect data from children under 13.
+            collect personal data from children under 13. Contact{" "}
+            {LEGAL_ENTITY.privacyEmail} if you believe a child under 13 has
+            provided us data.
           </p>
-        </Section>
+        </LegalSection>
 
-        <Section title="10. Security">
+        <LegalSection title="10. Security">
           <p>
-            On-device data is held in a local encrypted database (SQLCipher) and
-            auth tokens in the iOS Keychain. Network traffic uses TLS, and backend
-            functions apply least-privilege, server-side authorisation and
-            ownership checks.
+            On-device data is encrypted at rest by iOS Data Protection; auth tokens
+            are stored in the iOS Keychain. Network traffic uses TLS; backend
+            functions apply least-privilege authorisation and ownership checks.
           </p>
-        </Section>
+        </LegalSection>
 
-        <Section title="11. App Store privacy label">
+        <LegalSection title="11. Siri, Shortcuts & widgets">
           <p>
-            This policy is kept consistent with Foray&rsquo;s App Store privacy
-            label. Where the label and this policy describe the same data, they
-            are intended to match; if you spot a discrepancy, contact us.
+            If you use Foray through Siri, Shortcuts, Spotlight, or widgets, your
+            spoken request is processed by Apple under Apple&rsquo;s terms; Foray
+            receives the resulting structured request and handles it like the
+            equivalent in-app action. We don&rsquo;t receive or store your voice
+            audio.
           </p>
-        </Section>
+        </LegalSection>
 
-        <Section title="12. Cookies on this website">
+        <LegalSection title="12. Cookies on this website">
           <p>
-            This website sets no marketing or tracking cookies by default. When
-            you make a choice in our cookie banner, we store it as{" "}
+            This website sets no marketing or tracking cookies by default. When you
+            make a choice in our cookie banner, we store it as{" "}
             <code className="text-foreground">foray-consent</code> (a
-            strictly-necessary cookie plus a browser localStorage entry, kept
-            for about 6 months) so we don&rsquo;t ask again. Only if you choose
-            &ldquo;Accept&rdquo; do we load Google Analytics, which sets its own
-            cookies to help us understand how people find Foray. Choosing
-            &ldquo;Reject&rdquo; means no analytics loads at all. Signing in to
-            the admin area uses strictly-necessary authentication cookies.
+            strictly-necessary cookie plus a browser localStorage entry, kept for
+            about 6 months). Only if you choose &ldquo;Accept&rdquo; do we load
+            Google Analytics. Signing in to the admin area uses strictly-necessary
+            authentication cookies.
           </p>
-        </Section>
+        </LegalSection>
 
-        <Section title="13. Changes & contact">
+        <LegalSection title="13. Changes & contact">
           <p>
             We may update this policy and will revise the &ldquo;last
-            updated&rdquo; date, notifying you in-app or by email for material
-            changes. Questions or requests: [privacy@forayapp.co.uk] · [LEGAL
-            ENTITY NAME, ADDRESS].
+            updated&rdquo; date; for material changes we will notify you in-app or
+            by email. Questions or requests:{" "}
+            <a
+              href={`mailto:${LEGAL_ENTITY.privacyEmail}`}
+              className="text-foreground underline"
+            >
+              {LEGAL_ENTITY.privacyEmail}
+            </a>{" "}
+            · {postalContactLine()} UK/EU users may also contact the ICO or their
+            local data protection authority.
           </p>
-        </Section>
+        </LegalSection>
       </div>
     </div>
   );

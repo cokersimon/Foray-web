@@ -1,185 +1,201 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { DraftBanner } from "@/components/legal/draft-banner";
+import { LegalSection } from "@/components/legal/legal-section";
+import {
+  LEGAL_ENTITY,
+  postalContactLine,
+} from "@/lib/legal-entity";
 
 export const metadata: Metadata = {
   title: "Terms & Conditions — Foray",
 };
 
-function Section({
-  title,
-  children,
-}: {
-  title: string;
-  children: React.ReactNode;
-}) {
-  return (
-    <section className="space-y-4">
-      <h2 className="pt-4 text-xl font-semibold text-foreground">{title}</h2>
-      {children}
-    </section>
-  );
-}
-
 export default function TermsPage() {
   return (
     <div className="mx-auto max-w-3xl px-6 py-16 lg:py-24">
-
       <h1 className="text-4xl font-bold tracking-tight text-foreground">
         Terms &amp; Conditions
       </h1>
-      <p className="mt-3 text-sm text-muted">Last updated: 3 June 2026 · Effective date: [set at publication]</p>
+      <p className="mt-3 text-sm text-muted">
+        Effective date: {LEGAL_ENTITY.effectiveDate} · Last updated:{" "}
+        {LEGAL_ENTITY.lastUpdated}
+      </p>
 
-      <div className="mt-10">
-        <DraftBanner />
-      </div>
-
-      <div className="space-y-6 text-base leading-relaxed text-muted">
+      <div className="mt-10 space-y-6 text-base leading-relaxed text-muted">
         <p>
           These Terms &amp; Conditions (&ldquo;Terms&rdquo;) are a contract
-          between you and [LEGAL ENTITY NAME] (&ldquo;Foray,&rdquo;
-          &ldquo;we,&rdquo; &ldquo;us&rdquo;) governing your use of the Foray iOS
+          between you and{" "}
+          <strong className="text-foreground">{LEGAL_ENTITY.legalName}</strong>{" "}
+          (&ldquo;Foray,&rdquo; &ldquo;we,&rdquo; &ldquo;us&rdquo;), a company
+          registered in England and Wales (company number{" "}
+          {LEGAL_ENTITY.companyNumber}) with its registered office at{" "}
+          {LEGAL_ENTITY.registeredOffice}, governing your use of the Foray iOS
           app, this website, and related services (the &ldquo;Service&rdquo;).
           Your use is also governed by our{" "}
           <Link href="/privacy" className="text-foreground underline">
             Privacy Policy
-          </Link>{" "}
-          and, where relevant, by Apple&rsquo;s standard EULA and the terms of
-          the retailers and partners you check out with.
+          </Link>
+          , and — where relevant — by Apple&rsquo;s standard EULA and the terms
+          of the retailers and partners you check out with.
         </p>
 
-        <Section title="1. Acceptance & eligibility">
+        <LegalSection title="1. Acceptance & eligibility">
           <p>
             By creating an account or using the Service, you agree to these
-            Terms. You must be at least 13 years old. Some features, such as paid
-            subscriptions, may require you to be the age of majority in your
-            jurisdiction.
+            Terms. You must be at least 13 years old. If you are under 18, you
+            must have a parent or guardian&rsquo;s permission to purchase a paid
+            subscription or make payments through the Service.
           </p>
-        </Section>
+        </LegalSection>
 
-        <Section title="2. What the Service does">
+        <LegalSection title="2. What the Service does">
           <p>
-            Foray lets you import recipes (by link, photo, or manual entry, parsed
-            by our AI &ldquo;the Chef&rdquo;), plan meals with swipe-based
-            planning, build a deduplicated grocery list, shop in person for free
-            or check out online via a retailer/partner, and cook with step-by-step
-            cook mode and timers. We may change, add, or remove features.
+            Foray lets you create recipes (import a link, generate from a prompt,
+            photo of a dish or written recipe, or pantry photo with confirmation),
+            plan meals, build a deduplicated grocery list matched to your chosen
+            supermarket, shop in person for free or check out online via a
+            retailer/partner, and cook with step-by-step cook mode and timers. You
+            can also use Foray via Siri, Shortcuts, Spotlight, and widgets where
+            supported. We may change, add, or remove features.
           </p>
-        </Section>
+        </LegalSection>
 
-        <Section title="3. Accounts">
+        <LegalSection title="3. Accounts">
           <p>
             You sign in with Sign in with Apple or an emailed 6-digit code. You
             are responsible for activity under your account. You may delete your
             account at any time in Settings; deletion removes your data as
             described in the Privacy Policy and is irreversible.
           </p>
-        </Section>
+        </LegalSection>
 
-        <Section title="4. Subscriptions, trial & billing">
+        <LegalSection title="4. Subscriptions, trial & billing">
           <p>
-            The core funnel (import, plan, deduplicated list, in-person shopping,
-            cook mode) is free, with a one-week full trial for new users. Foray
-            Premium unlocks AI and convenience features for [£4.99 per month —
-            confirm], localised per region.{" "}
+            The core funnel is free. New users may start a 7-day free trial of
+            Foray Pro via Apple StoreKit; you are not charged until the trial
+            ends, after which it auto-renews at £4.99/month unless cancelled at
+            least 24 hours before. Foray Pro is also available at £54.99/year.
+            AI creation features are subject to fair-use daily allowances
+            (currently 5 uses per feature per day).{" "}
             <strong className="text-foreground">
               Subscriptions are sold and billed by Apple
             </strong>{" "}
-            through the App Store and auto-renew unless cancelled at least 24
-            hours before the period ends. Manage or cancel anytime in Apple ID
-            &rarr; Subscriptions.
+            through the App Store.
           </p>
-        </Section>
+        </LegalSection>
 
-        <Section title="5. Online-checkout convenience charge">
+        <LegalSection title="5. Online-checkout convenience charge">
           <p>
-            When you choose to check out online, a convenience charge of{" "}
-            <strong className="text-foreground">£2.49 per order</strong> [confirm]
-            applies, localised per currency. It is collected via Stripe through an
-            Apple Pay sheet before we hand off to the retailer (not via Apple
-            in-app purchase), is separate from Premium, and is shown before you
-            commit and as a line item in your order summary.{" "}
-            <strong className="text-foreground">In-person shopping is always free.</strong>
+            When you check out online, a convenience charge of{" "}
+            <strong className="text-foreground">£2.49 per order</strong> applies,
+            localised per currency. It is collected via Stripe through an Apple Pay
+            sheet before handoff to the retailer (not via Apple in-app purchase),
+            is separate from Pro, and is shown before you commit.{" "}
+            <strong className="text-foreground">
+              In-person shopping is always free.
+            </strong>
           </p>
-        </Section>
+        </LegalSection>
 
-        <Section title="6. Groceries, retailers & the merchant-of-record boundary">
+        <LegalSection title="6. Groceries, retailers & merchant-of-record">
           <p>
             Foray facilitates; it does not sell groceries. Foray is not the
             merchant of record. When you check out online, the retailer/partner is
-            the seller and is responsible for the goods, pricing accuracy at
-            their checkout, availability, substitutions, fulfilment, delivery,
-            refunds, and consumer-law obligations. Payment for groceries happens
-            in the retailer/partner surface. Our convenience charge buys the
-            handoff service, not the groceries.
+            the seller and is responsible for the goods, pricing, availability,
+            fulfilment, and refunds. Payment for groceries happens in the
+            retailer/partner surface. Our convenience charge buys the handoff
+            service, not the groceries.
           </p>
-        </Section>
+        </LegalSection>
 
-        <Section title="7. AI output — accuracy & no advice">
+        <LegalSection title="7. AI output — accuracy & no advice">
           <p>
-            Recipes and content generated or parsed by AI may be incomplete or
-            inaccurate. You must verify ingredients, quantities, and steps before
-            shopping, cooking, or eating. Nutrition information is informational
-            only; Foray makes no medical or health claims.{" "}
-            <strong className="text-foreground">
-              Allergen flags are informational and not guaranteed
-            </strong>{" "}
-            — if you have an allergy or intolerance, always check product
-            packaging and the original source.
+            Recipes produced by AI may be incomplete or inaccurate. You must
+            verify ingredients, quantities, and steps before shopping or cooking.
+            Nutrition information is informational only; Foray makes no medical or
+            health claims. Allergen flags are informational and not guaranteed — if
+            you have an allergy, always check product packaging and the original
+            source. Product matches and prices are estimates; the
+            retailer&rsquo;s checkout price governs.
           </p>
-        </Section>
+        </LegalSection>
 
-        <Section title="8. User content & social import">
+        <LegalSection title="8. User content & social-media import">
           <p>
-            You are responsible for the links, photos, text, and recipes you
-            import or create, and confirm you have the right to use them for
-            personal meal planning. We extract structured facts, store a link back
-            to the original, attribute the creator where available, and do not
-            re-host creators&rsquo; media or republish your imports to other
-            users. Rights holders can request takedown at [legal@forayapp.co.uk].
+            The import feature is a personal organisational tool for your own
+            private, non-commercial meal planning — not a publishing or
+            redistribution service. Imported recipes are private to your account.
+            You are responsible for each import and must use it for personal use
+            only. Foray provides the tool; you choose and supply the content. We
+            extract structured facts, store a link back to the original, and
+            attribute the creator where available.
           </p>
-        </Section>
-
-        <Section title="9. Acceptable use">
           <p>
-            Don&rsquo;t break the law, infringe others&rsquo; rights, scrape,
-            overload, reverse-engineer, or disrupt the Service or our partners,
-            bypass usage limits or paywalls, or misuse import to bulk-copy
-            creators&rsquo; content. We may rate-limit, suspend, or terminate
-            accounts that breach these Terms.
+            Rights holders may contact{" "}
+            <a
+              href={`mailto:${LEGAL_ENTITY.legalEmail}`}
+              className="text-foreground underline"
+            >
+              {LEGAL_ENTITY.legalEmail}
+            </a>{" "}
+            with takedown requests. AI-generated recipes are produced at your
+            request; you must not present them as the work of any specific creator,
+            restaurant, or brand.
           </p>
-        </Section>
+        </LegalSection>
 
-        <Section title="10. Disclaimers & limitation of liability">
+        <LegalSection title="9. Acceptable use">
+          <p>
+            Don&rsquo;t break the law, infringe others&rsquo; rights, scrape or
+            disrupt the Service, bypass usage limits or paywalls, misuse import for
+            bulk-copy or commercial exploitation, or upload malicious material. We
+            may suspend or terminate accounts that breach these Terms.
+          </p>
+        </LegalSection>
+
+        <LegalSection title="10. Disclaimers & limitation of liability">
           <p>
             The Service is provided &ldquo;as is&rdquo; and &ldquo;as
             available.&rdquo; To the fullest extent permitted by law, we disclaim
             implied warranties and are not liable for indirect or consequential
-            losses, or for the goods, services, acts, or omissions of third-party
-            retailers/partners. Nothing excludes liability that cannot be excluded
-            by law, and UK/EU consumer statutory rights (e.g. the Consumer Rights
-            Act 2015) are unaffected.
+            losses, or for third-party retailers&rsquo; acts or omissions. Our
+            total aggregate liability is limited to the greater of the amount you
+            paid us in the 12 months before the claim or £100. Nothing excludes
+            liability that cannot be excluded by law; UK/EU consumer statutory
+            rights are unaffected.
           </p>
-        </Section>
+        </LegalSection>
 
-        <Section title="11. Governing law">
+        <LegalSection title="11. Governing law">
           <p>
-            For UK users, these Terms are governed by the laws of England and
-            Wales, whose courts have jurisdiction, without depriving consumers of
-            mandatory home-country protections. EU users keep their mandatory
-            consumer protections. [Confirm US governing law/venue before US
-            launch.]
+            These Terms are governed by the laws of England and Wales. If you are a
+            consumer resident in the UK or EU, this does not deprive you of
+            mandatory consumer protections in your country of residence. The Service
+            is currently offered in the United Kingdom.
           </p>
-        </Section>
+        </LegalSection>
 
-        <Section title="12. Changes & contact">
+        <LegalSection title="12. Changes & contact">
           <p>
             We may update these Terms and will revise the &ldquo;last
-            updated&rdquo; date, notifying you of material changes. [LEGAL ENTITY
-            NAME], [ADDRESS]. Questions: [support@forayapp.co.uk /
-            legal@forayapp.co.uk].
+            updated&rdquo; date; for material changes we will notify you in-app or
+            by email. {postalContactLine()} Questions:{" "}
+            <a
+              href={`mailto:${LEGAL_ENTITY.supportEmail}`}
+              className="text-foreground underline"
+            >
+              {LEGAL_ENTITY.supportEmail}
+            </a>{" "}
+            · Legal/rights matters:{" "}
+            <a
+              href={`mailto:${LEGAL_ENTITY.legalEmail}`}
+              className="text-foreground underline"
+            >
+              {LEGAL_ENTITY.legalEmail}
+            </a>
+            .
           </p>
-        </Section>
+        </LegalSection>
       </div>
     </div>
   );
