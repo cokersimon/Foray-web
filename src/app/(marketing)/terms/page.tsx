@@ -4,6 +4,7 @@ import { LegalSection } from "@/components/legal/legal-section";
 import {
   LEGAL_ENTITY,
   postalContactLine,
+  registeredOfficeLine,
 } from "@/lib/legal-entity";
 
 export const metadata: Metadata = {
@@ -29,7 +30,7 @@ export default function TermsPage() {
           (&ldquo;Foray,&rdquo; &ldquo;we,&rdquo; &ldquo;us&rdquo;), a company
           registered in England and Wales (company number{" "}
           {LEGAL_ENTITY.companyNumber}) with its registered office at{" "}
-          {LEGAL_ENTITY.registeredOffice}, governing your use of the Foray iOS
+          {registeredOfficeLine(true)}, governing your use of the Foray iOS
           app, this website, and related services (the &ldquo;Service&rdquo;).
           Your use is also governed by our{" "}
           <Link href="/privacy" className="text-foreground underline">

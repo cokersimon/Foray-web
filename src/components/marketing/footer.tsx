@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { LEGAL_ENTITY } from "@/lib/legal-entity";
+import { LEGAL_ENTITY, registeredOfficeBlock } from "@/lib/legal-entity";
 import { SOCIAL_LINKS } from "@/lib/site";
 
 const FOOTER_LINKS = [
@@ -76,51 +76,71 @@ const SOCIALS = [
 ];
 
 export function Footer() {
+  const officeLines = registeredOfficeBlock();
+
   return (
     <footer className="overflow-hidden border-t border-border">
-      <div className="mx-auto flex max-w-7xl flex-col gap-6 px-6 pt-12 md:flex-row md:items-center md:justify-between md:px-10">
-        {/* Socials */}
-        <div className="flex items-center gap-5">
-          {SOCIALS.map((social) => (
-            <a
-              key={social.label}
-              href={social.href}
-              target="_blank"
-              rel="noopener noreferrer"
-              aria-label={`Foray on ${social.label}`}
-              className="text-muted transition-colors hover:text-foreground"
-            >
-              {social.icon}
-            </a>
-          ))}
+      <div className="mx-auto flex max-w-7xl flex-col gap-8 px-6 pt-12 md:px-10">
+        <div className="flex flex-col gap-6 sm:flex-row sm:items-center sm:justify-between">
+          {/* Socials */}
+          <div className="flex items-center gap-5">
+            {SOCIALS.map((social) => (
+              <a
+                key={social.label}
+                href={social.href}
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label={`Foray on ${social.label}`}
+                className="text-muted transition-colors hover:text-foreground"
+              >
+                {social.icon}
+              </a>
+            ))}
+          </div>
+
+          {/* Links */}
+          <nav className="flex flex-wrap items-center gap-x-6 gap-y-2">
+            {FOOTER_LINKS.map((link) =>
+              link.href.startsWith("/") ? (
+                <Link
+                  key={link.label}
+                  href={link.href}
+                  className="text-sm text-muted transition-colors hover:text-foreground"
+                >
+                  {link.label}
+                </Link>
+              ) : (
+                <a
+                  key={link.label}
+                  href={link.href}
+                  className="text-sm text-muted transition-colors hover:text-foreground"
+                >
+                  {link.label}
+                </a>
+              ),
+            )}
+          </nav>
         </div>
 
-        {/* Links */}
-        <nav className="flex flex-wrap items-center gap-x-6 gap-y-2">
-          {FOOTER_LINKS.map((link) =>
-            link.href.startsWith("/") ? (
-              <Link
-                key={link.label}
-                href={link.href}
-                className="text-sm text-muted transition-colors hover:text-foreground"
-              >
-                {link.label}
-              </Link>
-            ) : (
-              <a
-                key={link.label}
-                href={link.href}
-                className="text-sm text-muted transition-colors hover:text-foreground"
-              >
-                {link.label}
-              </a>
-            ),
-          )}
-        </nav>
+        <div className="flex flex-col gap-4 border-t border-border pt-6 sm:flex-row sm:items-end sm:justify-between">
+          <address className="not-italic text-xs leading-relaxed text-muted">
+            <span className="font-medium text-foreground">
+              {LEGAL_ENTITY.legalName}
+            </span>
+            <br />
+            Company number {LEGAL_ENTITY.companyNumber}
+            {officeLines.map((line) => (
+              <span key={line}>
+                <br />
+                {line}
+              </span>
+            ))}
+          </address>
 
-        <span className="text-xs text-muted">
-          &copy; {new Date().getFullYear()} Foray. All rights reserved.
-        </span>
+          <span className="text-xs text-muted sm:text-right">
+            &copy; {new Date().getFullYear()} Foray. All rights reserved.
+          </span>
+        </div>
       </div>
 
       {/* Giant clipped wordmark (Cherrypick-style sign-off) */}
