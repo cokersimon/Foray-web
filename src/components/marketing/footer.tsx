@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { LEGAL_ENTITY, registeredOfficeBlock } from "@/lib/legal-entity";
+import { LEGAL_ENTITY, dunsAddressBlock } from "@/lib/legal-entity";
 import { SOCIAL_LINKS } from "@/lib/site";
 
 const FOOTER_LINKS = [
@@ -76,7 +76,7 @@ const SOCIALS = [
 ];
 
 export function Footer() {
-  const officeLines = registeredOfficeBlock();
+  const officeLines = dunsAddressBlock();
 
   return (
     <footer className="overflow-hidden border-t border-border">
