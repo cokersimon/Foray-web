@@ -7,7 +7,8 @@ export default function robots(): MetadataRoute.Robots {
       {
         userAgent: "*",
         allow: "/",
-        disallow: ["/admin", "/sign-in", "/auth", "/api"],
+        // /r/* are unlisted share links (ADR-022) — never index tokens.
+        disallow: ["/admin", "/sign-in", "/auth", "/api", "/r"],
       },
     ],
     sitemap: `${SITE_URL}/sitemap.xml`,
