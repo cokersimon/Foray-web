@@ -133,7 +133,7 @@ export function WaitlistModal() {
               type="button"
               onClick={handleClose}
               aria-label="Close"
-              className="glass-chip absolute top-4 right-4 flex h-9 w-9 items-center justify-center text-ink"
+              className="marketing-button marketing-button-on-dark marketing-button-icon absolute top-4 right-4"
             >
               <ForayIcon name="close" size="small" />
             </button>
