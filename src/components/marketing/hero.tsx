@@ -95,7 +95,7 @@ export function Hero() {
           </p>
 
           <div
-            className="motion-safe:animate-rise mt-7 flex flex-col items-center gap-2.5 sm:mt-8"
+            className="motion-safe:animate-rise mt-7 flex flex-col items-center gap-2.5 sm:mt-8 lg:items-start"
             style={{ animationDelay: "0.24s" }}
           >
             {APP_STORE_LIVE ? (

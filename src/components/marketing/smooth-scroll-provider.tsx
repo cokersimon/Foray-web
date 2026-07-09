@@ -35,8 +35,11 @@ export function SmoothScrollProvider({
         lerp: 0.1,
         duration: 1.2,
         smoothWheel: true,
-        // Let Lenis drive #anchor jumps so smooth scroll doesn't fight them.
-        anchors: true,
+        // Offset clears the fixed frosted toolbar (negative = stop above target).
+        anchors: {
+          offset: -112,
+          duration: 1.2,
+        },
       }}
     >
       {children}

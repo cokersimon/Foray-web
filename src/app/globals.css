@@ -97,6 +97,15 @@
 html {
   color-scheme: light;
   background: var(--background);
+  /* Clear the fixed frosted toolbar when jumping to #anchors. */
+  scroll-padding-top: 6.5rem;
+  scroll-behavior: smooth;
+}
+
+@media (min-width: 768px) {
+  html {
+    scroll-padding-top: 7rem;
+  }
 }
 
 body {

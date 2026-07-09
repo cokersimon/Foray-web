@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import { useLenis } from "lenis/react";
 import { Wordmark } from "@/components/brand/wordmark";
 import { ForayIcon } from "@/components/brand/foray-icon";
 import { useWaitlist } from "./waitlist-provider";
@@ -13,9 +14,13 @@ const NAV_LINKS = [
   { label: "FAQ", href: "/#faq" },
 ];
 
+/** Clears the fixed frosted toolbar when landing on a section. */
+const SECTION_SCROLL_OFFSET = -112;
+
 export function Navbar() {
   const { open } = useWaitlist();
   const [menuOpen, setMenuOpen] = useState(false);
+  const lenis = useLenis();
 
   useEffect(() => {
     if (!menuOpen) return;
@@ -33,6 +38,30 @@ export function Navbar() {
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
   }, []);
+
+  function scrollToSection(href: string) {
+    const id = href.includes("#") ? href.split("#")[1] : null;
+    if (!id) return;
+    const el = document.getElementById(id);
+    if (!el) return;
+
+    setMenuOpen(false);
+
+    if (lenis) {
+      lenis.scrollTo(el, { offset: SECTION_SCROLL_OFFSET, duration: 1.2 });
+      return;
+    }
+
+    const top =
+      el.getBoundingClientRect().top + window.scrollY + SECTION_SCROLL_OFFSET;
+    const reduceMotion = window.matchMedia(
+      "(prefers-reduced-motion: reduce)",
+    ).matches;
+    window.scrollTo({
+      top,
+      behavior: reduceMotion ? "auto" : "smooth",
+    });
+  }
 
   return (
     <>
@@ -61,13 +90,18 @@ export function Navbar() {
 
             <div className="hidden items-center gap-1 md:flex">
               {NAV_LINKS.map((link) => (
-                <Link
+                <a
                   key={link.label}
                   href={link.href}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    scrollToSection(link.href);
+                    window.history.pushState(null, "", link.href);
+                  }}
                   className="rounded-full px-4 py-2.5 text-sm font-semibold text-muted transition-colors hover:bg-foreground/[0.04] hover:text-foreground focus-visible:outline-2 focus-visible:outline-foreground"
                 >
                   {link.label}
-                </Link>
+                </a>
               ))}
               <button
                 type="button"
@@ -139,14 +173,18 @@ export function Navbar() {
                 className="flex flex-col gap-1 px-5 pb-8 pt-2 sm:px-6"
               >
                 {NAV_LINKS.map((link) => (
-                  <Link
+                  <a
                     key={link.label}
                     href={link.href}
-                    onClick={() => setMenuOpen(false)}
+                    onClick={(e) => {
+                      e.preventDefault();
+                      scrollToSection(link.href);
+                      window.history.pushState(null, "", link.href);
+                    }}
                     className="rounded-2xl px-3 py-3.5 text-left text-[1.65rem] font-semibold leading-none tracking-tight text-white transition-colors hover:bg-white/10"
                   >
                     {link.label}
-                  </Link>
+                  </a>
                 ))}
               </nav>
             </div>
