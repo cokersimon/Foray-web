@@ -1,7 +1,6 @@
 "use client";
 
 import { MotionConfig, useReducedMotion } from "framer-motion";
-import { TickerBar } from "./ticker-bar";
 import { Navbar } from "./navbar";
 import { Footer } from "./footer";
 import { WaitlistProvider } from "./waitlist-provider";
@@ -26,9 +25,8 @@ export function MarketingShell({ children }: { children: React.ReactNode }) {
       >
         Skip to content
       </a>
-      <TickerBar />
       <Navbar />
-      <main id="main-content" tabIndex={-1}>
+      <main id="main-content" tabIndex={-1} className="pt-16 sm:pt-20">
         {children}
       </main>
       <Footer />

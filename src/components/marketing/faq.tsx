@@ -1,7 +1,6 @@
 "use client";
 
-import { motion } from "framer-motion";
-import { ChevronDown } from "lucide-react";
+import { ForayIcon } from "@/components/brand/foray-icon";
 import { CHECKOUT_FEE_GBP } from "@/lib/site";
 
 const FAQS = [
@@ -38,13 +37,16 @@ const FAQS = [
 
 export function Faq() {
   return (
-    <section id="faq" className="scroll-mt-24 px-5 py-24 sm:px-6 md:py-32 lg:px-10">
-      <div className="mx-auto grid max-w-7xl gap-12 lg:grid-cols-[0.7fr_1.3fr] lg:gap-24">
-        <div className="lg:sticky lg:top-32 lg:self-start">
-          <p className="text-xs font-bold uppercase tracking-[0.2em] text-brand-dot">
+    <section
+      id="faq"
+      className="scroll-mt-28 bg-background px-5 py-20 sm:px-6 md:py-28 lg:px-10 lg:py-32"
+    >
+      <div className="mx-auto max-w-7xl">
+        <div className="max-w-3xl">
+          <p className="text-[13px] font-semibold tracking-[-0.01em] text-muted">
             Good to know
           </p>
-          <h2 className="mt-5 text-balance text-5xl font-bold leading-[0.98] tracking-[-0.05em] text-foreground sm:text-6xl">
+          <h2 className="mt-4 text-balance text-[clamp(2.4rem,5vw,4.25rem)] font-bold leading-[1.02] tracking-[-0.045em] text-foreground">
             A few useful answers<span className="text-brand-dot">.</span>
           </h2>
           <p className="mt-5 max-w-md text-base leading-relaxed text-muted">
@@ -53,28 +55,24 @@ export function Faq() {
           </p>
         </div>
 
-        <div className="divide-y divide-border border-y border-border">
-          {FAQS.map((faq) => (
-            <motion.div
+        <div className="mt-12 overflow-hidden rounded-[28px] bg-[#f5f5f7] px-5 sm:px-8 md:px-10">
+          {FAQS.map((faq, index) => (
+            <details
               key={faq.question}
-              initial={{ opacity: 0, y: 16 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, amount: 0.3 }}
-              transition={{ duration: 0.4 }}
+              className={`group ${index < FAQS.length - 1 ? "border-b border-black/[0.06]" : ""}`}
             >
-              <details className="group">
-                <summary className="flex cursor-pointer list-none items-center justify-between gap-4 py-7 text-left text-lg font-semibold tracking-tight text-foreground [&::-webkit-details-marker]:hidden">
-                  {faq.question}
-                  <ChevronDown
-                    aria-hidden="true"
-                    className="h-5 w-5 shrink-0 text-muted transition-transform duration-300 group-open:rotate-180"
-                  />
-                </summary>
-                <p className="max-w-2xl pb-7 pr-10 text-sm leading-relaxed text-muted md:text-base">
-                  {faq.answer}
-                </p>
-              </details>
-            </motion.div>
+              <summary className="flex cursor-pointer list-none items-center justify-between gap-4 py-6 text-left text-lg font-semibold tracking-tight text-foreground sm:py-7 [&::-webkit-details-marker]:hidden">
+                {faq.question}
+                <ForayIcon
+                  name="chevronDown"
+                  size="row"
+                  className="shrink-0 text-muted transition-transform duration-300 group-open:rotate-180"
+                />
+              </summary>
+              <p className="max-w-3xl pb-6 pr-8 text-sm leading-relaxed text-muted sm:pb-7 sm:text-base">
+                {faq.answer}
+              </p>
+            </details>
           ))}
         </div>
       </div>

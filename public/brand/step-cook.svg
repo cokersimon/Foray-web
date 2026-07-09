@@ -1,6 +1,0 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="456 448 1136 1056" width="1136" height="1056">
-  <!-- Hand-authored from Groceries spec: ink #1C1C1E, white #FFFFFF, mid #8E8E93, halo 56, rx 72 -->
-  <!-- Step "Cook": chef's hat (toque) with band. -->
-  <path d="M 744 1180 L 744 1000 C 596 980 516 836 596 712 C 656 620 780 588 872 640 C 924 508 1124 508 1176 640 C 1268 588 1392 620 1452 712 C 1532 836 1452 980 1304 1000 L 1304 1180 Z" fill="#FFFFFF" stroke="#1C1C1E" stroke-width="56" stroke-linejoin="round"/>
-  <rect x="744" y="1220" width="560" height="176" rx="48" fill="#8E8E93" stroke="#FFFFFF" stroke-width="40"/>
-</svg>

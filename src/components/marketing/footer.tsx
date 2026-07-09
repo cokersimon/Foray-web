@@ -8,8 +8,6 @@ const FOOTER_LINKS = [
   { label: "Contact", href: `mailto:${LEGAL_ENTITY.supportEmail}` },
 ];
 
-/** Instagram mark — this lucide version has no brand icons, so inline paths
- * (same 24px grid). */
 function InstagramIcon({ className }: { className?: string }) {
   return (
     <svg
@@ -29,7 +27,6 @@ function InstagramIcon({ className }: { className?: string }) {
   );
 }
 
-/** TikTok mark — not in lucide, so a minimal inline path (same 24px grid). */
 function TikTokIcon({ className }: { className?: string }) {
   return (
     <svg
@@ -43,7 +40,6 @@ function TikTokIcon({ className }: { className?: string }) {
   );
 }
 
-/** X (Twitter) mark — minimal inline path. */
 function XIcon({ className }: { className?: string }) {
   return (
     <svg
@@ -79,10 +75,9 @@ export function Footer() {
   const officeLines = dunsAddressBlock();
 
   return (
-    <footer className="overflow-hidden border-t border-border">
-      <div className="mx-auto flex max-w-7xl flex-col gap-8 px-6 pt-12 md:px-10">
+    <footer className="overflow-hidden bg-ink text-white">
+      <div className="mx-auto flex max-w-7xl flex-col gap-8 px-6 pt-14 md:px-10">
         <div className="flex flex-col gap-6 sm:flex-row sm:items-center sm:justify-between">
-          {/* Socials */}
           <div className="flex items-center gap-5">
             {SOCIALS.map((social) => (
               <a
@@ -91,21 +86,20 @@ export function Footer() {
                 target="_blank"
                 rel="noopener noreferrer"
                 aria-label={`Foray on ${social.label}`}
-                className="text-muted transition-colors hover:text-foreground"
+                className="text-white/55 transition-colors hover:text-white"
               >
                 {social.icon}
               </a>
             ))}
           </div>
 
-          {/* Links */}
           <nav className="flex flex-wrap items-center gap-x-6 gap-y-2">
             {FOOTER_LINKS.map((link) =>
               link.href.startsWith("/") ? (
                 <Link
                   key={link.label}
                   href={link.href}
-                  className="text-sm text-muted transition-colors hover:text-foreground"
+                  className="text-sm text-white/55 transition-colors hover:text-white"
                 >
                   {link.label}
                 </Link>
@@ -113,7 +107,7 @@ export function Footer() {
                 <a
                   key={link.label}
                   href={link.href}
-                  className="text-sm text-muted transition-colors hover:text-foreground"
+                  className="text-sm text-white/55 transition-colors hover:text-white"
                 >
                   {link.label}
                 </a>
@@ -122,9 +116,9 @@ export function Footer() {
           </nav>
         </div>
 
-        <div className="flex flex-col gap-4 border-t border-border pt-6 sm:flex-row sm:items-end sm:justify-between">
-          <address className="not-italic text-xs leading-relaxed text-muted">
-            <span className="font-medium text-foreground">
+        <div className="flex flex-col gap-4 border-t border-white/10 pt-6 sm:flex-row sm:items-end sm:justify-between">
+          <address className="not-italic text-xs leading-relaxed text-white/45">
+            <span className="font-medium text-white/80">
               {LEGAL_ENTITY.legalName}
             </span>
             <br />
@@ -137,16 +131,15 @@ export function Footer() {
             ))}
           </address>
 
-          <span className="text-xs text-muted sm:text-right">
+          <span className="text-xs text-white/40 sm:text-right">
             &copy; {new Date().getFullYear()} Foray. All rights reserved.
           </span>
         </div>
       </div>
 
-      {/* Giant clipped wordmark (Cherrypick-style sign-off) */}
       <div
         aria-hidden="true"
-        className="pointer-events-none -mb-[0.28em] mt-8 select-none text-center font-bold leading-none tracking-tighter text-foreground"
+        className="pointer-events-none -mb-[0.28em] mt-8 select-none text-center font-bold leading-none tracking-tighter text-white/[0.12]"
         style={{ fontSize: "clamp(5rem, 22vw, 22rem)" }}
       >
         Foray<span className="text-brand-dot">.</span>

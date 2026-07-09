@@ -4,7 +4,7 @@ import { FormEvent, useCallback, useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
 import { useLenis } from "lenis/react";
-import { X } from "lucide-react";
+import { ForayIcon } from "@/components/brand/foray-icon";
 import { useWaitlist } from "./waitlist-provider";
 import { joinWaitlist } from "@/actions/waitlist";
 
@@ -135,7 +135,7 @@ export function WaitlistModal() {
               aria-label="Close"
               className="absolute top-4 right-4 rounded-full p-1.5 text-foreground transition-colors hover:bg-foreground/[0.06]"
             >
-              <X className="h-4 w-4" strokeWidth={2} />
+              <ForayIcon name="close" size="small" />
             </button>
 
             <div aria-live="polite">
