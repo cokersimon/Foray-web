@@ -1,68 +1,93 @@
 "use client";
 
-import { BadgeCheck } from "lucide-react";
+import { ArrowRight, BadgeCheck } from "lucide-react";
 import { APP_STORE_LIVE, APP_STORE_URL, CHECKOUT_FEE_GBP } from "@/lib/site";
 import { useWaitlist } from "./waitlist-provider";
 
 const INCLUDED = [
-  "Unlimited recipe imports from social media and food blogs",
-  "Swipe planning and your weekly plan",
-  "Deduped, aisle-sorted shopping lists",
+  "Recipe imports, browsing and swipe planning",
+  "Deduped, aisle-sorted grocery lists",
   "In-store check-off and online checkout",
-  "Hands-free cook mode with timers",
+  "Step-by-step cook mode with timers",
 ];
 
 export function Pricing() {
   const { open } = useWaitlist();
 
   return (
-    <section id="pricing" className="scroll-mt-16 px-6 py-24 md:py-32">
-      <div className="mx-auto max-w-xl">
-        <div className="rounded-3xl border border-border bg-surface p-8 text-center md:p-12">
-          <h2 className="text-3xl font-bold tracking-tight text-foreground md:text-4xl">
-            Start free for a week
-          </h2>
-          <p className="mx-auto mt-4 max-w-md text-base leading-relaxed text-muted">
-            Try the whole loop free for your first week. After that, keep Foray
-            with an in-app subscription you can manage or cancel any time in
-            the App Store. Online checkout adds a £{CHECKOUT_FEE_GBP}{" "}
-            convenience fee per order, and shopping in-store is always free.
+    <section id="pricing" className="scroll-mt-24 px-5 py-24 sm:px-6 md:py-32 lg:px-10 lg:py-40">
+      <div className="mx-auto grid max-w-7xl items-center gap-12 lg:grid-cols-[0.85fr_1.15fr] lg:gap-24">
+        <div>
+          <p className="text-xs font-bold uppercase tracking-[0.2em] text-brand-dot">
+            Simple pricing
           </p>
+          <h2 className="mt-5 text-balance text-5xl font-bold leading-[0.98] tracking-[-0.05em] text-foreground sm:text-6xl">
+            Try the whole loop for a week.
+          </h2>
+          <p className="mt-6 max-w-xl text-pretty text-lg leading-relaxed text-muted">
+            No trimmed-down trial. Plan, shop and cook with the full experience,
+            then decide whether Foray has earned a place in your kitchen.
+          </p>
+        </div>
 
-          <ul className="mx-auto mt-8 max-w-xs space-y-3 text-left">
+        <div className="relative overflow-hidden rounded-[36px] bg-foreground p-7 text-background shadow-[0_28px_80px_rgba(24,20,14,0.16)] sm:p-10">
+          <div className="absolute -right-20 -top-20 h-64 w-64 rounded-full bg-brand-dot/20 blur-3xl" />
+          <div className="relative">
+            <div className="flex flex-col gap-5 border-b border-background/15 pb-8 sm:flex-row sm:items-end sm:justify-between">
+              <div>
+                <p className="text-sm font-semibold text-background/55">Foray Pro</p>
+                <div className="mt-2 flex items-end gap-2">
+                  <span className="text-5xl font-bold tracking-[-0.05em]">£4.99</span>
+                  <span className="pb-1 text-sm text-background/55">/ month</span>
+                </div>
+              </div>
+              <div className="rounded-2xl border border-background/15 bg-background/[0.06] px-4 py-3">
+                <p className="text-xs font-semibold">£54.99 yearly</p>
+                <p className="mt-0.5 text-[10px] text-background/50">Save against monthly</p>
+              </div>
+            </div>
+
+            <ul className="mt-8 grid gap-3 sm:grid-cols-2">
             {INCLUDED.map((item) => (
               <li
                 key={item}
-                className="flex items-start gap-3 text-sm text-foreground"
+                className="flex items-start gap-3 text-sm leading-relaxed text-background/80"
               >
                 <BadgeCheck className="mt-0.5 h-4 w-4 shrink-0 text-brand-dot" />
                 {item}
               </li>
             ))}
-          </ul>
+            </ul>
 
-          <div className="mt-10">
+            <div className="mt-9">
             {APP_STORE_LIVE ? (
               <a
                 href={APP_STORE_URL}
-                className="inline-block rounded-full bg-foreground px-8 py-4 text-sm font-medium text-background transition-opacity hover:opacity-90"
+                className="marketing-button marketing-button-light"
               >
-                Download on the App Store
+                Download on the App Store <ArrowRight className="h-4 w-4" />
               </a>
             ) : (
               <button
+                type="button"
                 onClick={open}
-                className="rounded-full bg-foreground px-8 py-4 text-sm font-medium text-background transition-opacity hover:opacity-90"
+                className="marketing-button marketing-button-light"
               >
-                Join the waitlist
+                Join the waitlist <ArrowRight className="h-4 w-4" />
               </button>
             )}
-          </div>
+            </div>
+            <p className="mt-5 max-w-lg text-xs leading-relaxed text-background/45">
+              Seven days free, then billed through the App Store. Online checkout
+              adds a £{CHECKOUT_FEE_GBP} convenience fee per order. Taking your
+              list in-store is always free.
+            </p>
           {!APP_STORE_LIVE && (
-            <p className="mt-4 text-xs font-medium uppercase tracking-widest text-muted">
-              Coming soon to the App Store
+            <p className="mt-4 text-[10px] font-semibold uppercase tracking-[0.18em] text-background/45">
+              Launching first on iPhone in the UK
             </p>
           )}
+          </div>
         </div>
       </div>
     </section>

@@ -17,23 +17,23 @@ export function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false);
 
   return (
-    <nav className="sticky top-0 z-50 border-b border-border bg-background/80 backdrop-blur-[20px]">
-      <div className="flex items-center justify-between px-6 py-3 md:px-10 md:py-4">
+    <nav className="sticky top-0 z-50 border-b border-border bg-background/85 backdrop-blur-[24px]">
+      <div className="mx-auto flex max-w-[1600px] items-center justify-between px-5 py-3 sm:px-6 md:px-10 md:py-4">
         <Link
           href="/"
-          className="shrink-0 transition-opacity hover:opacity-80"
+          className="shrink-0 rounded-sm transition-opacity hover:opacity-75 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-brand-dot"
           onClick={() => setMenuOpen(false)}
         >
           <Wordmark className="text-2xl tracking-tighter" />
         </Link>
 
         {/* Desktop: links + CTA in a frosted pill */}
-        <div className="hidden items-center gap-1 rounded-full border border-border-glass bg-glass p-1 shadow-[0_4px_24px_rgba(0,0,0,0.06)] backdrop-blur-[20px] md:flex">
+        <div className="hidden items-center gap-0.5 rounded-full border border-border-glass bg-glass p-1 shadow-[0_4px_24px_rgba(0,0,0,0.05)] backdrop-blur-[20px] md:flex">
           {NAV_LINKS.map((link) => (
             <Link
               key={link.label}
               href={link.href}
-              className="rounded-full px-4 py-2.5 text-sm font-medium text-muted transition-colors hover:text-foreground"
+              className="rounded-full px-4 py-2.5 text-sm font-semibold text-muted transition-colors hover:bg-foreground/[0.04] hover:text-foreground focus-visible:outline-2 focus-visible:outline-brand-dot"
             >
               {link.label}
             </Link>
@@ -41,7 +41,7 @@ export function Navbar() {
           <button
             type="button"
             onClick={open}
-            className="cursor-pointer rounded-full bg-foreground px-5 py-2.5 text-sm font-semibold text-background transition-colors hover:bg-foreground/90"
+            className="cursor-pointer rounded-full bg-foreground px-5 py-2.5 text-sm font-semibold text-background transition-transform hover:-translate-y-0.5 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-dot"
           >
             Join Waitlist
           </button>

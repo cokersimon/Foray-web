@@ -54,7 +54,7 @@ export default function OpengraphImage() {
             letterSpacing: "-0.01em",
           }}
         >
-          Recipes in. Groceries out.
+          The recipes you save. Finally for dinner.
         </div>
       </div>
     ),

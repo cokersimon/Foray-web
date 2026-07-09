@@ -3,13 +3,12 @@
 import { motion } from "framer-motion";
 import { ChevronDown } from "lucide-react";
 import { CHECKOUT_FEE_GBP } from "@/lib/site";
-import { cn } from "@/lib/cn";
 
 const FAQS = [
   {
     question: "Is Foray free to try?",
     answer:
-      "Yes. Your first week is free, with the whole loop included: imports, swipe planning, the sorted trolley, checkout and cook mode. After that, Foray is an in-app subscription you can manage or cancel any time in the App Store.",
+      "Yes. Your first seven days include the full experience. After that, Foray Pro is £4.99 per month or £54.99 per year, billed through the App Store and cancellable at any time.",
   },
   {
     question: `What's the £${CHECKOUT_FEE_GBP} fee?`,
@@ -18,12 +17,12 @@ const FAQS = [
   {
     question: "How does importing a recipe work?",
     answer:
-      "Paste a link from TikTok, Instagram, YouTube or any food blog. Foray's AI Chef reads it and pulls out the ingredients and steps for you, usually in seconds. You can also pick from the recipes already in Foray or add your own by hand.",
+      "Share or paste a link from TikTok, Instagram, YouTube or a food blog. Foray reads it and creates a structured recipe with ingredients and steps for you to check. You can also browse Foray recipes or add your own.",
   },
   {
     question: "Which supermarkets does it work with?",
     answer:
-      "Foray builds your trolley at UK supermarket prices and hands it over for online checkout or an in-store shop. We're starting with major UK supermarkets and adding more, and the app always shows what's available in your area.",
+      "Foray is launching in the UK with supported retailers shown inside the app. If online checkout is not available for your chosen shop, the same aisle-sorted list still works in-store.",
   },
   {
     question: "Do I need an iPhone?",
@@ -37,44 +36,41 @@ const FAQS = [
   },
 ];
 
-const CARD_ROTATION = [
-  "md:-rotate-1",
-  "md:rotate-1",
-  "md:rotate-[0.5deg]",
-  "md:-rotate-[0.5deg]",
-  "md:rotate-1",
-  "md:-rotate-1",
-];
-
-/** "Questions? Fire away." — stacked-card FAQ built on native <details> for
- * free keyboard/AT support. */
 export function Faq() {
   return (
-    <section id="faq" className="scroll-mt-16 px-6 py-24 md:py-32">
-      <div className="mx-auto max-w-2xl">
-        <h2 className="text-center text-4xl font-bold tracking-tight text-foreground md:text-6xl">
-          Questions? Fire away<span className="text-brand-dot">.</span>
-        </h2>
+    <section id="faq" className="scroll-mt-24 px-5 py-24 sm:px-6 md:py-32 lg:px-10">
+      <div className="mx-auto grid max-w-7xl gap-12 lg:grid-cols-[0.7fr_1.3fr] lg:gap-24">
+        <div className="lg:sticky lg:top-32 lg:self-start">
+          <p className="text-xs font-bold uppercase tracking-[0.2em] text-brand-dot">
+            Good to know
+          </p>
+          <h2 className="mt-5 text-balance text-5xl font-bold leading-[0.98] tracking-[-0.05em] text-foreground sm:text-6xl">
+            A few useful answers<span className="text-brand-dot">.</span>
+          </h2>
+          <p className="mt-5 max-w-md text-base leading-relaxed text-muted">
+            Clear pricing, no mystery checkout rules and no hoops if you decide
+            Foray is not for you.
+          </p>
+        </div>
 
-        <div className="mt-14 space-y-4">
-          {FAQS.map((faq, i) => (
+        <div className="divide-y divide-border border-y border-border">
+          {FAQS.map((faq) => (
             <motion.div
               key={faq.question}
-              initial={{ opacity: 0, y: 24 }}
+              initial={{ opacity: 0, y: 16 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true, amount: 0.3 }}
-              transition={{ duration: 0.45, delay: (i % 3) * 0.06 }}
-              className={cn(CARD_ROTATION[i % CARD_ROTATION.length])}
+              transition={{ duration: 0.4 }}
             >
-              <details className="group rounded-3xl border border-border bg-surface shadow-sm open:shadow-md">
-                <summary className="flex cursor-pointer list-none items-center justify-between gap-4 p-6 text-left text-base font-semibold text-foreground [&::-webkit-details-marker]:hidden">
+              <details className="group">
+                <summary className="flex cursor-pointer list-none items-center justify-between gap-4 py-7 text-left text-lg font-semibold tracking-tight text-foreground [&::-webkit-details-marker]:hidden">
                   {faq.question}
                   <ChevronDown
                     aria-hidden="true"
-                    className="h-4 w-4 shrink-0 text-muted transition-transform group-open:rotate-180"
+                    className="h-5 w-5 shrink-0 text-muted transition-transform duration-300 group-open:rotate-180"
                   />
                 </summary>
-                <p className="px-6 pb-6 text-sm leading-relaxed text-muted md:text-base">
+                <p className="max-w-2xl pb-7 pr-10 text-sm leading-relaxed text-muted md:text-base">
                   {faq.answer}
                 </p>
               </details>

@@ -1,15 +1,16 @@
 @import "tailwindcss";
 
 :root {
-  --background: #fafafa;
+  --background: #fbfaf7;
   --foreground: #171717;
-  --muted: #737373;
+  --muted: #686762;
   --border: rgba(0, 0, 0, 0.08);
   --glass: rgba(255, 255, 255, 0.7);
   --glass-dark: rgba(255, 255, 255, 0.05);
   --glass-heavy: rgba(255, 255, 255, 0.85);
   --glow: rgba(0, 0, 0, 0.03);
   --surface: #ffffff;
+  --ink: #101010;
   --accent: #171717;
   --border-glass: rgba(0, 0, 0, 0.08);
   --border-glass-dark: rgba(255, 255, 255, 0.1);
@@ -39,6 +40,7 @@
   --color-glass-dark: var(--glass-dark);
   --color-glass-heavy: var(--glass-heavy);
   --color-surface: var(--surface);
+  --color-ink: var(--ink);
   --color-accent: var(--accent);
   --color-border-glass: var(--border-glass);
   --color-border-glass-dark: var(--border-glass-dark);
@@ -92,6 +94,45 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
+button,
+a {
+  -webkit-tap-highlight-color: transparent;
+}
+
+:focus-visible {
+  outline: 2px solid var(--brand-dot);
+  outline-offset: 3px;
+}
+
+.marketing-button {
+  display: inline-flex;
+  min-height: 3.25rem;
+  cursor: pointer;
+  align-items: center;
+  justify-content: center;
+  gap: 0.65rem;
+  border-radius: 9999px;
+  background: var(--foreground);
+  padding: 0.9rem 1.5rem;
+  color: var(--background);
+  font-size: 0.875rem;
+  font-weight: 700;
+  line-height: 1;
+  transition:
+    transform 180ms ease,
+    opacity 180ms ease;
+}
+
+.marketing-button:hover {
+  transform: translateY(-2px);
+  opacity: 0.92;
+}
+
+.marketing-button-light {
+  background: var(--background);
+  color: var(--foreground);
+}
+
 ::selection {
   background: rgba(0, 0, 0, 0.12);
   color: #000;
@@ -109,4 +150,15 @@ body {
 
 .scrollbar-hide::-webkit-scrollbar {
   display: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
 }

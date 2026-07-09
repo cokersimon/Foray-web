@@ -4,29 +4,31 @@ import Image from "next/image";
 import { motion } from "framer-motion";
 
 const STEPS = [
-  { image: "/brand/step-import.svg", label: "Import" },
-  { image: "/brand/step-swipe.svg", label: "Swipe to fork" },
-  { image: "/brand/step-cart.svg", label: "Sorted cart" },
-  { image: "/brand/step-checkout.svg", label: "Checkout" },
-  { image: "/brand/step-cook.svg", label: "Cook" },
+  { image: "/brand/step-import.svg", label: "Bring a recipe", note: "Share, browse or add your own" },
+  { image: "/brand/step-swipe.svg", label: "Fork it", note: "One tap adds it to this shop" },
+  { image: "/brand/step-cart.svg", label: "Check the list", note: "Scaled, combined and aisle-sorted" },
+  { image: "/brand/step-checkout.svg", label: "Choose your shop", note: "Online handoff or in-store" },
+  { image: "/brand/step-cook.svg", label: "Get cooking", note: "Clear steps and timers" },
 ];
 
-/** The five-step "recipe to dinner" promise row (renamed from `Promise` — that
- * name shadowed the global `Promise` constructor for any file importing it).
- * Thumbnails follow the Tier-2 sticker spec (see scripts/recraft-web.py). */
 export function FiveClicks() {
   return (
-    <section className="px-6 py-24 md:py-32">
-      <div className="mx-auto max-w-4xl text-center">
-        <h2 className="text-3xl font-bold tracking-tight text-foreground md:text-5xl">
-          From recipe to dinner in five clicks
-        </h2>
-        <p className="mx-auto mt-4 max-w-xl text-base leading-relaxed text-muted md:text-lg">
-          No meal-planning spreadsheet, no juggling tabs. Foray collapses the
-          whole loop into a handful of taps you can do one-handed.
+    <section className="px-5 pb-24 sm:px-6 md:pb-32 lg:px-10 lg:pb-40">
+      <div className="mx-auto max-w-7xl rounded-[36px] bg-[#f1ece3] px-5 py-14 sm:px-8 md:px-12 md:py-20">
+        <div className="mx-auto max-w-3xl text-center">
+        <p className="text-xs font-bold uppercase tracking-[0.2em] text-brand-dot">
+          Short by design
         </p>
+        <h2 className="mt-4 text-balance text-4xl font-bold leading-[1] tracking-[-0.045em] text-foreground sm:text-5xl lg:text-6xl">
+          Less admin between “that looks good” and dinner.
+        </h2>
+        <p className="mx-auto mt-5 max-w-xl text-pretty text-base leading-relaxed text-muted md:text-lg">
+          The single-recipe route is deliberately kept to five taps. Defaults
+          do the remembering; you stay in control.
+        </p>
+        </div>
 
-        <div className="mt-14 flex flex-col items-stretch gap-3 md:flex-row md:items-start md:justify-center md:gap-6">
+        <div className="mt-14 grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
           {STEPS.map((step, i) => (
             <motion.div
               key={step.label}
@@ -34,9 +36,12 @@ export function FiveClicks() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true, amount: 0.5 }}
               transition={{ duration: 0.4, delay: i * 0.08 }}
-              className="flex items-center gap-4 md:flex-col md:gap-3"
+              className="relative rounded-3xl border border-black/[0.06] bg-white/70 p-4 text-left backdrop-blur-sm"
             >
-              <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-2xl border border-border bg-surface p-2 md:h-20 md:w-20 md:p-2.5">
+              <span className="absolute right-4 top-4 text-[10px] font-bold text-muted/60">
+                0{i + 1}
+              </span>
+              <div className="flex h-16 w-16 items-center justify-center rounded-2xl p-1.5">
                 <Image
                   src={step.image}
                   alt=""
@@ -46,9 +51,8 @@ export function FiveClicks() {
                   className="h-full w-full object-contain"
                 />
               </div>
-              <span className="text-sm font-medium text-foreground md:text-xs md:text-muted">
-                {step.label}
-              </span>
+              <h3 className="mt-4 text-sm font-bold text-foreground">{step.label}</h3>
+              <p className="mt-1.5 text-xs leading-relaxed text-muted">{step.note}</p>
             </motion.div>
           ))}
         </div>

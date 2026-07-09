@@ -40,9 +40,9 @@ export function CookieBanner() {
         <div
           role="region"
           aria-label="Cookie consent"
-          className="fixed inset-x-0 bottom-0 z-[90] p-4 md:p-6"
+          className="fixed inset-x-0 bottom-0 z-[90] p-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] sm:p-4 md:p-6"
         >
-          <div className="mx-auto flex max-w-3xl flex-col gap-4 rounded-3xl border border-border bg-surface p-5 shadow-[0_8px_40px_rgba(0,0,0,0.12)] md:flex-row md:items-center md:gap-6 md:p-6">
+          <div className="mx-auto flex max-w-3xl flex-col gap-3 rounded-3xl border border-border bg-surface/95 p-4 shadow-[0_8px_40px_rgba(0,0,0,0.12)] backdrop-blur-xl sm:p-5 md:flex-row md:items-center md:gap-6 md:p-6">
             <p className="flex-1 text-xs leading-relaxed text-muted md:text-sm">
               We use one optional analytics cookie to understand how people
               find Foray. Nothing loads unless you accept. See our{" "}

@@ -1,13 +1,12 @@
 const TICKER_ITEMS = [
   "Launching soon in the UK",
-  "Join the waitlist",
-  "Recipes in. Groceries out.",
+  "Early access now open",
+  "The recipes you save, finally for dinner",
 ];
 
 /**
- * Thin announcement marquee above the navbar (Cherrypick-style, calm pre-launch
- * copy — no countdown-timer energy). Pure CSS animation; reduced-motion users
- * get a single static line instead.
+ * Calm pre-launch announcement. Pure CSS animation; reduced-motion users get a
+ * single static line instead.
  */
 export function TickerBar() {
   // Each half is repeated enough to span any viewport; the pair loops at -50%.
@@ -37,7 +36,7 @@ export function TickerBar() {
 
       {/* Static fallback for prefers-reduced-motion */}
       <p className="hidden text-center motion-reduce:block">
-        Launching soon in the UK · Join the waitlist
+        Launching soon in the UK · Early access now open
       </p>
     </div>
   );

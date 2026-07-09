@@ -20,9 +20,17 @@ export function MarketingShell({ children }: { children: React.ReactNode }) {
 
   const content = (
     <>
+      <a
+        href="#main-content"
+        className="fixed left-4 top-4 z-[120] -translate-y-24 rounded-full bg-foreground px-5 py-3 text-sm font-semibold text-background shadow-lg transition-transform focus:translate-y-0"
+      >
+        Skip to content
+      </a>
       <TickerBar />
       <Navbar />
-      <main>{children}</main>
+      <main id="main-content" tabIndex={-1}>
+        {children}
+      </main>
       <Footer />
       <WaitlistModal />
       <CookieBanner />

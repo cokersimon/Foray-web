@@ -14,13 +14,13 @@ const inter = Inter({
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
-  title: "Foray — Swipe to fork",
+  title: "Foray — The recipes you save, finally for dinner",
   description:
-    "Foray turns recipes you love into a sorted grocery list and a five-click checkout. Built for busy, ADHD-friendly UK kitchens.",
+    "Bring the recipes you love into one calm place. Foray helps you choose dinner, builds a deduped grocery list and guides you through cooking.",
   openGraph: {
     title: "Foray — Swipe to fork",
     description:
-      "Recipes in. Groceries out. Foray turns recipes you love into a sorted grocery trolley and a five-click checkout.",
+      "The recipes you save, finally for dinner. Choose, shop and cook in one calm place.",
     url: SITE_URL,
     siteName: "Foray",
     locale: "en_GB",
@@ -30,7 +30,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "Foray — Swipe to fork",
     description:
-      "Recipes in. Groceries out. Foray turns recipes you love into a sorted grocery trolley and a five-click checkout.",
+      "The recipes you save, finally for dinner. Choose, shop and cook in one calm place.",
   },
 };
 
