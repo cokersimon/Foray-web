@@ -122,11 +122,22 @@ export function Navbar() {
       0,
       el.getBoundingClientRect().top + current - headerOffset,
     );
+    const reduceMotion = window.matchMedia(
+      "(prefers-reduced-motion: reduce)",
+    ).matches;
 
-    setMenuOpen(false);
-    requestAnimationFrame(() => {
-      scrollElementIntoView(el, lenis, y);
+    // Unlock and jump immediately in the click handler so body overflow:hidden
+    // from the open menu cannot swallow the scroll.
+    document.body.style.overflow = "";
+    lenis?.stop();
+    window.scrollTo({
+      top: y,
+      behavior: reduceMotion ? "auto" : "smooth",
     });
+    setMenuOpen(false);
+    window.setTimeout(() => {
+      lenis?.start();
+    }, reduceMotion ? 0 : 1200);
   }
 
   return (
