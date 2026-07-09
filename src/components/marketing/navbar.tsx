@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { Wordmark } from "@/components/brand/wordmark";
+import { ForayIcon } from "@/components/brand/foray-icon";
 import { useWaitlist } from "./waitlist-provider";
 import { cn } from "@/lib/cn";
 
@@ -11,25 +12,6 @@ const NAV_LINKS = [
   { label: "Pricing", href: "/#pricing" },
   { label: "FAQ", href: "/#faq" },
 ];
-
-function MenuToggleIcon({ open }: { open: boolean }) {
-  return (
-    <span className="relative block h-3.5 w-4" aria-hidden="true">
-      <span
-        className={cn(
-          "absolute left-0 top-[3px] h-[1.5px] w-full rounded-full bg-current transition-transform duration-300 ease-[cubic-bezier(0.22,1,0.36,1)]",
-          open && "top-[6px] rotate-45",
-        )}
-      />
-      <span
-        className={cn(
-          "absolute left-0 top-[13px] h-[1.5px] w-full rounded-full bg-current transition-transform duration-300 ease-[cubic-bezier(0.22,1,0.36,1)]",
-          open && "top-[6px] -rotate-45",
-        )}
-      />
-    </span>
-  );
-}
 
 export function Navbar() {
   const { open } = useWaitlist();
@@ -54,11 +36,20 @@ export function Navbar() {
 
   return (
     <>
-      {/* Transparent floating chrome — page content scrolls to the edge underneath. */}
+      {/* Floating chrome — content scrolls to the edge underneath. */}
       <header className="pointer-events-none fixed inset-x-0 top-0 z-50">
+        {/* Apple-style scroll-edge mask: soft fade + light blur, not a frosted bar. */}
+        <div
+          aria-hidden="true"
+          className={cn(
+            "scroll-edge-mask pointer-events-none absolute inset-x-0 top-0 h-20 sm:h-24 transition-opacity duration-300",
+            menuOpen ? "opacity-0 md:opacity-100" : "opacity-100",
+          )}
+        />
+
         <div
           className={cn(
-            "pointer-events-auto mx-auto max-w-[1600px] transition-[background-color,border-radius,box-shadow] duration-300 ease-[cubic-bezier(0.22,1,0.36,1)]",
+            "pointer-events-auto relative mx-auto max-w-[1600px] transition-[background-color,border-radius,box-shadow] duration-300 ease-[cubic-bezier(0.22,1,0.36,1)]",
             menuOpen
               ? "bg-ink text-white shadow-[0_24px_60px_rgba(0,0,0,0.28)] md:bg-transparent md:text-foreground md:shadow-none"
               : "bg-transparent",
@@ -92,7 +83,7 @@ export function Navbar() {
               <button
                 type="button"
                 onClick={open}
-                className="ml-1 cursor-pointer rounded-full bg-foreground px-5 py-2.5 text-sm font-semibold text-background transition-transform hover:-translate-y-0.5 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-foreground"
+                className="marketing-button marketing-button-compact ml-1"
               >
                 Join Waitlist
               </button>
@@ -103,10 +94,8 @@ export function Navbar() {
                 type="button"
                 onClick={open}
                 className={cn(
-                  "cursor-pointer rounded-full px-4 py-2 text-sm font-semibold transition-colors",
-                  menuOpen
-                    ? "bg-white text-ink hover:bg-white/90"
-                    : "bg-foreground text-background hover:bg-foreground/90",
+                  "marketing-button marketing-button-compact",
+                  menuOpen && "marketing-button-on-dark",
                 )}
               >
                 Join Waitlist
@@ -117,13 +106,32 @@ export function Navbar() {
                 aria-label={menuOpen ? "Close menu" : "Open menu"}
                 aria-expanded={menuOpen}
                 className={cn(
-                  "flex h-10 w-10 items-center justify-center rounded-full transition-colors duration-300",
-                  menuOpen
-                    ? "bg-white text-ink"
-                    : "border border-black/10 bg-white text-foreground shadow-[0_8px_24px_rgba(0,0,0,0.08)]",
+                  "glass-chip relative flex h-10 w-10 items-center justify-center",
+                  menuOpen && "glass-chip-on-dark",
                 )}
               >
-                <MenuToggleIcon open={menuOpen} />
+                <span className="relative block h-5 w-5">
+                  <ForayIcon
+                    name="menu"
+                    size="small"
+                    className={cn(
+                      "absolute inset-0 m-auto transition-[opacity,transform] duration-200 ease-[cubic-bezier(0.22,1,0.36,1)]",
+                      menuOpen
+                        ? "scale-75 rotate-90 opacity-0"
+                        : "scale-100 rotate-0 opacity-100",
+                    )}
+                  />
+                  <ForayIcon
+                    name="close"
+                    size="small"
+                    className={cn(
+                      "absolute inset-0 m-auto transition-[opacity,transform] duration-200 ease-[cubic-bezier(0.22,1,0.36,1)]",
+                      menuOpen
+                        ? "scale-100 rotate-0 opacity-100"
+                        : "scale-75 -rotate-90 opacity-0",
+                    )}
+                  />
+                </span>
               </button>
             </div>
           </div>

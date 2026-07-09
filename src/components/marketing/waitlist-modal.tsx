@@ -154,7 +154,7 @@ export function WaitlistModal() {
                   <button
                     type="button"
                     onClick={handleClose}
-                    className="mt-8 rounded-full bg-foreground px-6 py-2.5 text-sm font-medium text-background transition-opacity hover:opacity-90"
+                    className="marketing-button marketing-button-compact mt-8"
                   >
                     Done
                   </button>
@@ -207,7 +207,7 @@ export function WaitlistModal() {
                     <button
                       type="submit"
                       disabled={status === "loading"}
-                      className="w-full rounded-xl bg-foreground py-3 text-base font-medium text-background transition-opacity hover:opacity-90 disabled:opacity-50"
+                      className="marketing-button w-full disabled:opacity-50"
                     >
                       {status === "loading" ? "Joining…" : "Join waitlist"}
                     </button>

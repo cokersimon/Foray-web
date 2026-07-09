@@ -58,14 +58,14 @@ export function CookieBanner() {
               <button
                 type="button"
                 onClick={() => decide("denied")}
-                className="cursor-pointer rounded-full border border-border bg-transparent px-5 py-2.5 text-sm font-medium text-foreground transition-colors hover:bg-foreground/[0.04]"
+                className="glass-chip cursor-pointer px-5 py-2.5 text-sm font-medium"
               >
                 Reject
               </button>
               <button
                 type="button"
                 onClick={() => decide("granted")}
-                className="cursor-pointer rounded-full bg-foreground px-5 py-2.5 text-sm font-semibold text-background transition-colors hover:bg-foreground/90"
+                className="marketing-button marketing-button-compact"
               >
                 Accept
               </button>
