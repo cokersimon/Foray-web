@@ -27,8 +27,27 @@ API_BASE = "https://external.api.recraft.ai/v1"
 MODEL = "recraftv3"  # raster-capable; swap when generating dedicated outcome stills
 OUT_DIR = Path(__file__).resolve().parent.parent / "public" / "brand"
 
-# Future outcome / interaction stills — generate when ready to replace kitchen crops.
 ASSETS: dict[str, str] = {
+    # Hero background — leave clear centre for ProductPhone overlay.
+    "foray-uk-groceries": (
+        "Professional commercial food photography for a UK meal-planning app "
+        "hero background. Soft top-down / slight 3/4 angle flat-lay on a clean "
+        "light grey (#f5f5f7) matte surface, bright soft natural daylight, "
+        "gentle realistic shadows, premium and uncluttered. CRITICAL: leave a "
+        "large empty vertical clear centre column (about 35–40% of width) so a "
+        "smartphone mockup can sit on top without covering food — arrange "
+        "groceries only around left, right, top and bottom edges. UK "
+        "supermarket grocery objects, photorealistic, no logos, no readable "
+        "brand names, no text, no watermarks, no people, no phone in the image: "
+        "left — clear plastic retail packet of dried penne pasta (UK own-brand "
+        "style, plain cream label with no words); upper left — vine of bright "
+        "red cherry tomatoes; lower left — two green apples and blueberries in "
+        "a clear punnet; right — small glass olive oil bottle with cork or "
+        "pour spout (no label text); upper right — wooden kitchen spoon and "
+        "fresh basil; lower right — lemon half and small black ceramic ramekin. "
+        "Fresh British weekly shop aesthetic, organised arrangement, landscape "
+        "3:2 framing."
+    ),
     "outcome-choose": (
         "Photorealistic editorial still, soft kitchen daylight, shallow depth of "
         "field. Hands holding a phone showing a recipe card above a wooden "

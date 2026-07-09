@@ -13,15 +13,9 @@ export function Hero() {
     <section className="relative overflow-hidden bg-background px-5 pb-16 pt-6 sm:px-6 sm:pb-20 sm:pt-10 md:pb-28 md:pt-14 lg:px-10 lg:pb-32 lg:pt-16">
       <div className="mx-auto grid max-w-7xl items-center gap-8 sm:gap-12 lg:grid-cols-[0.92fr_1.08fr] lg:gap-10">
         <div className="relative z-10 text-center lg:text-left">
-          <p
-            className="motion-safe:animate-rise text-[13px] font-semibold tracking-[-0.01em] text-muted"
-            style={{ animationDelay: "0s" }}
-          >
-            Swipe to fork
-          </p>
           <h1
-            className="motion-safe:animate-rise mt-4 text-balance text-[clamp(2.6rem,7.2vw,5.75rem)] font-bold leading-[1.02] tracking-[-0.045em] text-foreground sm:mt-5"
-            style={{ animationDelay: "0.08s" }}
+            className="motion-safe:animate-rise text-balance text-[clamp(2.6rem,7.2vw,5.75rem)] font-bold leading-[1.02] tracking-[-0.045em] text-foreground"
+            style={{ animationDelay: "0s" }}
           >
             The recipes you save.
             <br className="hidden sm:block" /> Finally{" "}
@@ -65,7 +59,7 @@ export function Hero() {
         >
           <div className="absolute inset-x-[2%] top-[2%] h-[86%] overflow-hidden rounded-[36px] bg-[#f5f5f7] sm:top-[3%] sm:h-[78%] sm:rounded-[48px]">
             <Image
-              src="/brand/foray-kitchen-objects.png"
+              src="/brand/foray-uk-groceries.png"
               alt=""
               aria-hidden="true"
               fill

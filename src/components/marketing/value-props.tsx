@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import { CarouselProgress, useTimedCarousel } from "./carousel-progress";
 
@@ -25,9 +25,26 @@ const PROPS = [
   },
 ];
 
+const SLIDE_MS = 8000;
+const SCROLL_SETTLE_MS = 900;
+
 export function ValueProps() {
+  const sectionRef = useRef<HTMLElement>(null);
   const scrollerRef = useRef<HTMLDivElement>(null);
   const programmaticScroll = useRef(false);
+  const [inView, setInView] = useState(false);
+
+  useEffect(() => {
+    const el = sectionRef.current;
+    if (!el) return;
+    const observer = new IntersectionObserver(
+      ([entry]) => setInView(Boolean(entry?.isIntersecting)),
+      { threshold: 0.35, rootMargin: "0px 0px -10% 0px" },
+    );
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, []);
+
   const {
     index,
     goTo,
@@ -35,7 +52,7 @@ export function ValueProps() {
     progressKey,
     autoplay,
     durationMs,
-  } = useTimedCarousel(PROPS.length);
+  } = useTimedCarousel(PROPS.length, { durationMs: SLIDE_MS, inView });
 
   useEffect(() => {
     const el = scrollerRef.current;
@@ -47,7 +64,7 @@ export function ValueProps() {
     el.scrollTo({ left: Math.max(0, left), behavior: "smooth" });
     const id = window.setTimeout(() => {
       programmaticScroll.current = false;
-    }, 450);
+    }, SCROLL_SETTLE_MS);
     return () => window.clearTimeout(id);
   }, [index]);
 
@@ -73,6 +90,7 @@ export function ValueProps() {
 
   return (
     <section
+      ref={sectionRef}
       className="bg-background px-5 py-20 sm:px-6 md:py-28 lg:px-10 lg:py-32"
       onMouseEnter={() => setPaused(true)}
       onMouseLeave={() => setPaused(false)}
@@ -98,7 +116,7 @@ export function ValueProps() {
         <div
           ref={scrollerRef}
           onScroll={onScroll}
-          className="scrollbar-hide mt-12 flex snap-x snap-mandatory gap-5 overflow-x-auto pb-2"
+          className="scrollbar-hide mt-12 flex snap-x snap-mandatory gap-5 overflow-x-auto scroll-smooth pb-2"
         >
           {PROPS.map((prop) => (
             <article

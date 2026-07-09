@@ -1,9 +1,10 @@
 "use client";
 
-import { useRef } from "react";
+import { useRef, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { ForayIcon } from "@/components/brand/foray-icon";
 import { ProductPhone, type ProductScreen } from "./product-phone";
-import { CarouselProgress, useTimedCarousel } from "./carousel-progress";
+import { cn } from "@/lib/cn";
 
 interface Step {
   number: string;
@@ -40,17 +41,15 @@ const STEPS: Step[] = [
 ];
 
 export function ScrollytellingSection() {
-  const sectionRef = useRef<HTMLElement>(null);
+  const [index, setIndex] = useState(0);
   const touchStartX = useRef<number | null>(null);
-  const {
-    index,
-    goTo,
-    setPaused,
-    progressKey,
-    autoplay,
-    durationMs,
-  } = useTimedCarousel(STEPS.length);
   const step = STEPS[index];
+  const atStart = index === 0;
+  const atEnd = index === STEPS.length - 1;
+
+  function goTo(next: number) {
+    setIndex(Math.max(0, Math.min(STEPS.length - 1, next)));
+  }
 
   function onTouchStart(e: React.TouchEvent) {
     touchStartX.current = e.touches[0]?.clientX ?? null;
@@ -67,16 +66,7 @@ export function ScrollytellingSection() {
   return (
     <section
       id="how-it-works"
-      ref={sectionRef}
       className="scroll-mt-24 bg-[#f5f5f7] text-foreground"
-      onMouseEnter={() => setPaused(true)}
-      onMouseLeave={() => setPaused(false)}
-      onFocusCapture={() => setPaused(true)}
-      onBlurCapture={(e) => {
-        if (!e.currentTarget.contains(e.relatedTarget as Node | null)) {
-          setPaused(false);
-        }
-      }}
     >
       <div className="mx-auto max-w-3xl px-5 py-20 sm:px-6 md:py-28 lg:py-32">
         <div
@@ -110,15 +100,36 @@ export function ScrollytellingSection() {
             </motion.div>
           </AnimatePresence>
 
-          <CarouselProgress
-            count={STEPS.length}
-            index={index}
-            onSelect={goTo}
-            autoplay={autoplay}
-            durationMs={durationMs}
-            progressKey={progressKey}
-            className="mt-10"
-          />
+          <div className="mt-10 flex items-center justify-center gap-2">
+            <button
+              type="button"
+              onClick={() => goTo(index - 1)}
+              disabled={atStart}
+              aria-label="Previous step"
+              className={cn(
+                "flex h-10 w-10 items-center justify-center rounded-full bg-[#e8e8ed] text-foreground/70 transition-colors",
+                atStart
+                  ? "cursor-default opacity-40"
+                  : "hover:bg-[#d2d2d7] hover:text-foreground",
+              )}
+            >
+              <ForayIcon name="arrowLeft" size="small" />
+            </button>
+            <button
+              type="button"
+              onClick={() => goTo(index + 1)}
+              disabled={atEnd}
+              aria-label="Next step"
+              className={cn(
+                "flex h-10 w-10 items-center justify-center rounded-full bg-[#e8e8ed] text-foreground/70 transition-colors",
+                atEnd
+                  ? "cursor-default opacity-40"
+                  : "hover:bg-[#d2d2d7] hover:text-foreground",
+              )}
+            >
+              <ForayIcon name="arrowRight" size="small" />
+            </button>
+          </div>
         </div>
       </div>
     </section>

@@ -1,37 +1,52 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useReducedMotion } from "framer-motion";
 import { cn } from "@/lib/cn";
 
-const DEFAULT_DURATION_MS = 5500;
+const DEFAULT_DURATION_MS = 8000;
 
 /**
  * Apple-style pigmented progress dots: active index elongates into a pill that
- * fills over `durationMs`, then advances. Pauses on hover/focus and when
- * prefers-reduced-motion is set (manual tap only).
+ * fills over `durationMs`, then advances. Autoplay only runs while `inView` is
+ * true. Pauses on hover/focus and when prefers-reduced-motion is set.
  */
-export function useTimedCarousel(count: number, durationMs = DEFAULT_DURATION_MS) {
+export function useTimedCarousel(
+  count: number,
+  {
+    durationMs = DEFAULT_DURATION_MS,
+    inView = false,
+  }: { durationMs?: number; inView?: boolean } = {},
+) {
   const prefersReducedMotion = useReducedMotion();
   const [index, setIndex] = useState(0);
   const [paused, setPaused] = useState(false);
   const [progressKey, setProgressKey] = useState(0);
-  const inViewRef = useRef(true);
 
-  const goTo = useCallback((next: number) => {
-    setIndex(((next % count) + count) % count);
-    setProgressKey((k) => k + 1);
-  }, [count]);
+  const goTo = useCallback(
+    (next: number) => {
+      setIndex(((next % count) + count) % count);
+      setProgressKey((k) => k + 1);
+    },
+    [count],
+  );
 
   const next = useCallback(() => {
     goTo(index + 1);
   }, [goTo, index]);
 
+  const canAutoplay = Boolean(inView) && !prefersReducedMotion && !paused && count >= 2;
+
   useEffect(() => {
-    if (prefersReducedMotion || paused || count < 2) return;
+    if (!canAutoplay) return;
     const id = window.setTimeout(next, durationMs);
     return () => window.clearTimeout(id);
-  }, [index, paused, prefersReducedMotion, count, durationMs, next, progressKey]);
+  }, [canAutoplay, durationMs, next, progressKey]);
+
+  // Restart the progress fill when the section first enters view.
+  useEffect(() => {
+    if (inView) setProgressKey((k) => k + 1);
+  }, [inView]);
 
   return {
     index,
@@ -40,9 +55,8 @@ export function useTimedCarousel(count: number, durationMs = DEFAULT_DURATION_MS
     paused,
     setPaused,
     progressKey,
-    autoplay: !prefersReducedMotion,
+    autoplay: canAutoplay,
     durationMs,
-    inViewRef,
   };
 }
 
@@ -80,15 +94,17 @@ export function CarouselProgress({
             aria-label={`Go to slide ${i + 1}`}
             onClick={() => onSelect(i)}
             className={cn(
-              "relative overflow-hidden rounded-full transition-[width,background-color] duration-300",
-              active ? "h-1.5 w-7 bg-foreground/20" : "h-1.5 w-1.5 bg-foreground/25 hover:bg-foreground/40",
+              "relative overflow-hidden rounded-full transition-[width,background-color] duration-500 ease-out",
+              active
+                ? "h-1.5 w-8 bg-foreground/15"
+                : "h-1.5 w-1.5 bg-foreground/25 hover:bg-foreground/40",
             )}
           >
             {active && autoplay && (
               <span
                 className="absolute inset-y-0 left-0 rounded-full bg-foreground"
                 style={{
-                  animation: `carousel-progress ${durationMs}ms linear forwards`,
+                  animation: `carousel-progress ${durationMs}ms cubic-bezier(0.4, 0, 0.2, 1) forwards`,
                 }}
               />
             )}

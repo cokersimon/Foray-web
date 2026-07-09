@@ -74,7 +74,7 @@ export function Pricing() {
               </button>
             )}
           </div>
-          <p className="mx-auto mt-5 max-w-lg text-center text-xs leading-relaxed text-muted">
+          <p className="mt-5 max-w-lg text-left text-xs leading-relaxed text-muted">
             Seven days free, then billed through the App Store. Online checkout
             adds a £{CHECKOUT_FEE_GBP} convenience fee per order. Taking your
             list in-store is always free.
