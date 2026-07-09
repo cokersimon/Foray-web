@@ -1,10 +1,65 @@
 "use client";
 
 import Image from "next/image";
-import { ForayIcon } from "@/components/brand/foray-icon";
+import { ForayIcon, type ForayIconName } from "@/components/brand/foray-icon";
 import { APP_STORE_LIVE, APP_STORE_URL } from "@/lib/site";
 import { useWaitlist } from "./waitlist-provider";
 import { ProductPhone } from "./product-phone";
+import { cn } from "@/lib/cn";
+
+const FLOATING_CHIPS: {
+  icon: ForayIconName;
+  label: string;
+  className: string;
+}[] = [
+  {
+    icon: "link",
+    label: "Save recipes from anywhere",
+    className:
+      "left-0 top-[10%] -rotate-6 sm:left-[-4%] sm:top-[16%] lg:left-[-6%] lg:top-[18%]",
+  },
+  {
+    icon: "clock",
+    label: "Save time planning",
+    className:
+      "right-0 top-[8%] rotate-6 sm:right-[-4%] sm:top-[14%] lg:right-[-6%] lg:top-[16%]",
+  },
+  {
+    icon: "banknote",
+    label: "Save money on the shop",
+    className:
+      "bottom-[14%] left-0 -rotate-[5deg] sm:bottom-[18%] sm:left-[-5%] lg:bottom-[20%] lg:left-[-7%]",
+  },
+  {
+    icon: "cart",
+    label: "Shop online or in-store",
+    className:
+      "bottom-[6%] right-0 rotate-3 sm:bottom-[10%] sm:right-[-4%] lg:bottom-[12%] lg:right-[-6%]",
+  },
+];
+
+function FloatingChip({
+  icon,
+  label,
+  className,
+}: {
+  icon: ForayIconName;
+  label: string;
+  className: string;
+}) {
+  return (
+    <div
+      aria-label={label}
+      title={label}
+      className={cn(
+        "absolute z-20 flex h-9 w-9 items-center justify-center rounded-2xl border border-white/10 bg-ink text-white shadow-[0_10px_28px_rgba(0,0,0,0.22)] sm:h-11 sm:w-11 sm:rounded-[18px] lg:h-12 lg:w-12",
+        className,
+      )}
+    >
+      <ForayIcon name={icon} size={18} className="sm:scale-110 lg:scale-125" />
+    </div>
+  );
+}
 
 export function Hero() {
   const { open } = useWaitlist();
@@ -44,48 +99,39 @@ export function Hero() {
                 Join the waitlist <ForayIcon name="arrowRight" size="small" />
               </button>
             )}
-            <p className="text-sm font-semibold uppercase tracking-[0.14em] text-foreground">
+            <p className="text-base font-normal leading-relaxed tracking-normal text-muted sm:text-lg">
               Launching soon
             </p>
           </div>
         </div>
 
         <div
-          className="motion-safe:animate-rise relative mx-auto min-h-[370px] w-full max-w-[380px] sm:min-h-[560px] sm:max-w-[620px] lg:min-h-[600px]"
+          className="motion-safe:animate-rise relative mx-auto w-full max-w-[300px] sm:max-w-[520px] lg:max-w-[620px]"
           style={{ animationDelay: "0.18s" }}
         >
-          <div className="absolute inset-x-[2%] top-[2%] h-[86%] overflow-hidden rounded-[36px] bg-[#f5f5f7] sm:top-[3%] sm:h-[78%] sm:rounded-[48px]">
-            <Image
-              src="/brand/foray-uk-groceries.png"
-              alt=""
-              aria-hidden="true"
-              fill
-              priority
-              sizes="(max-width: 1024px) 92vw, 620px"
-              className="object-cover opacity-95"
-            />
-          </div>
-          <div className="absolute inset-x-0 bottom-0 top-[8%] flex items-center justify-center">
-            <ProductPhone
-              screen="recipes"
-              className="w-[168px] sm:w-[250px] lg:w-[270px]"
-            />
-          </div>
-          <div className="absolute left-[1%] top-[15%] -rotate-6 rounded-2xl border border-white/10 bg-ink px-3 py-2 shadow-[0_12px_35px_rgba(0,0,0,0.22)] sm:left-[-2%] sm:top-[22%] sm:px-4 sm:py-3">
-            <p className="text-[10px] font-semibold text-white/55">Saved from TikTok</p>
-            <p className="mt-0.5 text-xs font-bold text-white sm:text-sm">Ready to cook</p>
-          </div>
-          <div className="absolute right-[1%] top-[12%] rotate-6 rounded-2xl border border-white/10 bg-ink px-3 py-2 shadow-[0_12px_35px_rgba(0,0,0,0.22)] sm:right-[-2%] sm:top-[18%] sm:px-4 sm:py-3">
-            <p className="text-[10px] font-semibold text-white/55">Swipe to fork</p>
-            <p className="mt-0.5 text-xs font-bold text-white sm:text-sm">One easy pick</p>
-          </div>
-          <div className="absolute bottom-[18%] left-[1%] rotate-[-4deg] rounded-2xl border border-white/10 bg-ink px-3 py-2 shadow-[0_12px_35px_rgba(0,0,0,0.22)] sm:bottom-[22%] sm:left-[-3%] sm:px-4 sm:py-3">
-            <p className="text-[10px] font-semibold text-white/55">Cook mode</p>
-            <p className="mt-0.5 text-xs font-bold text-white sm:text-sm">Timers beside the hob</p>
-          </div>
-          <div className="absolute bottom-[7%] right-[1%] rotate-3 rounded-2xl border border-white/10 bg-ink px-3 py-2 shadow-[0_12px_35px_rgba(0,0,0,0.22)] sm:bottom-[12%] sm:right-[-3%] sm:px-4 sm:py-3">
-            <p className="text-[10px] font-semibold text-white/55">Your trolley</p>
-            <p className="mt-0.5 text-xs font-bold text-white sm:text-sm">No duplicates</p>
+          <div className="relative aspect-[4/5] w-full sm:aspect-[5/6] lg:aspect-[4/5]">
+            <div className="absolute inset-x-[4%] top-[2%] bottom-[6%] overflow-hidden rounded-[28px] bg-[#f5f5f7] sm:inset-x-[3%] sm:rounded-[40px] lg:rounded-[48px]">
+              <Image
+                src="/brand/foray-uk-groceries.png"
+                alt=""
+                aria-hidden="true"
+                fill
+                priority
+                sizes="(max-width: 640px) 300px, (max-width: 1024px) 520px, 620px"
+                className="object-cover opacity-95"
+              />
+            </div>
+
+            <div className="absolute inset-x-0 bottom-0 top-[6%] z-10 flex items-center justify-center">
+              <ProductPhone
+                screen="recipes"
+                className="w-[148px] sm:w-[230px] lg:w-[270px]"
+              />
+            </div>
+
+            {FLOATING_CHIPS.map((chip) => (
+              <FloatingChip key={chip.label} {...chip} />
+            ))}
           </div>
         </div>
       </div>

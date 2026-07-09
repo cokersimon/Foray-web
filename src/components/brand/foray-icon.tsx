@@ -14,7 +14,10 @@ export type ForayIconName =
   | "close"
   | "cart"
   | "heart"
-  | "clock";
+  | "clock"
+  | "link"
+  | "banknote"
+  | "forkKnife";
 
 const SIZE = {
   caption: 12,
@@ -126,6 +129,31 @@ export function ForayIcon({
         <svg {...common}>
           <circle cx="12" cy="12" r="8.25" />
           <path d="M12 8.2V12l2.6 1.8" />
+        </svg>
+      );
+    case "link":
+      return (
+        <svg {...common}>
+          <path d="M9.5 14.5 8 16a3.2 3.2 0 0 1-4.5-4.5l2.2-2.2a3.2 3.2 0 0 1 4.5 0" />
+          <path d="M14.5 9.5 16 8a3.2 3.2 0 0 1 4.5 4.5l-2.2 2.2a3.2 3.2 0 0 1-4.5 0" />
+          <path d="m9.8 14.2 4.4-4.4" />
+        </svg>
+      );
+    case "banknote":
+      return (
+        <svg {...common}>
+          <rect x="2.75" y="6" width="18.5" height="12" rx="2" />
+          <circle cx="12" cy="12" r="2.4" />
+          <path d="M6.2 9.2v5.6M17.8 9.2v5.6" />
+        </svg>
+      );
+    case "forkKnife":
+      return (
+        <svg {...common}>
+          <path d="M7 3.5v7.2c0 1.2.9 2.1 2 2.1V20.5" />
+          <path d="M5.2 3.5v4.2M8.8 3.5v4.2" />
+          <path d="M16.2 3.5c1.7 0 2.8 1.4 2.8 3.2 0 1.9-1.2 3.2-2.8 3.2V20.5" />
+          <path d="M16.2 3.5v6.4" />
         </svg>
       );
   }
