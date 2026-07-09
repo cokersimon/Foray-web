@@ -35,10 +35,9 @@ export function SmoothScrollProvider({
         lerp: 0.1,
         duration: 1.2,
         smoothWheel: true,
-        // Offset is applied per-click from the measured toolbar; keep anchors
-        // enabled so hash navigations still animate through Lenis.
+        // Lenis already honours CSS scroll-padding-top; don't add a second offset.
         anchors: {
-          offset: -80,
+          offset: 0,
           duration: 1.15,
         },
       }}

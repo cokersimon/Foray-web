@@ -78,12 +78,13 @@ export function Navbar() {
     const reduceMotion = window.matchMedia(
       "(prefers-reduced-motion: reduce)",
     ).matches;
-    const offset = getToolbarOffset();
 
     const id = window.setTimeout(() => {
       if (lenis) {
-        lenis.scrollTo(el, { offset, duration: reduceMotion ? 0 : 1.15 });
+        // Lenis subtracts CSS scroll-padding-top for element targets.
+        lenis.scrollTo(el, { offset: 0, duration: reduceMotion ? 0 : 1.15 });
       } else {
+        const offset = getToolbarOffset();
         const top =
           el.getBoundingClientRect().top + window.scrollY + offset;
         window.scrollTo({
@@ -106,19 +107,20 @@ export function Navbar() {
     setMenuOpen(false);
 
     const run = () => {
-      const offset = getToolbarOffset();
       const reduceMotion = window.matchMedia(
         "(prefers-reduced-motion: reduce)",
       ).matches;
 
       if (lenis) {
+        // Element targets already clear scroll-padding-top inside Lenis.
         lenis.scrollTo(el, {
-          offset,
+          offset: 0,
           duration: reduceMotion ? 0 : 1.15,
         });
         return;
       }
 
+      const offset = getToolbarOffset();
       const top =
         el.getBoundingClientRect().top + window.scrollY + offset;
       window.scrollTo({

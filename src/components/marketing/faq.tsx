@@ -39,7 +39,7 @@ export function Faq() {
   return (
     <section
       id="faq"
-      className="scroll-mt-[var(--site-header-offset,5.5rem)] bg-background px-5 py-20 sm:px-6 md:py-28 lg:px-10 lg:py-32"
+      className="bg-background px-5 py-20 sm:px-6 md:py-28 lg:px-10 lg:py-32"
     >
       <div className="mx-auto max-w-7xl">
         <div className="max-w-3xl">
