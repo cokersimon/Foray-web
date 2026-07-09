@@ -43,11 +43,6 @@ export function useTimedCarousel(
     return () => window.clearTimeout(id);
   }, [canAutoplay, durationMs, next, progressKey]);
 
-  // Restart the progress fill when the section first enters view.
-  useEffect(() => {
-    if (inView) setProgressKey((k) => k + 1);
-  }, [inView]);
-
   return {
     index,
     goTo,
@@ -102,6 +97,7 @@ export function CarouselProgress({
           >
             {active && autoplay && (
               <span
+                key={`fill-${progressKey}-on`}
                 className="absolute inset-y-0 left-0 rounded-full bg-foreground"
                 style={{
                   animation: `carousel-progress ${durationMs}ms cubic-bezier(0.4, 0, 0.2, 1) forwards`,
