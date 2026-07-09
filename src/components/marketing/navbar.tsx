@@ -91,33 +91,23 @@ export function Navbar() {
       "(prefers-reduced-motion: reduce)",
     ).matches;
     const headerOffset = -getToolbarOffset(); // positive clearance
-    const current =
-      typeof lenisInstance?.animatedScroll === "number"
-        ? lenisInstance.animatedScroll
-        : window.scrollY || document.documentElement.scrollTop;
+    const current = window.scrollY || document.documentElement.scrollTop;
     const y =
       precomputedY ??
       Math.max(0, el.getBoundingClientRect().top + current - headerOffset);
 
-    // Always unlock scroll before moving.
+    // Unlock any menu scroll lock.
     document.body.style.overflow = "";
-    lenisInstance?.start();
 
-    if (lenisInstance) {
-      // Numeric target avoids Lenis also subtracting CSS scroll-padding.
-      lenisInstance.scrollTo(y, {
-        offset: 0,
-        force: true,
-        immediate: reduceMotion,
-        duration: reduceMotion ? 0 : 1.15,
-      });
-      return;
-    }
-
+    // Pause Lenis so it cannot fight the native section jump, then resume.
+    lenisInstance?.stop();
     window.scrollTo({
       top: y,
       behavior: reduceMotion ? "auto" : "smooth",
     });
+    window.setTimeout(() => {
+      lenisInstance?.start();
+    }, reduceMotion ? 0 : 1200);
   }
 
   function scrollToSection(href: string) {
@@ -126,20 +116,14 @@ export function Navbar() {
     const el = document.getElementById(id);
     if (!el) return;
 
-    // Capture destination while the closed toolbar height is known and the
-    // section's document position is still valid.
     const headerOffset = -getToolbarOffset();
-    const current =
-      typeof lenis?.animatedScroll === "number"
-        ? lenis.animatedScroll
-        : window.scrollY || document.documentElement.scrollTop;
+    const current = window.scrollY || document.documentElement.scrollTop;
     const y = Math.max(
       0,
       el.getBoundingClientRect().top + current - headerOffset,
     );
 
     setMenuOpen(false);
-    // Scroll on the next frame so React can unlock body overflow first.
     requestAnimationFrame(() => {
       scrollElementIntoView(el, lenis, y);
     });
