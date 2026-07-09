@@ -14,8 +14,14 @@ const NAV_LINKS = [
   { label: "FAQ", href: "/#faq" },
 ];
 
-/** Clears the fixed frosted toolbar when landing on a section. */
-const SECTION_SCROLL_OFFSET = -112;
+/** Extra breathing room below the fixed toolbar when a section lands. */
+const SECTION_GAP_PX = 16;
+
+function getToolbarOffset(): number {
+  const bar = document.querySelector<HTMLElement>("[data-site-header-bar]");
+  const height = bar?.getBoundingClientRect().height ?? 64;
+  return -(Math.ceil(height) + SECTION_GAP_PX);
+}
 
 export function Navbar() {
   const { open } = useWaitlist();
@@ -39,28 +45,94 @@ export function Navbar() {
     return () => window.removeEventListener("keydown", onKey);
   }, []);
 
+  // Keep CSS scroll-padding in sync with the real toolbar height.
+  useEffect(() => {
+    const bar = document.querySelector<HTMLElement>("[data-site-header-bar]");
+    if (!bar) return;
+
+    function sync() {
+      const height = bar!.getBoundingClientRect().height;
+      document.documentElement.style.setProperty(
+        "--site-header-offset",
+        `${Math.ceil(height) + SECTION_GAP_PX}px`,
+      );
+    }
+
+    sync();
+    const ro = new ResizeObserver(sync);
+    ro.observe(bar);
+    window.addEventListener("resize", sync);
+    return () => {
+      ro.disconnect();
+      window.removeEventListener("resize", sync);
+    };
+  }, []);
+
+  // Land correctly on deep links like /#pricing (after layout + toolbar measure).
+  useEffect(() => {
+    const hash = window.location.hash.replace(/^#/, "");
+    if (!hash) return;
+    const el = document.getElementById(hash);
+    if (!el) return;
+
+    const reduceMotion = window.matchMedia(
+      "(prefers-reduced-motion: reduce)",
+    ).matches;
+    const offset = getToolbarOffset();
+
+    const id = window.setTimeout(() => {
+      if (lenis) {
+        lenis.scrollTo(el, { offset, duration: reduceMotion ? 0 : 1.15 });
+      } else {
+        const top =
+          el.getBoundingClientRect().top + window.scrollY + offset;
+        window.scrollTo({
+          top,
+          behavior: reduceMotion ? "auto" : "smooth",
+        });
+      }
+    }, 50);
+
+    return () => window.clearTimeout(id);
+  }, [lenis]);
+
   function scrollToSection(href: string) {
     const id = href.includes("#") ? href.split("#")[1] : null;
     if (!id) return;
     const el = document.getElementById(id);
     if (!el) return;
 
+    const wasMenuOpen = menuOpen;
     setMenuOpen(false);
 
-    if (lenis) {
-      lenis.scrollTo(el, { offset: SECTION_SCROLL_OFFSET, duration: 1.2 });
-      return;
-    }
+    const run = () => {
+      const offset = getToolbarOffset();
+      const reduceMotion = window.matchMedia(
+        "(prefers-reduced-motion: reduce)",
+      ).matches;
 
-    const top =
-      el.getBoundingClientRect().top + window.scrollY + SECTION_SCROLL_OFFSET;
-    const reduceMotion = window.matchMedia(
-      "(prefers-reduced-motion: reduce)",
-    ).matches;
-    window.scrollTo({
-      top,
-      behavior: reduceMotion ? "auto" : "smooth",
-    });
+      if (lenis) {
+        lenis.scrollTo(el, {
+          offset,
+          duration: reduceMotion ? 0 : 1.15,
+        });
+        return;
+      }
+
+      const top =
+        el.getBoundingClientRect().top + window.scrollY + offset;
+      window.scrollTo({
+        top,
+        behavior: reduceMotion ? "auto" : "smooth",
+      });
+    };
+
+    // Wait for the open-menu panel to collapse so we measure the closed toolbar.
+    if (wasMenuOpen) {
+      window.setTimeout(run, 320);
+    } else {
+      requestAnimationFrame(() => requestAnimationFrame(run));
+    }
   }
 
   return (
@@ -74,7 +146,10 @@ export function Navbar() {
               : "toolbar-frost",
           )}
         >
-          <div className="flex items-center justify-between px-5 py-3 sm:px-6 md:px-10 md:py-4">
+          <div
+            data-site-header-bar
+            className="flex items-center justify-between px-5 py-3 sm:px-6 md:px-10 md:py-4"
+          >
             <Link
               href="/"
               className="shrink-0 rounded-sm transition-opacity hover:opacity-75 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-current"

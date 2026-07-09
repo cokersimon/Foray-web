@@ -35,10 +35,11 @@ export function SmoothScrollProvider({
         lerp: 0.1,
         duration: 1.2,
         smoothWheel: true,
-        // Offset clears the fixed frosted toolbar (negative = stop above target).
+        // Offset is applied per-click from the measured toolbar; keep anchors
+        // enabled so hash navigations still animate through Lenis.
         anchors: {
-          offset: -112,
-          duration: 1.2,
+          offset: -80,
+          duration: 1.15,
         },
       }}
     >

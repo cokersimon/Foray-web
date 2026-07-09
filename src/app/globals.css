@@ -97,15 +97,9 @@
 html {
   color-scheme: light;
   background: var(--background);
-  /* Clear the fixed frosted toolbar when jumping to #anchors. */
-  scroll-padding-top: 6.5rem;
+  /* Synced from the real toolbar height via --site-header-offset. */
+  scroll-padding-top: var(--site-header-offset, 5.5rem);
   scroll-behavior: smooth;
-}
-
-@media (min-width: 768px) {
-  html {
-    scroll-padding-top: 7rem;
-  }
 }
 
 body {

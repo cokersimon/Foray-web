@@ -98,20 +98,15 @@ export function Hero() {
             className="motion-safe:animate-rise mt-7 flex justify-center sm:mt-8 lg:justify-start"
             style={{ animationDelay: "0.24s" }}
           >
-            <div className="flex flex-col items-center gap-2.5">
-              {APP_STORE_LIVE ? (
-                <a href={APP_STORE_URL} className="marketing-button">
-                  Download on the App Store <ForayIcon name="arrowRight" size="small" />
-                </a>
-              ) : (
-                <button type="button" onClick={open} className="marketing-button">
-                  Join the waitlist <ForayIcon name="arrowRight" size="small" />
-                </button>
-              )}
-              <p className="text-xs font-normal leading-none tracking-normal text-muted sm:text-sm">
-                Launching soon
-              </p>
-            </div>
+            {APP_STORE_LIVE ? (
+              <a href={APP_STORE_URL} className="marketing-button">
+                Download on the App Store <ForayIcon name="arrowRight" size="small" />
+              </a>
+            ) : (
+              <button type="button" onClick={open} className="marketing-button">
+                Join the waitlist <ForayIcon name="arrowRight" size="small" />
+              </button>
+            )}
           </div>
         </div>
 
