@@ -35,7 +35,8 @@ export function SmoothScrollProvider({
         lerp: 0.1,
         duration: 1.2,
         smoothWheel: true,
-        // Lenis already honours CSS scroll-padding-top; don't add a second offset.
+        // Nav clicks compute a numeric Y themselves. Keep anchors for raw
+        // hash changes, with no extra offset (CSS scroll-padding handles those).
         anchors: {
           offset: 0,
           duration: 1.15,

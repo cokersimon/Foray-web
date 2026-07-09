@@ -32,10 +32,12 @@ export function Navbar() {
     if (!menuOpen) return;
     const previous = document.body.style.overflow;
     document.body.style.overflow = "hidden";
+    lenis?.stop();
     return () => {
       document.body.style.overflow = previous;
+      lenis?.start();
     };
-  }, [menuOpen]);
+  }, [menuOpen, lenis]);
 
   useEffect(() => {
     function onKey(e: KeyboardEvent) {
@@ -75,27 +77,44 @@ export function Navbar() {
     const el = document.getElementById(hash);
     if (!el) return;
 
-    const reduceMotion = window.matchMedia(
-      "(prefers-reduced-motion: reduce)",
-    ).matches;
-
     const id = window.setTimeout(() => {
-      if (lenis) {
-        // Lenis subtracts CSS scroll-padding-top for element targets.
-        lenis.scrollTo(el, { offset: 0, duration: reduceMotion ? 0 : 1.15 });
-      } else {
-        const offset = getToolbarOffset();
-        const top =
-          el.getBoundingClientRect().top + window.scrollY + offset;
-        window.scrollTo({
-          top,
-          behavior: reduceMotion ? "auto" : "smooth",
-        });
-      }
+      scrollElementIntoView(el, lenis);
     }, 50);
 
     return () => window.clearTimeout(id);
   }, [lenis]);
+
+  function scrollElementIntoView(
+    el: HTMLElement,
+    lenisInstance: ReturnType<typeof useLenis>,
+  ) {
+    const reduceMotion = window.matchMedia(
+      "(prefers-reduced-motion: reduce)",
+    ).matches;
+    const headerOffset = -getToolbarOffset(); // positive clearance
+    const current =
+      typeof lenisInstance?.scroll === "number"
+        ? lenisInstance.scroll
+        : window.scrollY;
+    const y = Math.max(
+      0,
+      el.getBoundingClientRect().top + current - headerOffset,
+    );
+
+    if (lenisInstance) {
+      // Pass a number so Lenis does not also subtract CSS scroll-padding.
+      lenisInstance.scrollTo(y, {
+        offset: 0,
+        duration: reduceMotion ? 0 : 1.15,
+      });
+      return;
+    }
+
+    window.scrollTo({
+      top: y,
+      behavior: reduceMotion ? "auto" : "smooth",
+    });
+  }
 
   function scrollToSection(href: string) {
     const id = href.includes("#") ? href.split("#")[1] : null;
@@ -107,26 +126,8 @@ export function Navbar() {
     setMenuOpen(false);
 
     const run = () => {
-      const reduceMotion = window.matchMedia(
-        "(prefers-reduced-motion: reduce)",
-      ).matches;
-
-      if (lenis) {
-        // Element targets already clear scroll-padding-top inside Lenis.
-        lenis.scrollTo(el, {
-          offset: 0,
-          duration: reduceMotion ? 0 : 1.15,
-        });
-        return;
-      }
-
-      const offset = getToolbarOffset();
-      const top =
-        el.getBoundingClientRect().top + window.scrollY + offset;
-      window.scrollTo({
-        top,
-        behavior: reduceMotion ? "auto" : "smooth",
-      });
+      lenis?.start();
+      scrollElementIntoView(el, lenis);
     };
 
     // Wait for the open-menu panel to collapse so we measure the closed toolbar.
