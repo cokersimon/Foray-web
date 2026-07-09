@@ -1,90 +1,110 @@
 "use client";
 
-import { useRef } from "react";
+import { useEffect, useRef } from "react";
 import Image from "next/image";
-import { ForayIcon } from "@/components/brand/foray-icon";
+import { CarouselProgress, useTimedCarousel } from "./carousel-progress";
 
 const PROPS = [
   {
-    image: "/brand/foray-kitchen-objects.png",
-    imageClass: "object-cover object-[18%_42%] scale-[1.35]",
+    image: "/brand/outcome-sunday.png",
     label: "Sunday reset",
     title: "When nothing sounds obvious.",
-    body: "Start with a small set that fits your time and tastes. Swipe past what you do not fancy and keep the one that you do.",
+    body: "Sit down once, pick a small set that fits the week, and leave the rest. Your recipes wait until you are ready.",
   },
   {
-    image: "/brand/foray-kitchen-objects.png",
-    imageClass: "object-cover object-[72%_48%] scale-[1.4]",
+    image: "/brand/outcome-midweek.png",
     label: "Midweek scramble",
     title: "When your head is already full.",
-    body: "Let the grocery list remember the quantities, duplicates and aisles. Add everyday essentials to the same shop.",
+    body: "Open one tidy list — quantities combined, aisles sorted — and get through the shop without starting from scratch.",
   },
   {
-    image: "/brand/foray-kitchen-objects.png",
-    imageClass: "object-cover object-[48%_28%] scale-[1.45]",
+    image: "/brand/outcome-cook.png",
     label: "Dinner, now",
     title: "When dinner needs to happen.",
-    body: "Open the meal, follow one clear step at a time and set named timers without leaving cook mode.",
+    body: "Prop the phone by the hob, follow one clear step at a time, and set timers without leaving cook mode.",
   },
 ];
 
 export function ValueProps() {
   const scrollerRef = useRef<HTMLDivElement>(null);
+  const programmaticScroll = useRef(false);
+  const {
+    index,
+    goTo,
+    setPaused,
+    progressKey,
+    autoplay,
+    durationMs,
+  } = useTimedCarousel(PROPS.length);
 
-  function scrollByCard(direction: -1 | 1) {
+  useEffect(() => {
     const el = scrollerRef.current;
     if (!el) return;
-    const card = el.querySelector<HTMLElement>("[data-outcome-card]");
-    const amount = card ? card.offsetWidth + 20 : el.clientWidth * 0.8;
-    el.scrollBy({ left: direction * amount, behavior: "smooth" });
+    const card = el.querySelectorAll<HTMLElement>("[data-outcome-card]")[index];
+    if (!card) return;
+    programmaticScroll.current = true;
+    const left = card.offsetLeft - (el.clientWidth - card.offsetWidth) / 2;
+    el.scrollTo({ left: Math.max(0, left), behavior: "smooth" });
+    const id = window.setTimeout(() => {
+      programmaticScroll.current = false;
+    }, 450);
+    return () => window.clearTimeout(id);
+  }, [index]);
+
+  function onScroll() {
+    if (programmaticScroll.current) return;
+    const el = scrollerRef.current;
+    if (!el) return;
+    const cards = [...el.querySelectorAll<HTMLElement>("[data-outcome-card]")];
+    if (!cards.length) return;
+    const mid = el.scrollLeft + el.clientWidth / 2;
+    let best = 0;
+    let bestDist = Infinity;
+    cards.forEach((card, i) => {
+      const center = card.offsetLeft + card.offsetWidth / 2;
+      const dist = Math.abs(center - mid);
+      if (dist < bestDist) {
+        bestDist = dist;
+        best = i;
+      }
+    });
+    if (best !== index) goTo(best);
   }
 
   return (
-    <section className="bg-background px-5 py-20 sm:px-6 md:py-28 lg:px-10 lg:py-32">
+    <section
+      className="bg-background px-5 py-20 sm:px-6 md:py-28 lg:px-10 lg:py-32"
+      onMouseEnter={() => setPaused(true)}
+      onMouseLeave={() => setPaused(false)}
+      onFocusCapture={() => setPaused(true)}
+      onBlurCapture={(e) => {
+        if (!e.currentTarget.contains(e.relatedTarget as Node | null)) {
+          setPaused(false);
+        }
+      }}
+    >
       <div className="mx-auto max-w-7xl">
-        <div className="flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
-          <div className="max-w-3xl">
-            <p className="text-[13px] font-semibold tracking-[-0.01em] text-muted">
-              Built for real life
-            </p>
-            <h2 className="mt-4 text-balance text-[clamp(2.4rem,5vw,4.25rem)] font-bold leading-[1.02] tracking-[-0.045em] text-foreground">
-              Good plans should survive a busy week.
-            </h2>
-            <p className="mt-5 max-w-xl text-pretty text-lg leading-relaxed text-muted">
-              Foray reduces the decisions you need to hold in your head. Miss a
-              day—or a fortnight—and everything is still there when you return.
-            </p>
-          </div>
-
-          <div className="flex gap-2 self-end">
-            <button
-              type="button"
-              onClick={() => scrollByCard(-1)}
-              aria-label="Previous"
-              className="flex h-10 w-10 items-center justify-center rounded-full bg-[#e8e8ed] text-foreground/70 transition-colors hover:bg-[#d2d2d7] hover:text-foreground"
-            >
-              <ForayIcon name="arrowLeft" size="small" />
-            </button>
-            <button
-              type="button"
-              onClick={() => scrollByCard(1)}
-              aria-label="Next"
-              className="flex h-10 w-10 items-center justify-center rounded-full bg-[#e8e8ed] text-foreground/70 transition-colors hover:bg-[#d2d2d7] hover:text-foreground"
-            >
-              <ForayIcon name="arrowRight" size="small" />
-            </button>
-          </div>
+        <div className="max-w-3xl">
+          <h2 className="text-balance text-[clamp(2.4rem,5vw,4.25rem)] font-bold leading-[1.02] tracking-[-0.045em] text-foreground">
+            Good plans should survive a busy week
+            <span className="text-brand-dot">.</span>
+          </h2>
+          <p className="mt-5 max-w-xl text-pretty text-lg leading-relaxed text-muted">
+            Foray reduces the decisions you need to hold in your head. Miss a
+            day—or a fortnight—and everything is still there when you return.
+          </p>
         </div>
 
         <div
           ref={scrollerRef}
+          onScroll={onScroll}
           className="scrollbar-hide mt-12 flex snap-x snap-mandatory gap-5 overflow-x-auto pb-2"
         >
           {PROPS.map((prop) => (
             <article
               key={prop.title}
               data-outcome-card
-              className="relative flex w-[min(86vw,340px)] shrink-0 snap-start flex-col overflow-hidden rounded-[28px] bg-ink text-white sm:w-[380px] lg:w-[400px]"
+              className="relative flex w-[min(86vw,340px)] shrink-0 snap-center flex-col overflow-hidden rounded-[28px] bg-ink text-white sm:w-[380px] lg:w-[400px]"
             >
               <div className="flex flex-1 flex-col p-7 sm:p-8">
                 <p className="text-[13px] font-semibold text-white/55">
@@ -104,13 +124,22 @@ export function ValueProps() {
                   aria-hidden="true"
                   fill
                   sizes="400px"
-                  className={prop.imageClass}
+                  className="object-cover"
                 />
-                <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-ink/20 to-transparent" />
               </div>
             </article>
           ))}
         </div>
+
+        <CarouselProgress
+          count={PROPS.length}
+          index={index}
+          onSelect={goTo}
+          autoplay={autoplay}
+          durationMs={durationMs}
+          progressKey={progressKey}
+          className="mt-8"
+        />
       </div>
     </section>
   );

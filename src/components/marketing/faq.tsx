@@ -39,14 +39,11 @@ export function Faq() {
   return (
     <section
       id="faq"
-      className="scroll-mt-28 bg-background px-5 py-20 sm:px-6 md:py-28 lg:px-10 lg:py-32"
+      className="scroll-mt-24 bg-background px-5 py-20 sm:px-6 md:py-28 lg:px-10 lg:py-32"
     >
       <div className="mx-auto max-w-7xl">
         <div className="max-w-3xl">
-          <p className="text-[13px] font-semibold tracking-[-0.01em] text-muted">
-            Good to know
-          </p>
-          <h2 className="mt-4 text-balance text-[clamp(2.4rem,5vw,4.25rem)] font-bold leading-[1.02] tracking-[-0.045em] text-foreground">
+          <h2 className="text-balance text-[clamp(2.4rem,5vw,4.25rem)] font-bold leading-[1.02] tracking-[-0.045em] text-foreground">
             A few useful answers<span className="text-brand-dot">.</span>
           </h2>
           <p className="mt-5 max-w-md text-base leading-relaxed text-muted">

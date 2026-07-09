@@ -154,6 +154,15 @@ a {
   display: none;
 }
 
+@keyframes carousel-progress {
+  from {
+    width: 0%;
+  }
+  to {
+    width: 100%;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,
@@ -162,5 +171,14 @@ a {
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
+  }
+
+  @keyframes carousel-progress {
+    from {
+      width: 100%;
+    }
+    to {
+      width: 100%;
+    }
   }
 }

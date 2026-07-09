@@ -26,7 +26,7 @@ export function MarketingShell({ children }: { children: React.ReactNode }) {
         Skip to content
       </a>
       <Navbar />
-      <main id="main-content" tabIndex={-1} className="pt-16 sm:pt-20">
+      <main id="main-content" tabIndex={-1}>
         {children}
       </main>
       <Footer />

@@ -1,168 +1,124 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
-import { motion, useInView } from "framer-motion";
-import { cn } from "@/lib/cn";
+import { useRef } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import { ProductPhone, type ProductScreen } from "./product-phone";
+import { CarouselProgress, useTimedCarousel } from "./carousel-progress";
 
-interface Feature {
-  eyebrow: string;
-  title: string;
+interface Step {
+  number: string;
+  label: string;
   body: string;
-  detail: string;
   screen: ProductScreen;
 }
 
-const FEATURES: Feature[] = [
+const STEPS: Step[] = [
   {
-    eyebrow: "01 · Bring the recipe",
-    title: "From saved link to something you can actually cook.",
-    body: "Share a recipe from TikTok, Instagram or a food blog. Foray turns it into clear ingredients and steps, ready when you are.",
-    detail: "Links, photos and your own ideas all live together.",
+    number: "01",
+    label: "Bring the recipe",
+    body: "Share or paste a link from TikTok, Instagram or a food blog. Foray turns it into clear ingredients and steps.",
     screen: "recipes",
   },
   {
-    eyebrow: "02 · Choose without overthinking",
-    title: "A few good options. One easy swipe.",
-    body: "Browse what suits your time and tastes, then fork what sounds good. No weekly spreadsheet and no pressure to plan perfectly.",
-    detail: "Come back tomorrow or in two weeks. Your recipes wait.",
+    number: "02",
+    label: "Choose without overthinking",
+    body: "Browse a small set that fits your time and tastes, then fork the one that sounds good.",
     screen: "swipe",
   },
   {
-    eyebrow: "03 · One accurate shop",
-    title: "Every ingredient, combined into one tidy list.",
-    body: "Foray scales quantities, combines duplicates and groups the shop by aisle. Two recipes need tomatoes? You only see what you need.",
-    detail: "Check items off in-store or take the list to online checkout.",
+    number: "03",
+    label: "One accurate shop",
+    body: "Quantities are scaled, duplicates combined and the list sorted by aisle — ready for online checkout or in-store.",
     screen: "groceries",
   },
   {
-    eyebrow: "04 · Get dinner on",
-    title: "Clear steps and timers, right beside the hob.",
-    body: "When it is time to cook, Foray keeps the recipe readable, the screen awake and your timers close at hand.",
-    detail: "Less juggling. More attention for the food.",
+    number: "04",
+    label: "Get dinner on",
+    body: "Clear steps and timers stay beside the hob, so you can cook without juggling apps.",
     screen: "cook",
   },
 ];
 
-function FeatureCopy({
-  feature,
-  index,
-  onActive,
-}: {
-  feature: Feature;
-  index: number;
-  onActive: (index: number) => void;
-}) {
-  const ref = useRef<HTMLElement>(null);
-  const inView = useInView(ref, { amount: 0.35, margin: "-8% 0px -8% 0px" });
-
-  useEffect(() => {
-    if (inView) onActive(index);
-  }, [inView, index, onActive]);
-
-  return (
-    <article
-      ref={ref}
-      className="flex min-h-[62vh] flex-col justify-center py-14 lg:min-h-[72vh] lg:py-20"
-    >
-      <div className="mb-8 lg:hidden">
-        <ProductPhone screen={feature.screen} className="w-[230px] sm:w-[260px]" />
-      </div>
-      <motion.div
-        initial={{ opacity: 0, y: 18 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        viewport={{ once: true, amount: 0.35 }}
-        transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
-      >
-        <p className="text-[13px] font-semibold tracking-[-0.01em] text-muted">
-          {feature.eyebrow}
-        </p>
-        <h3 className="mt-4 max-w-2xl text-balance text-3xl font-bold leading-[1.08] tracking-[-0.035em] text-foreground sm:text-4xl lg:text-5xl">
-          {feature.title}
-        </h3>
-        <p className="mt-5 max-w-xl text-pretty text-base leading-relaxed text-muted sm:text-lg">
-          {feature.body}
-        </p>
-        <p className="mt-4 max-w-lg text-sm font-semibold leading-relaxed text-foreground/80">
-          {feature.detail}
-        </p>
-      </motion.div>
-    </article>
-  );
-}
-
 export function ScrollytellingSection() {
-  const [active, setActive] = useState(0);
+  const sectionRef = useRef<HTMLElement>(null);
+  const touchStartX = useRef<number | null>(null);
+  const {
+    index,
+    goTo,
+    setPaused,
+    progressKey,
+    autoplay,
+    durationMs,
+  } = useTimedCarousel(STEPS.length);
+  const step = STEPS[index];
+
+  function onTouchStart(e: React.TouchEvent) {
+    touchStartX.current = e.touches[0]?.clientX ?? null;
+  }
+
+  function onTouchEnd(e: React.TouchEvent) {
+    if (touchStartX.current == null) return;
+    const dx = (e.changedTouches[0]?.clientX ?? touchStartX.current) - touchStartX.current;
+    touchStartX.current = null;
+    if (Math.abs(dx) < 48) return;
+    goTo(index + (dx < 0 ? 1 : -1));
+  }
 
   return (
     <section
       id="how-it-works"
-      className="scroll-mt-28 bg-[#f5f5f7] text-foreground"
+      ref={sectionRef}
+      className="scroll-mt-24 bg-[#f5f5f7] text-foreground"
+      onMouseEnter={() => setPaused(true)}
+      onMouseLeave={() => setPaused(false)}
+      onFocusCapture={() => setPaused(true)}
+      onBlurCapture={(e) => {
+        if (!e.currentTarget.contains(e.relatedTarget as Node | null)) {
+          setPaused(false);
+        }
+      }}
     >
-      <div className="mx-auto max-w-7xl px-5 py-20 sm:px-6 md:py-28 lg:px-10 lg:py-32">
-        <div className="max-w-3xl">
-          <p className="text-[13px] font-semibold tracking-[-0.01em] text-muted">
-            How it works
-          </p>
-          <h2 className="mt-4 text-balance text-[clamp(2.4rem,5vw,4.5rem)] font-bold leading-[1.02] tracking-[-0.045em]">
-            From saved recipe to dinner.
-          </h2>
-          <p className="mt-5 max-w-2xl text-pretty text-lg leading-relaxed text-muted">
-            Foray joins the bits that usually live across saved posts, notes,
-            browser tabs and shopping apps — designed to stay short, about five
-            taps for a single recipe.
-          </p>
-        </div>
-
-        <div className="mt-12 grid lg:grid-cols-[0.82fr_1.18fr] lg:gap-16">
-          <div className="relative hidden lg:block">
-            <div className="sticky top-28 flex h-[calc(100vh-7rem)] items-center justify-center">
-              <div className="relative h-[600px] w-full">
-                {FEATURES.map((feature, index) => (
-                  <motion.div
-                    key={feature.screen}
-                    aria-hidden={active !== index}
-                    animate={{
-                      opacity: active === index ? 1 : 0,
-                      y: active === index ? 0 : 14,
-                      scale: active === index ? 1 : 0.97,
-                    }}
-                    transition={{ duration: 0.32, ease: [0.22, 1, 0.36, 1] }}
-                    className={cn(
-                      "absolute inset-0 flex items-center justify-center",
-                      active !== index && "pointer-events-none",
-                    )}
-                  >
-                    <ProductPhone screen={feature.screen} className="w-[278px]" />
-                  </motion.div>
-                ))}
+      <div className="mx-auto max-w-3xl px-5 py-20 sm:px-6 md:py-28 lg:py-32">
+        <div
+          className="flex flex-col items-center text-center"
+          onTouchStart={onTouchStart}
+          onTouchEnd={onTouchEnd}
+        >
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={step.number}
+              initial={{ opacity: 0, y: 12 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -8 }}
+              transition={{ duration: 0.32, ease: [0.22, 1, 0.36, 1] }}
+              className="w-full"
+            >
+              <h2 className="text-balance text-[clamp(2rem,5vw,3.25rem)] font-bold leading-[1.08] tracking-[-0.04em]">
+                <span className="tabular-nums">{step.number}</span>
+                <span className="text-brand-dot">.</span>{" "}
+                {step.label}
+              </h2>
+              <p className="mx-auto mt-4 max-w-lg text-pretty text-base leading-relaxed text-muted sm:text-lg">
+                {step.body}
+              </p>
+              <div className="mt-10 flex justify-center">
+                <ProductPhone
+                  screen={step.screen}
+                  className="w-[230px] sm:w-[260px] lg:w-[278px]"
+                />
               </div>
-              <div className="absolute bottom-8 left-1/2 flex -translate-x-1/2 items-center gap-2">
-                {FEATURES.map((feature, index) => (
-                  <span
-                    key={feature.screen}
-                    className={cn(
-                      "h-1.5 rounded-full transition-all duration-300",
-                      active === index
-                        ? "w-7 bg-foreground"
-                        : "w-1.5 bg-foreground/20",
-                    )}
-                  />
-                ))}
-              </div>
-            </div>
-          </div>
+            </motion.div>
+          </AnimatePresence>
 
-          <div>
-            {FEATURES.map((feature, index) => (
-              <FeatureCopy
-                key={feature.screen}
-                feature={feature}
-                index={index}
-                onActive={setActive}
-              />
-            ))}
-          </div>
+          <CarouselProgress
+            count={STEPS.length}
+            index={index}
+            onSelect={goTo}
+            autoplay={autoplay}
+            durationMs={durationMs}
+            progressKey={progressKey}
+            className="mt-10"
+          />
         </div>
       </div>
     </section>
