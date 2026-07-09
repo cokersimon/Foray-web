@@ -32,7 +32,7 @@ export function Hero() {
           </p>
 
           <div
-            className="motion-safe:animate-rise mt-7 flex flex-row items-center justify-center gap-3 sm:mt-8 sm:gap-4 lg:justify-start"
+            className="motion-safe:animate-rise mt-7 flex flex-col items-center gap-3 sm:mt-8"
             style={{ animationDelay: "0.24s" }}
           >
             {APP_STORE_LIVE ? (
@@ -44,12 +44,9 @@ export function Hero() {
                 Join the waitlist <ForayIcon name="arrowRight" size="small" />
               </button>
             )}
-            <a
-              href="#how-it-works"
-              className="rounded-full px-2 py-3 text-sm font-semibold text-foreground underline decoration-border underline-offset-8 transition-colors hover:decoration-foreground"
-            >
-              See how it works
-            </a>
+            <p className="text-sm font-semibold uppercase tracking-[0.14em] text-foreground">
+              Launching soon
+            </p>
           </div>
         </div>
 
@@ -74,13 +71,21 @@ export function Hero() {
               className="w-[168px] sm:w-[250px] lg:w-[270px]"
             />
           </div>
-          <div className="absolute left-[1%] top-[15%] -rotate-6 rounded-2xl border border-black/[0.06] bg-white px-3 py-2 shadow-[0_12px_35px_rgba(0,0,0,0.08)] sm:left-[-2%] sm:top-[22%] sm:px-4 sm:py-3">
-            <p className="text-[10px] font-semibold text-muted">Saved from TikTok</p>
-            <p className="mt-0.5 text-xs font-bold sm:text-sm">Ready to cook</p>
+          <div className="absolute left-[1%] top-[15%] -rotate-6 rounded-2xl border border-white/10 bg-ink px-3 py-2 shadow-[0_12px_35px_rgba(0,0,0,0.22)] sm:left-[-2%] sm:top-[22%] sm:px-4 sm:py-3">
+            <p className="text-[10px] font-semibold text-white/55">Saved from TikTok</p>
+            <p className="mt-0.5 text-xs font-bold text-white sm:text-sm">Ready to cook</p>
           </div>
-          <div className="absolute bottom-[7%] right-[1%] rotate-3 rounded-2xl border border-black/[0.06] bg-white px-3 py-2 shadow-[0_12px_35px_rgba(0,0,0,0.08)] sm:bottom-[12%] sm:right-[-3%] sm:px-4 sm:py-3">
-            <p className="text-[10px] font-semibold text-muted">Your trolley</p>
-            <p className="mt-0.5 text-xs font-bold sm:text-sm">No duplicates</p>
+          <div className="absolute right-[1%] top-[12%] rotate-6 rounded-2xl border border-white/10 bg-ink px-3 py-2 shadow-[0_12px_35px_rgba(0,0,0,0.22)] sm:right-[-2%] sm:top-[18%] sm:px-4 sm:py-3">
+            <p className="text-[10px] font-semibold text-white/55">Swipe to fork</p>
+            <p className="mt-0.5 text-xs font-bold text-white sm:text-sm">One easy pick</p>
+          </div>
+          <div className="absolute bottom-[18%] left-[1%] rotate-[-4deg] rounded-2xl border border-white/10 bg-ink px-3 py-2 shadow-[0_12px_35px_rgba(0,0,0,0.22)] sm:bottom-[22%] sm:left-[-3%] sm:px-4 sm:py-3">
+            <p className="text-[10px] font-semibold text-white/55">Cook mode</p>
+            <p className="mt-0.5 text-xs font-bold text-white sm:text-sm">Timers beside the hob</p>
+          </div>
+          <div className="absolute bottom-[7%] right-[1%] rotate-3 rounded-2xl border border-white/10 bg-ink px-3 py-2 shadow-[0_12px_35px_rgba(0,0,0,0.22)] sm:bottom-[12%] sm:right-[-3%] sm:px-4 sm:py-3">
+            <p className="text-[10px] font-semibold text-white/55">Your trolley</p>
+            <p className="mt-0.5 text-xs font-bold text-white sm:text-sm">No duplicates</p>
           </div>
         </div>
       </div>

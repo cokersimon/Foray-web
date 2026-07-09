@@ -7,19 +7,16 @@ import { CarouselProgress, useTimedCarousel } from "./carousel-progress";
 const PROPS = [
   {
     image: "/brand/outcome-sunday.png",
-    label: "Sunday reset",
     title: "When nothing sounds obvious.",
     body: "Sit down once, pick a small set that fits the week, and leave the rest. Your recipes wait until you are ready.",
   },
   {
     image: "/brand/outcome-midweek.png",
-    label: "Midweek scramble",
     title: "When your head is already full.",
     body: "Open one tidy list with quantities combined and aisles sorted, and get through the shop without starting from scratch.",
   },
   {
     image: "/brand/outcome-cook.png",
-    label: "Dinner, now",
     title: "When dinner needs to happen.",
     body: "Prop the phone by the hob, follow one clear step at a time, and set timers without leaving cook mode.",
   },
@@ -125,10 +122,7 @@ export function ValueProps() {
               className="relative flex w-[min(86vw,340px)] shrink-0 snap-center flex-col overflow-hidden rounded-[28px] bg-ink text-white sm:w-[380px] lg:w-[400px]"
             >
               <div className="flex flex-1 flex-col p-7 sm:p-8">
-                <p className="text-[13px] font-semibold text-white/55">
-                  {prop.label}
-                </p>
-                <h3 className="mt-3 text-balance text-2xl font-bold leading-tight tracking-[-0.03em] sm:text-[1.7rem]">
+                <h3 className="text-balance text-2xl font-bold leading-tight tracking-[-0.03em] sm:text-[1.7rem]">
                   {prop.title}
                 </h3>
                 <p className="mt-3 text-sm leading-relaxed text-white/60 sm:text-[15px]">

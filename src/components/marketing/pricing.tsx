@@ -31,18 +31,17 @@ export function Pricing() {
           </p>
         </div>
 
-        <div className="relative overflow-hidden rounded-[32px] border border-black/[0.04] bg-white p-7 shadow-[0_20px_60px_rgba(0,0,0,0.06)] sm:p-10">
-          <div className="border-b border-black/[0.06] pb-8">
-            <p className="text-sm font-semibold text-muted">Foray Pro</p>
+        <div className="relative overflow-hidden rounded-[32px] bg-brand-dot p-7 text-black shadow-[0_20px_60px_rgba(255,149,0,0.28)] sm:p-10">
+          <div className="border-b border-black/15 pb-8">
+            <p className="text-sm font-semibold text-black/55">Foray Pro</p>
             <div className="mt-3 flex flex-wrap items-baseline gap-x-3 gap-y-1">
-              <span className="text-5xl font-bold tracking-[-0.045em] text-foreground">
+              <span className="text-5xl font-bold tracking-[-0.045em] text-black">
                 £4.99
               </span>
-              <span className="text-sm text-muted">/ month</span>
+              <span className="text-sm text-black/55">/ month</span>
             </div>
-            <p className="mt-2 text-sm text-muted">
-              or <span className="font-semibold text-foreground">£54.99</span>{" "}
-              yearly
+            <p className="mt-2 text-sm text-black/65">
+              or <span className="font-semibold text-black">£54.99</span> yearly
             </p>
           </div>
 
@@ -50,14 +49,14 @@ export function Pricing() {
             {INCLUDED.map((item) => (
               <li
                 key={item}
-                className="flex items-start gap-3 text-sm leading-relaxed text-muted"
+                className="flex items-start gap-3 text-sm leading-relaxed text-black/70"
               >
                 <ForayIcon
                   name="checkBadge"
                   size="small"
-                  className="mt-0.5 text-foreground"
+                  className="mt-0.5 text-black"
                 />
-                <span className="text-foreground/80">{item}</span>
+                <span className="text-black/80">{item}</span>
               </li>
             ))}
           </ul>
@@ -74,7 +73,7 @@ export function Pricing() {
               </button>
             )}
           </div>
-          <p className="mt-5 max-w-lg text-left text-xs leading-relaxed text-muted">
+          <p className="mt-5 max-w-lg text-left text-xs leading-relaxed text-black/55">
             Seven days free, then billed through the App Store. Online checkout
             adds a £{CHECKOUT_FEE_GBP} convenience fee per order. Taking your
             list in-store is always free.

@@ -4,7 +4,6 @@ import { ValueProps } from "@/components/marketing/value-props";
 import { Testimonials } from "@/components/marketing/testimonials";
 import { Pricing } from "@/components/marketing/pricing";
 import { Faq } from "@/components/marketing/faq";
-import { ClosingCta } from "@/components/marketing/closing-cta";
 import { SHOW_TESTIMONIALS } from "@/lib/site";
 
 export default function Home() {
@@ -16,7 +15,6 @@ export default function Home() {
       {SHOW_TESTIMONIALS && <Testimonials />}
       <Pricing />
       <Faq />
-      <ClosingCta />
     </>
   );
 }
