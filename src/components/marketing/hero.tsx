@@ -1,35 +1,37 @@
 "use client";
 
 import Image from "next/image";
-import { ForayIcon } from "@/components/brand/foray-icon";
-import { APP_STORE_LIVE, APP_STORE_URL } from "@/lib/site";
-import { useWaitlist } from "./waitlist-provider";
+import {
+  ForayIcon,
+  type ForayIconName,
+} from "@/components/brand/foray-icon";
+import { AppStoreBadge } from "./app-store-badge";
 import { ProductPhone } from "./product-phone";
 import { cn } from "@/lib/cn";
 
 const FLOATING_CARDS: {
-  image: string;
+  icon: ForayIconName;
   label: string;
   className: string;
 }[] = [
   {
-    image: "/brand/chip-save-time.png",
+    icon: "clock",
     label: "Save time",
     className: "left-[1%] top-[15%] -rotate-6 sm:left-[-2%] sm:top-[22%]",
   },
   {
-    image: "/brand/chip-save-money.png",
+    icon: "banknote",
     label: "Save money",
     className: "right-[1%] top-[12%] rotate-6 sm:right-[-2%] sm:top-[18%]",
   },
   {
-    image: "/brand/chip-cook.png",
+    icon: "forkKnife",
     label: "Cook",
     className:
       "bottom-[18%] left-[1%] -rotate-[4deg] sm:bottom-[22%] sm:left-[-3%]",
   },
   {
-    image: "/brand/chip-shop.png",
+    icon: "cart",
     label: "Shop",
     className:
       "bottom-[7%] right-[1%] rotate-3 sm:bottom-[12%] sm:right-[-3%]",
@@ -37,11 +39,11 @@ const FLOATING_CARDS: {
 ];
 
 function FloatingCard({
-  image,
+  icon,
   label,
   className,
 }: {
-  image: string;
+  icon: ForayIconName;
   label: string;
   className: string;
 }) {
@@ -52,16 +54,11 @@ function FloatingCard({
         className,
       )}
     >
-      <div className="relative h-8 w-8 sm:h-10 sm:w-10 lg:h-11 lg:w-11">
-        <Image
-          src={image}
-          alt=""
-          aria-hidden="true"
-          fill
-          sizes="44px"
-          className="object-contain"
-        />
-      </div>
+      <ForayIcon
+        name={icon}
+        size="feature"
+        className="text-white sm:scale-110"
+      />
       <p className="text-center text-[9px] font-semibold leading-tight text-white sm:text-[10px] lg:text-[11px]">
         {label}
       </p>
@@ -70,8 +67,6 @@ function FloatingCard({
 }
 
 export function Hero() {
-  const { open } = useWaitlist();
-
   return (
     <section className="relative overflow-hidden bg-background px-5 pb-16 pt-20 sm:px-6 sm:pb-20 sm:pt-24 md:pb-28 md:pt-28 lg:px-10 lg:pb-32 lg:pt-32">
       <div className="mx-auto grid max-w-7xl items-center gap-8 sm:gap-12 lg:grid-cols-[0.92fr_1.08fr] lg:gap-10">
@@ -95,15 +90,7 @@ export function Hero() {
             className="motion-safe:animate-rise mt-7 flex justify-center sm:mt-8 lg:justify-start"
             style={{ animationDelay: "0.24s" }}
           >
-            {APP_STORE_LIVE ? (
-              <a href={APP_STORE_URL} className="marketing-button">
-                Download on the App Store <ForayIcon name="arrowRight" size="small" />
-              </a>
-            ) : (
-              <button type="button" onClick={open} className="marketing-button">
-                Join the waitlist <ForayIcon name="arrowRight" size="small" />
-              </button>
-            )}
+            <AppStoreBadge />
           </div>
         </div>
 
@@ -111,7 +98,7 @@ export function Hero() {
           className="motion-safe:animate-rise relative mx-auto min-h-[370px] w-full max-w-[380px] sm:min-h-[560px] sm:max-w-[620px] lg:min-h-[600px]"
           style={{ animationDelay: "0.18s" }}
         >
-          <div className="absolute inset-x-[2%] top-[2%] h-[86%] overflow-hidden rounded-[36px] bg-[#f5f5f7] sm:top-[3%] sm:h-[78%] sm:rounded-[48px]">
+          <div className="absolute inset-x-[2%] top-[2%] h-[86%] overflow-hidden rounded-[36px] bg-section-grey sm:top-[3%] sm:h-[78%] sm:rounded-[48px]">
             <Image
               src="/brand/foray-uk-groceries.png"
               alt=""

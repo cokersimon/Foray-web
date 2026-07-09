@@ -1,8 +1,8 @@
 "use client";
 
 import { ForayIcon } from "@/components/brand/foray-icon";
-import { APP_STORE_LIVE, APP_STORE_URL, CHECKOUT_FEE_GBP } from "@/lib/site";
-import { useWaitlist } from "./waitlist-provider";
+import { CHECKOUT_FEE_GBP } from "@/lib/site";
+import { AppStoreBadge } from "./app-store-badge";
 
 const INCLUDED = [
   "Recipe imports, browsing and swipe planning",
@@ -12,12 +12,10 @@ const INCLUDED = [
 ];
 
 export function Pricing() {
-  const { open } = useWaitlist();
-
   return (
     <section
       id="pricing"
-      className="bg-[#f5f5f7] px-5 py-20 sm:px-6 md:py-28 lg:px-10 lg:py-32"
+      className="bg-section-grey px-5 py-20 sm:px-6 md:py-28 lg:px-10 lg:py-32"
     >
       <div className="mx-auto grid max-w-7xl items-center gap-12 lg:grid-cols-[0.85fr_1.15fr] lg:gap-20">
         <div>
@@ -62,16 +60,7 @@ export function Pricing() {
           </ul>
 
           <div className="mt-9 flex justify-center">
-            {APP_STORE_LIVE ? (
-              <a href={APP_STORE_URL} className="marketing-button">
-                Download on the App Store{" "}
-                <ForayIcon name="arrowRight" size="small" />
-              </a>
-            ) : (
-              <button type="button" onClick={open} className="marketing-button">
-                Join the waitlist <ForayIcon name="arrowRight" size="small" />
-              </button>
-            )}
+            <AppStoreBadge />
           </div>
           <p className="mt-5 max-w-lg text-left text-xs leading-relaxed text-black/55">
             Seven days free, then billed through the App Store. Online checkout

@@ -5,7 +5,7 @@ import Link from "next/link";
 import { useLenis } from "lenis/react";
 import { Wordmark } from "@/components/brand/wordmark";
 import { ForayIcon } from "@/components/brand/foray-icon";
-import { useWaitlist } from "./waitlist-provider";
+import { AppStoreBadge } from "./app-store-badge";
 import { cn } from "@/lib/cn";
 
 const NAV_LINKS = [
@@ -24,7 +24,6 @@ function getToolbarOffset(): number {
 }
 
 export function Navbar() {
-  const { open } = useWaitlist();
   const [menuOpen, setMenuOpen] = useState(false);
   const lenis = useLenis();
 
@@ -183,26 +182,11 @@ export function Navbar() {
                   {link.label}
                 </a>
               ))}
-              <button
-                type="button"
-                onClick={open}
-                className="marketing-button marketing-button-compact ml-1"
-              >
-                Join Waitlist
-              </button>
+              <AppStoreBadge size="compact" className="ml-1" />
             </div>
 
             <div className="flex items-center gap-2 md:hidden">
-              <button
-                type="button"
-                onClick={open}
-                className={cn(
-                  "marketing-button marketing-button-compact",
-                  menuOpen && "marketing-button-on-dark",
-                )}
-              >
-                Join Waitlist
-              </button>
+              <AppStoreBadge size="compact" />
               <button
                 type="button"
                 onClick={() => setMenuOpen((v) => !v)}

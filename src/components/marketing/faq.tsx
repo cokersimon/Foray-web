@@ -12,7 +12,7 @@ const FAQS = [
   {
     question: "What phone do I need?",
     answer:
-      "Foray is an iPhone app and needs iOS 26 or later. Android is planned. Join the waitlist and we will tell you the moment it lands.",
+      "Foray is an iPhone app and needs iOS 26 or later. Android is planned, and we will announce it when it lands.",
   },
   {
     question: "How do I add recipes?",
@@ -52,7 +52,7 @@ export function Faq() {
           </p>
         </div>
 
-        <div className="mt-12 overflow-hidden rounded-[28px] bg-[#f5f5f7] px-5 sm:px-8 md:px-10">
+        <div className="mt-12 overflow-hidden rounded-[28px] bg-section-grey px-5 sm:px-8 md:px-10">
           {FAQS.map((faq, index) => (
             <details
               key={faq.question}

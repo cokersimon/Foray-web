@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
-import Link from "next/link";
-import { APP_STORE_LIVE, APP_STORE_URL } from "@/lib/site";
+import { AppStoreBadge } from "@/components/marketing/app-store-badge";
 
 /**
  * Recipe share landing page (ADR-022) — the no-app half of foray.app/r/{token}.
@@ -104,21 +103,9 @@ export default async function SharedRecipePage({ params }: Props) {
               </p>
             </>
           )}
-          {APP_STORE_LIVE ? (
-            <a
-              href={APP_STORE_URL}
-              className="inline-block rounded-full bg-foreground px-7 py-3.5 text-base font-semibold text-background transition-opacity hover:opacity-90"
-            >
-              Get Foray
-            </a>
-          ) : (
-            <Link
-              href="/"
-              className="inline-block rounded-full bg-foreground px-7 py-3.5 text-base font-semibold text-background transition-opacity hover:opacity-90"
-            >
-              Get Foray
-            </Link>
-          )}
+          <div className="flex justify-center">
+            <AppStoreBadge />
+          </div>
           <p className="mt-5 text-[13px] text-muted">Swipe to fork.</p>
         </div>
       </div>

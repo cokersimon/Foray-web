@@ -66,7 +66,7 @@ export function ScrollytellingSection() {
   return (
     <section
       id="how-it-works"
-      className="bg-[#f5f5f7] text-foreground"
+      className="bg-section-grey text-foreground"
     >
       <div className="mx-auto max-w-3xl px-5 py-20 sm:px-6 md:py-28 lg:py-32">
         <div

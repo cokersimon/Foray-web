@@ -48,31 +48,6 @@ ASSETS: dict[str, str] = {
         "Fresh British weekly shop aesthetic, organised arrangement, landscape "
         "3:2 framing."
     ),
-    # Tiny 3D isometric hero chips (transparent / white bg, single object).
-    "chip-save-time": (
-        "Tiny 3D isometric product icon, soft studio lighting, one object only: "
-        "a cute isometric analog clock with soft shadow, matte plastic materials, "
-        "clean Apple-like product render. Pure white background. No text, no "
-        "people, no extra objects. Square, object centred with generous padding."
-    ),
-    "chip-save-money": (
-        "Tiny 3D isometric product icon, soft studio lighting, one object only: "
-        "a stack of gold coins with a small banknote leaning against them, soft "
-        "shadow, matte premium materials. Pure white background. No text, no "
-        "people, no logos. Square, object centred with generous padding."
-    ),
-    "chip-shop": (
-        "Tiny 3D isometric product icon, soft studio lighting, one object only: "
-        "a small shopping basket filled with a tomato and baguette, soft shadow, "
-        "matte premium materials. Pure white background. No text, no people, no "
-        "logos. Square, object centred with generous padding."
-    ),
-    "chip-cook": (
-        "Tiny 3D isometric product icon, soft studio lighting, one object only: "
-        "a small cast-iron frying pan with wooden handle and a little steam, "
-        "soft shadow, matte premium materials. Pure white background. No text, "
-        "no people, no logos. Square, object centred with generous padding."
-    ),
     "outcome-choose": (
         "Photorealistic editorial still, soft kitchen daylight, shallow depth of "
         "field. Hands holding a phone showing a recipe card above a wooden "

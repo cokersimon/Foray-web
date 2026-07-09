@@ -35,7 +35,7 @@ function RecipesScreen() {
         ))}
       </div>
       <div className="mx-4 overflow-hidden rounded-[20px] bg-white shadow-sm">
-        <div className="relative h-36 overflow-hidden bg-[#f5f5f7]">
+        <div className="relative h-36 overflow-hidden bg-section-grey">
           <Image
             src="/brand/foray-kitchen-objects.png"
             alt=""
@@ -81,7 +81,7 @@ function SwipeScreen() {
         <div className="absolute inset-x-3 bottom-3 top-3 rotate-3 rounded-[24px] border border-black/5 bg-white/70" />
         <div className="absolute inset-x-2 bottom-4 top-2 -rotate-2 rounded-[24px] border border-black/5 bg-white/80" />
         <div className="relative flex h-full flex-col overflow-hidden rounded-[24px] bg-white shadow-[0_15px_35px_rgba(0,0,0,0.12)]">
-          <div className="relative min-h-0 flex-1 overflow-hidden bg-[#f5f5f7]">
+          <div className="relative min-h-0 flex-1 overflow-hidden bg-section-grey">
             <Image
               src="/brand/foray-kitchen-objects.png"
               alt=""
@@ -127,7 +127,7 @@ function GroceriesScreen() {
         </div>
       </div>
       <div className="mx-4 rounded-2xl border border-black/5 bg-white p-3 shadow-sm">
-        <div className="mb-2 rounded-xl bg-[#f5f5f7] px-2.5 py-2 text-[9px] font-semibold text-neutral-600">
+        <div className="mb-2 rounded-xl bg-section-grey px-2.5 py-2 text-[9px] font-semibold text-neutral-600">
           Duplicates combined automatically
         </div>
         {groceryGroups.map((group) => (
