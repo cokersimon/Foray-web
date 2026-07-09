@@ -32,12 +32,10 @@ export function Navbar() {
     if (!menuOpen) return;
     const previous = document.body.style.overflow;
     document.body.style.overflow = "hidden";
-    lenis?.stop();
     return () => {
       document.body.style.overflow = previous;
-      lenis?.start();
     };
-  }, [menuOpen, lenis]);
+  }, [menuOpen]);
 
   useEffect(() => {
     function onKey(e: KeyboardEvent) {
@@ -101,12 +99,16 @@ export function Navbar() {
       precomputedY ??
       Math.max(0, el.getBoundingClientRect().top + current - headerOffset);
 
+    // Always unlock scroll before moving.
+    document.body.style.overflow = "";
+    lenisInstance?.start();
+
     if (lenisInstance) {
-      lenisInstance.start();
       // Numeric target avoids Lenis also subtracting CSS scroll-padding.
       lenisInstance.scrollTo(y, {
         offset: 0,
         force: true,
+        immediate: reduceMotion,
         duration: reduceMotion ? 0 : 1.15,
       });
       return;
@@ -124,8 +126,8 @@ export function Navbar() {
     const el = document.getElementById(id);
     if (!el) return;
 
-    // Capture the destination before the menu collapses so layout/timing
-    // cannot invalidate the measurement.
+    // Capture destination while the closed toolbar height is known and the
+    // section's document position is still valid.
     const headerOffset = -getToolbarOffset();
     const current =
       typeof lenis?.animatedScroll === "number"
@@ -136,20 +138,11 @@ export function Navbar() {
       el.getBoundingClientRect().top + current - headerOffset,
     );
 
-    const wasMenuOpen = menuOpen;
     setMenuOpen(false);
-
-    const run = () => {
-      lenis?.start();
+    // Scroll on the next frame so React can unlock body overflow first.
+    requestAnimationFrame(() => {
       scrollElementIntoView(el, lenis, y);
-    };
-
-    // Wait for the open-menu panel to collapse, then jump to the captured Y.
-    if (wasMenuOpen) {
-      window.setTimeout(run, 340);
-    } else {
-      requestAnimationFrame(() => requestAnimationFrame(run));
-    }
+    });
   }
 
   return (
@@ -157,7 +150,7 @@ export function Navbar() {
       <header className="pointer-events-none fixed inset-x-0 top-0 z-50">
         <div
           className={cn(
-            "pointer-events-auto mx-auto max-w-[1600px] transition-[background-color,border-radius,box-shadow,backdrop-filter] duration-300 ease-[cubic-bezier(0.22,1,0.36,1)]",
+            "pointer-events-auto relative z-50 mx-auto max-w-[1600px] transition-[background-color,border-radius,box-shadow,backdrop-filter] duration-300 ease-[cubic-bezier(0.22,1,0.36,1)]",
             menuOpen
               ? "rounded-b-[2rem] bg-ink text-white shadow-[0_24px_60px_rgba(0,0,0,0.28)] sm:rounded-b-[2.5rem] md:rounded-none md:border-b md:border-black/5 md:bg-[rgba(255,255,255,0.48)] md:text-foreground md:shadow-none md:backdrop-blur-[16px] md:backdrop-saturate-150"
               : "toolbar-frost",
@@ -288,7 +281,7 @@ export function Navbar() {
         <button
           type="button"
           aria-label="Close menu"
-          className="fixed inset-0 z-40 bg-black/25 md:hidden"
+          className="fixed inset-0 z-[45] bg-black/25 md:hidden"
           onClick={() => setMenuOpen(false)}
         />
       )}
