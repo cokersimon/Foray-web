@@ -239,35 +239,37 @@ export function Navbar() {
             </div>
           </div>
 
+          {/*
+            Use max-height (not 0fr/1fr). In an auto-sized header, 1fr resolves
+            to 0px so the panel never expands and the backdrop eats every tap.
+          */}
           <div
             className={cn(
-              "grid transition-[grid-template-rows,opacity] duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] md:hidden",
+              "overflow-hidden transition-[max-height,opacity] duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] md:hidden",
               menuOpen
-                ? "grid-rows-[1fr] opacity-100"
-                : "grid-rows-[0fr] opacity-0",
+                ? "max-h-[28rem] opacity-100"
+                : "pointer-events-none max-h-0 opacity-0",
             )}
           >
-            <div className="overflow-hidden">
-              <nav
-                aria-label="Mobile"
-                className="flex flex-col gap-1 px-5 pb-8 pt-2 sm:px-6"
-              >
-                {NAV_LINKS.map((link) => (
-                  <a
-                    key={link.label}
-                    href={link.href}
-                    onClick={(e) => {
-                      e.preventDefault();
-                      scrollToSection(link.href);
-                      window.history.pushState(null, "", link.href);
-                    }}
-                    className="rounded-2xl px-3 py-3.5 text-left text-[1.65rem] font-semibold leading-none tracking-tight text-white transition-colors hover:bg-white/10"
-                  >
-                    {link.label}
-                  </a>
-                ))}
-              </nav>
-            </div>
+            <nav
+              aria-label="Mobile"
+              className="relative z-50 flex flex-col gap-1 px-5 pb-8 pt-2 sm:px-6"
+            >
+              {NAV_LINKS.map((link) => (
+                <a
+                  key={link.label}
+                  href={link.href}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    scrollToSection(link.href);
+                    window.history.pushState(null, "", link.href);
+                  }}
+                  className="rounded-2xl px-3 py-3.5 text-left text-[1.65rem] font-semibold leading-none tracking-tight text-white transition-colors hover:bg-white/10"
+                >
+                  {link.label}
+                </a>
+              ))}
+            </nav>
           </div>
         </div>
       </header>
@@ -276,7 +278,7 @@ export function Navbar() {
         <button
           type="button"
           aria-label="Close menu"
-          className="fixed inset-0 z-[45] bg-black/25 md:hidden"
+          className="fixed inset-0 z-40 bg-black/25 md:hidden"
           onClick={() => setMenuOpen(false)}
         />
       )}

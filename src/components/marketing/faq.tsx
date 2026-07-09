@@ -5,28 +5,28 @@ import { CHECKOUT_FEE_GBP } from "@/lib/site";
 
 const FAQS = [
   {
-    question: "Is Foray free to try?",
-    answer:
-      "Yes. Your first seven days include the full experience. After that, Foray Pro is £4.99 per month or £54.99 per year, billed through the App Store and cancellable at any time.",
-  },
-  {
-    question: `What's the £${CHECKOUT_FEE_GBP} fee?`,
-    answer: `Online checkout adds a £${CHECKOUT_FEE_GBP} convenience fee per order. That's what it costs us to hand your trolley to the supermarket, and shopping in-store with the sorted list is always free.`,
-  },
-  {
-    question: "How does importing a recipe work?",
-    answer:
-      "Share or paste a link from TikTok, Instagram, YouTube or a food blog. Foray reads it and creates a structured recipe with ingredients and steps for you to check. You can also browse Foray recipes or add your own.",
-  },
-  {
     question: "Which supermarkets does it work with?",
     answer:
-      "Foray is launching in the UK with supported retailers shown inside the app. If online checkout is not available for your chosen shop, the same aisle-sorted list still works in-store.",
+      "Foray works with Sainsbury's, Tesco and Waitrose at launch, with more to follow. If online checkout is ever unavailable at your shop, the same aisle-sorted list works in store.",
   },
   {
-    question: "Do I need an iPhone?",
+    question: "What phone do I need?",
     answer:
-      "For now, yes. Foray is launching on iPhone in the UK first. Join the waitlist and we'll let you know the moment that changes.",
+      "Foray is an iPhone app and needs iOS 26 or later. Android is planned. Join the waitlist and we will tell you the moment it lands.",
+  },
+  {
+    question: "How do I add recipes?",
+    answer:
+      "Browse hundreds of Foray recipes, or import your own from social media and cookbooks with a screenshot or photo. Foray turns it into ingredients and steps for you to check. Chef AI can also create one from whatever you fancy.",
+  },
+  {
+    question: "Is Foray free to try?",
+    answer:
+      "Yes. Your first seven days include everything. After that, Foray Pro is £4.99 a month or £54.99 a year, billed through the App Store and cancellable at any time.",
+  },
+  {
+    question: `What is the £${CHECKOUT_FEE_GBP} fee?`,
+    answer: `Online checkout adds £${CHECKOUT_FEE_GBP} per order. It covers Foray filling your trolley at the supermarket so you do not have to. Shopping in store with the sorted list is always free.`,
   },
   {
     question: "How do I cancel?",

@@ -80,18 +80,15 @@ export function Hero() {
             className="motion-safe:animate-rise text-balance text-[clamp(2.6rem,7.2vw,5.75rem)] font-bold leading-[1.02] tracking-[-0.045em] text-foreground"
             style={{ animationDelay: "0s" }}
           >
-            The recipes you save.
-            <br className="hidden sm:block" /> Finally{" "}
-            <span className="whitespace-nowrap">
-              for dinner<span className="text-brand-dot">.</span>
-            </span>
+            Swipe. Shop. Cook
+            <span className="text-brand-dot">.</span>
           </h1>
           <p
             className="motion-safe:animate-rise mx-auto mt-5 max-w-md text-pretty text-base leading-relaxed text-muted sm:mt-6 sm:text-lg lg:mx-0"
             style={{ animationDelay: "0.16s" }}
           >
-            Pick a recipe, build one tidy grocery list and get cooking, all in
-            one place.
+            Swipe through recipes, tap to add, and your trolley builds itself.
+            Foray fills your online basket for you, or shop in person.
           </p>
 
           <div
