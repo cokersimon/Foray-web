@@ -87,24 +87,26 @@ export function Navbar() {
   function scrollElementIntoView(
     el: HTMLElement,
     lenisInstance: ReturnType<typeof useLenis>,
+    precomputedY?: number,
   ) {
     const reduceMotion = window.matchMedia(
       "(prefers-reduced-motion: reduce)",
     ).matches;
     const headerOffset = -getToolbarOffset(); // positive clearance
     const current =
-      typeof lenisInstance?.scroll === "number"
-        ? lenisInstance.scroll
-        : window.scrollY;
-    const y = Math.max(
-      0,
-      el.getBoundingClientRect().top + current - headerOffset,
-    );
+      typeof lenisInstance?.animatedScroll === "number"
+        ? lenisInstance.animatedScroll
+        : window.scrollY || document.documentElement.scrollTop;
+    const y =
+      precomputedY ??
+      Math.max(0, el.getBoundingClientRect().top + current - headerOffset);
 
     if (lenisInstance) {
-      // Pass a number so Lenis does not also subtract CSS scroll-padding.
+      lenisInstance.start();
+      // Numeric target avoids Lenis also subtracting CSS scroll-padding.
       lenisInstance.scrollTo(y, {
         offset: 0,
+        force: true,
         duration: reduceMotion ? 0 : 1.15,
       });
       return;
@@ -122,17 +124,29 @@ export function Navbar() {
     const el = document.getElementById(id);
     if (!el) return;
 
+    // Capture the destination before the menu collapses so layout/timing
+    // cannot invalidate the measurement.
+    const headerOffset = -getToolbarOffset();
+    const current =
+      typeof lenis?.animatedScroll === "number"
+        ? lenis.animatedScroll
+        : window.scrollY || document.documentElement.scrollTop;
+    const y = Math.max(
+      0,
+      el.getBoundingClientRect().top + current - headerOffset,
+    );
+
     const wasMenuOpen = menuOpen;
     setMenuOpen(false);
 
     const run = () => {
       lenis?.start();
-      scrollElementIntoView(el, lenis);
+      scrollElementIntoView(el, lenis, y);
     };
 
-    // Wait for the open-menu panel to collapse so we measure the closed toolbar.
+    // Wait for the open-menu panel to collapse, then jump to the captured Y.
     if (wasMenuOpen) {
-      window.setTimeout(run, 320);
+      window.setTimeout(run, 340);
     } else {
       requestAnimationFrame(() => requestAnimationFrame(run));
     }
