@@ -7,7 +7,7 @@ import {
 } from "@/lib/legal-entity";
 
 export const metadata: Metadata = {
-  title: "Privacy Policy — Foray",
+  title: "Privacy Policy · Foray",
 };
 
 const SUBPROCESSORS: {
@@ -38,7 +38,7 @@ const SUBPROCESSORS: {
   {
     name: "Google (Gemini API)",
     purpose:
-      'The AI provider behind "the Chef" — parsing imports, generating recipes, photo identification, product matching.',
+      'The AI provider behind "the Chef": parsing imports, generating recipes, photo identification, product matching.',
     data: "Imported link content/text, generation prompts, dish/recipe/ingredient photos.",
     region: "Google Cloud; paid API terms; SCCs / UK Addendum",
   },
@@ -52,7 +52,7 @@ const SUBPROCESSORS: {
   {
     name: "Recraft",
     purpose: "Generating illustrated hero images for AI-created recipes.",
-    data: "Recipe title/description only — no personal data.",
+    data: "Recipe title/description only. No personal data.",
     region: "No personal data is shared",
   },
   {
@@ -71,7 +71,7 @@ const SUBPROCESSORS: {
   {
     name: "Sentry",
     purpose: "Crash and error diagnostics (only if you opt in to diagnostics).",
-    data: "Crash context only: screen id, build, OS, device model — no names, recipe text, or tokens.",
+    data: "Crash context only: screen id, build, OS, device model. No names, recipe text, or tokens.",
     region: "EU data-residency deployment",
   },
   {
@@ -84,7 +84,7 @@ const SUBPROCESSORS: {
   {
     name: "Logo.dev",
     purpose: "Rendering retailer brand logos in the store picker.",
-    data: "Retailer domain + publishable API token only — no user personal data.",
+    data: "Retailer domain + publishable API token only. No user personal data.",
     region: "No personal data is shared",
   },
 ];
@@ -110,7 +110,7 @@ export default function PrivacyPage() {
 
         <LegalSection title="1. Who we are">
           <p>
-            <strong className="text-foreground">Service:</strong> Foray — turns
+            <strong className="text-foreground">Service:</strong> Foray turns
             social-media recipes into meal plans, a deduplicated grocery list,
             online/in-person checkout, and a cook mode.
           </p>
@@ -142,7 +142,7 @@ export default function PrivacyPage() {
           <p>
             We practise data minimisation: the only universally required personal
             data is your <strong className="text-foreground">name</strong>.
-            Everything else is collected only when a feature you use needs it —
+            Everything else is collected only when a feature you use needs it,
             for example your account identifier, saved and AI-generated recipes,
             meal plans, grocery lists, shopping history, store preference (chosen
             manually), dietary/allergen settings, subscription status, and (with
@@ -151,13 +151,13 @@ export default function PrivacyPage() {
           <p>
             Diagnostics and product analytics are{" "}
             <strong className="text-foreground">opt-in and off by default</strong>{" "}
-            in the UK/EU. We do not collect your location — you choose your store
+            in the UK/EU. We do not collect your location. You choose your store
             manually. We do not collect unnecessary demographics or your contacts,
             and we do not perform tracking-based advertising.
           </p>
         </LegalSection>
 
-        <LegalSection title="3. Payments — what we do not collect">
+        <LegalSection title="3. Payments: what we do not collect">
           <p>
             Foray is{" "}
             <strong className="text-foreground">not the merchant of record</strong>{" "}
@@ -165,7 +165,7 @@ export default function PrivacyPage() {
             surface. We do not collect or store your card or payment-card details.
             App subscriptions are billed by Apple via the App Store. The
             online-checkout convenience charge is processed by Stripe through an
-            Apple Pay sheet — we receive only transaction status from Stripe, never
+            Apple Pay sheet. We receive only transaction status from Stripe, never
             your full card details.
           </p>
         </LegalSection>
@@ -175,14 +175,14 @@ export default function PrivacyPage() {
             Foray offers four ways to create a recipe, all processed by our AI
             pipeline (&ldquo;the Chef&rdquo;): import from a link; generate from a
             prompt (including via Siri); photo of a dish or written recipe; pantry
-            photo of ingredients you have (you confirm before generating — we do
+            photo of ingredients you have (you confirm before generating; we do
             not build a kitchen inventory). Content you provide is sent to our AI
             provider to produce a structured recipe. We store the result privately
             on your account; for social imports we keep a link back to the original
             and do not republish your imports to other users.
           </p>
           <p>
-            AI output may be inaccurate — always verify ingredients, and never
+            AI output may be inaccurate. Always verify ingredients, and never
             rely on it for allergen safety.
           </p>
         </LegalSection>
@@ -255,7 +255,7 @@ export default function PrivacyPage() {
             object to certain processing, from in-app Settings or by contacting{" "}
             {LEGAL_ENTITY.privacyEmail}. UK/EU users have rights under UK and EU
             GDPR. US/California residents have rights to know, access, delete,
-            and correct — we do not sell or share personal data as those terms are
+            and correct. We do not sell or share personal data as those terms are
             defined.
           </p>
         </LegalSection>

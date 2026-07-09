@@ -76,7 +76,7 @@ export default function ResetPasswordPage() {
       e.preventDefault();
       setError(null);
       if (!ready) {
-        setError("Open the reset link from your email — this page needs an active recovery session.");
+        setError("Open the reset link from your email. This page needs an active recovery session.");
         return;
       }
       if (password.length < 8) {
@@ -97,7 +97,7 @@ export default function ResetPasswordPage() {
         }
         const { data, error: sessionError } = await supabase.auth.getUser();
         if (sessionError || !data.user) {
-          setError("Session expired — request a new reset link.");
+          setError("Session expired. Request a new reset link.");
           return;
         }
         const role = (data.user.app_metadata as Record<string, unknown> | undefined)?.role;

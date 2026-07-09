@@ -46,9 +46,9 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const share = await resolveShare(token);
   const title = share?.recipeSnapshot?.title;
   return {
-    title: title ? `${title} — Foray` : "Recipe — Foray",
-    description: title
-      ? `${title} — a recipe shared with you on Foray. Plan it, shop it, cook it.`
+    title: title ? `${title} · Foray` : "Recipe · Foray",
+      description: title
+      ? `${title}: a recipe shared with you on Foray. Plan it, shop it, cook it.`
       : "A recipe shared with you on Foray. Swipe to fork.",
     robots: { index: false, follow: false },
     openGraph: {

@@ -8,7 +8,7 @@ import {
 } from "@/lib/legal-entity";
 
 export const metadata: Metadata = {
-  title: "Terms & Conditions — Foray",
+  title: "Terms & Conditions · Foray",
 };
 
 export default function TermsPage() {
@@ -36,7 +36,7 @@ export default function TermsPage() {
           <Link href="/privacy" className="text-foreground underline">
             Privacy Policy
           </Link>
-          , and — where relevant — by Apple&rsquo;s standard EULA and the terms
+          , and where relevant by Apple&rsquo;s standard EULA and the terms
           of the retailers and partners you check out with.
         </p>
 
@@ -109,12 +109,12 @@ export default function TermsPage() {
           </p>
         </LegalSection>
 
-        <LegalSection title="7. AI output — accuracy & no advice">
+        <LegalSection title="7. AI output: accuracy & no advice">
           <p>
             Recipes produced by AI may be incomplete or inaccurate. You must
             verify ingredients, quantities, and steps before shopping or cooking.
             Nutrition information is informational only; Foray makes no medical or
-            health claims. Allergen flags are informational and not guaranteed — if
+            health claims. Allergen flags are informational and not guaranteed. If
             you have an allergy, always check product packaging and the original
             source. Product matches and prices are estimates; the
             retailer&rsquo;s checkout price governs.
@@ -124,7 +124,7 @@ export default function TermsPage() {
         <LegalSection title="8. User content & social-media import">
           <p>
             The import feature is a personal organisational tool for your own
-            private, non-commercial meal planning — not a publishing or
+            private, non-commercial meal planning, not a publishing or
             redistribution service. Imported recipes are private to your account.
             You are responsible for each import and must use it for personal use
             only. Foray provides the tool; you choose and supply the content. We

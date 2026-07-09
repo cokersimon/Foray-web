@@ -27,7 +27,7 @@ export function Hero() {
             className="motion-safe:animate-rise mx-auto mt-5 max-w-md text-pretty text-base leading-relaxed text-muted sm:mt-6 sm:text-lg lg:mx-0"
             style={{ animationDelay: "0.16s" }}
           >
-            Pick a recipe, build one tidy grocery list and get cooking — all in
+            Pick a recipe, build one tidy grocery list and get cooking, all in
             one place.
           </p>
 

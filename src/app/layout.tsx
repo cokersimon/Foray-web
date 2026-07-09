@@ -14,11 +14,11 @@ const inter = Inter({
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
-  title: "Foray — The recipes you save, finally for dinner",
+  title: "Foray: The recipes you save, finally for dinner",
   description:
     "Bring the recipes you love into one calm place. Foray helps you choose dinner, builds a deduped grocery list and guides you through cooking.",
   openGraph: {
-    title: "Foray — Swipe to fork",
+    title: "Foray: Swipe to fork",
     description:
       "The recipes you save, finally for dinner. Choose, shop and cook in one calm place.",
     url: SITE_URL,
@@ -28,7 +28,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "Foray — Swipe to fork",
+    title: "Foray: Swipe to fork",
     description:
       "The recipes you save, finally for dinner. Choose, shop and cook in one calm place.",
   },

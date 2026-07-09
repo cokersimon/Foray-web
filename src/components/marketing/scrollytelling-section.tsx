@@ -29,7 +29,7 @@ const STEPS: Step[] = [
   {
     number: "03",
     label: "One accurate shop",
-    body: "Quantities are scaled, duplicates combined and the list sorted by aisle — ready for online checkout or in-store.",
+    body: "Quantities are scaled, duplicates combined and the list sorted by aisle, ready for online checkout or in-store.",
     screen: "groceries",
   },
   {

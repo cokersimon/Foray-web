@@ -15,7 +15,7 @@ const PROPS = [
     image: "/brand/outcome-midweek.png",
     label: "Midweek scramble",
     title: "When your head is already full.",
-    body: "Open one tidy list — quantities combined, aisles sorted — and get through the shop without starting from scratch.",
+    body: "Open one tidy list with quantities combined and aisles sorted, and get through the shop without starting from scratch.",
   },
   {
     image: "/brand/outcome-cook.png",
@@ -109,7 +109,7 @@ export function ValueProps() {
           </h2>
           <p className="mt-5 max-w-xl text-pretty text-lg leading-relaxed text-muted">
             Foray reduces the decisions you need to hold in your head. Miss a
-            day—or a fortnight—and everything is still there when you return.
+            day, or a fortnight, and everything is still there when you return.
           </p>
         </div>
 

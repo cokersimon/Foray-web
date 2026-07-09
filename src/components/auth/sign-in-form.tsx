@@ -13,7 +13,7 @@ type Mode = "sign-in" | "forgot-password";
 function formatRecoverError(message: string): string {
   const lower = message.toLowerCase();
   if (lower.includes("rate limit") || lower.includes("over_email_send")) {
-    return "Too many reset emails sent — wait about an hour, then try again.";
+    return "Too many reset emails sent. Wait about an hour, then try again.";
   }
   return message;
 }
@@ -71,7 +71,7 @@ export function SignInForm() {
       return;
     }
     setInfo(
-      "Reset link sent — check your inbox and open the link once on this device.",
+      "Reset link sent. Check your inbox and open the link once on this device.",
     );
   }, []);
 
@@ -186,8 +186,8 @@ export function SignInForm() {
             Reset links open on{" "}
             <Link href={`${SITE_URL}/sign-in?mode=forgot-password`} className="underline underline-offset-2">
               forayapp.co.uk
-            </Link>{" "}
-            — you’ll be redirected there when you tap Send reset link.
+            </Link>
+            . You’ll be redirected there when you tap Send reset link.
           </p>
         ) : null}
 
