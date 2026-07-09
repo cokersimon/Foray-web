@@ -13,7 +13,8 @@ export function AppStoreBadge({
   className?: string;
   size?: "compact" | "default";
 }) {
-  const height = size === "compact" ? 32 : 44;
+  // Toolbar stays compact; hero/pricing use a larger badge for clearer CTA.
+  const height = size === "compact" ? 32 : 60;
   const width = Math.round(height * (119.66407 / 40));
 
   return (

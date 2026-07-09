@@ -1,16 +1,13 @@
 "use client";
 
 import Image from "next/image";
-import {
-  ForayIcon,
-  type ForayIconName,
-} from "@/components/brand/foray-icon";
+import { SfSymbol, type SfSymbolName } from "@/components/brand/sf-symbol";
 import { AppStoreBadge } from "./app-store-badge";
 import { ProductPhone } from "./product-phone";
 import { cn } from "@/lib/cn";
 
 const FLOATING_CARDS: {
-  icon: ForayIconName;
+  icon: SfSymbolName;
   label: string;
   className: string;
 }[] = [
@@ -28,13 +25,13 @@ const FLOATING_CARDS: {
     icon: "forkKnife",
     label: "Cook",
     className:
-      "bottom-[18%] left-[1%] -rotate-[4deg] sm:bottom-[22%] sm:left-[-3%]",
+      "bottom-[16%] left-[1%] -rotate-[4deg] sm:bottom-[20%] sm:left-[-3%]",
   },
   {
     icon: "cart",
     label: "Shop",
     className:
-      "bottom-[7%] right-[1%] rotate-3 sm:bottom-[12%] sm:right-[-3%]",
+      "bottom-[5%] right-[1%] rotate-3 sm:bottom-[10%] sm:right-[-3%]",
   },
 ];
 
@@ -43,23 +40,21 @@ function FloatingCard({
   label,
   className,
 }: {
-  icon: ForayIconName;
+  icon: SfSymbolName;
   label: string;
   className: string;
 }) {
   return (
     <div
       className={cn(
-        "absolute z-20 flex w-[4.5rem] flex-col items-center gap-1 rounded-2xl border border-white/10 bg-ink px-2 py-2 shadow-[0_12px_30px_rgba(0,0,0,0.22)] sm:w-[5.5rem] sm:gap-1.5 sm:rounded-[18px] sm:px-2.5 sm:py-2.5 lg:w-24",
+        "absolute z-20 flex w-[5.25rem] flex-col items-center gap-1.5 rounded-2xl border border-white/10 bg-ink px-2.5 py-2.5 shadow-[0_12px_30px_rgba(0,0,0,0.22)] sm:w-[6.25rem] sm:gap-2 sm:rounded-[18px] sm:px-3 sm:py-3 lg:w-[7rem]",
         className,
       )}
     >
-      <ForayIcon
+      <SfSymbol
         name={icon}
-        size="feature"
-        className="text-white sm:scale-110"
-      />
-      <p className="text-center text-[9px] font-semibold leading-tight text-white sm:text-[10px] lg:text-[11px]">
+        className="h-10 w-10 text-white sm:h-11 sm:w-11"
+      />      <p className="text-center text-[10px] font-semibold leading-tight text-white sm:text-[11px] lg:text-xs">
         {label}
       </p>
     </div>
