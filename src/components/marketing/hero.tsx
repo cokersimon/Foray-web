@@ -15,24 +15,24 @@ const FLOATING_CARDS: {
   {
     image: "/brand/chip-save-time.png",
     label: "Save time",
-    className: "left-0 top-[8%] -rotate-6 sm:left-[-3%] sm:top-[14%] lg:left-[-5%]",
+    className: "left-[1%] top-[15%] -rotate-6 sm:left-[-2%] sm:top-[22%]",
   },
   {
     image: "/brand/chip-save-money.png",
     label: "Save money",
-    className: "right-0 top-[6%] rotate-6 sm:right-[-3%] sm:top-[12%] lg:right-[-5%]",
+    className: "right-[1%] top-[12%] rotate-6 sm:right-[-2%] sm:top-[18%]",
   },
   {
     image: "/brand/chip-cook.png",
     label: "Cook",
     className:
-      "bottom-[12%] left-0 -rotate-[5deg] sm:bottom-[16%] sm:left-[-4%] lg:bottom-[18%] lg:left-[-6%]",
+      "bottom-[18%] left-[1%] -rotate-[4deg] sm:bottom-[22%] sm:left-[-3%]",
   },
   {
     image: "/brand/chip-shop.png",
     label: "Shop",
     className:
-      "bottom-[4%] right-0 rotate-3 sm:bottom-[8%] sm:right-[-3%] lg:bottom-[10%] lg:right-[-5%]",
+      "bottom-[7%] right-[1%] rotate-3 sm:bottom-[12%] sm:right-[-3%]",
   },
 ];
 
@@ -52,14 +52,14 @@ function FloatingCard({
         className,
       )}
     >
-      <div className="relative h-8 w-8 overflow-hidden rounded-xl bg-white sm:h-10 sm:w-10 sm:rounded-2xl lg:h-11 lg:w-11">
+      <div className="relative h-8 w-8 sm:h-10 sm:w-10 lg:h-11 lg:w-11">
         <Image
           src={image}
           alt=""
           aria-hidden="true"
           fill
           sizes="44px"
-          className="object-cover"
+          className="object-contain"
         />
       </div>
       <p className="text-center text-[9px] font-semibold leading-tight text-white sm:text-[10px] lg:text-[11px]">
@@ -95,7 +95,7 @@ export function Hero() {
           </p>
 
           <div
-            className="motion-safe:animate-rise mt-7 flex flex-col items-center gap-3 sm:mt-8"
+            className="motion-safe:animate-rise mt-7 flex flex-col items-center gap-2.5 sm:mt-8"
             style={{ animationDelay: "0.24s" }}
           >
             {APP_STORE_LIVE ? (
@@ -107,41 +107,36 @@ export function Hero() {
                 Join the waitlist <ForayIcon name="arrowRight" size="small" />
               </button>
             )}
-            <p className="text-base font-normal leading-relaxed tracking-normal text-muted sm:text-lg">
+            <p className="text-xs font-normal leading-none tracking-normal text-muted sm:text-sm">
               Launching soon
             </p>
           </div>
         </div>
 
-        {/* Scale the whole composition as one unit — never crop the groceries. */}
         <div
-          className="motion-safe:animate-rise relative mx-auto w-full max-w-[280px] sm:max-w-[480px] lg:max-w-[560px]"
+          className="motion-safe:animate-rise relative mx-auto min-h-[370px] w-full max-w-[380px] sm:min-h-[560px] sm:max-w-[620px] lg:min-h-[600px]"
           style={{ animationDelay: "0.18s" }}
         >
-          <div className="relative mx-auto aspect-square w-full">
-            <div className="absolute inset-[8%] overflow-hidden rounded-[28px] bg-[#f5f5f7] sm:inset-[7%] sm:rounded-[40px] lg:rounded-[48px]">
-              <Image
-                src="/brand/foray-uk-groceries.png"
-                alt=""
-                aria-hidden="true"
-                fill
-                priority
-                sizes="(max-width: 640px) 280px, (max-width: 1024px) 480px, 560px"
-                className="object-contain p-2 sm:p-3"
-              />
-            </div>
-
-            <div className="absolute inset-0 z-10 flex items-center justify-center">
-              <ProductPhone
-                screen="recipes"
-                className="w-[42%] max-w-[150px] sm:max-w-[220px] sm:w-[44%] lg:max-w-[250px]"
-              />
-            </div>
-
-            {FLOATING_CARDS.map((card) => (
-              <FloatingCard key={card.label} {...card} />
-            ))}
+          <div className="absolute inset-x-[2%] top-[2%] h-[86%] overflow-hidden rounded-[36px] bg-[#f5f5f7] sm:top-[3%] sm:h-[78%] sm:rounded-[48px]">
+            <Image
+              src="/brand/foray-uk-groceries.png"
+              alt=""
+              aria-hidden="true"
+              fill
+              priority
+              sizes="(max-width: 1024px) 92vw, 620px"
+              className="object-cover opacity-95"
+            />
           </div>
+          <div className="absolute inset-x-0 bottom-0 top-[8%] z-10 flex items-center justify-center">
+            <ProductPhone
+              screen="recipes"
+              className="w-[168px] sm:w-[250px] lg:w-[270px]"
+            />
+          </div>
+          {FLOATING_CARDS.map((card) => (
+            <FloatingCard key={card.label} {...card} />
+          ))}
         </div>
       </div>
     </section>
