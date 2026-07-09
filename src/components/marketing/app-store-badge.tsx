@@ -13,8 +13,9 @@ export function AppStoreBadge({
   className?: string;
   size?: "compact" | "default";
 }) {
-  // Toolbar stays compact; hero/pricing use a larger badge for clearer CTA.
-  const height = size === "compact" ? 32 : 60;
+  // Toolbar stays compact (original ~32px). Hero/pricing/share use a larger badge.
+  const isCompact = size === "compact";
+  const height = isCompact ? 32 : 60;
   const width = Math.round(height * (119.66407 / 40));
 
   return (
@@ -31,9 +32,12 @@ export function AppStoreBadge({
         alt="Download on the App Store"
         width={width}
         height={height}
-        className="h-auto w-auto"
+        className={cn(
+          "w-auto",
+          isCompact ? "h-8" : "h-[60px] sm:h-16",
+        )}
         unoptimized
-        priority={size === "default"}
+        priority={!isCompact}
       />
     </a>
   );
