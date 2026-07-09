@@ -91,45 +91,42 @@ export function ScrollytellingSection() {
               <p className="mx-auto mt-4 max-w-lg text-pretty text-base leading-relaxed text-muted sm:text-lg">
                 {step.body}
               </p>
-              <div className="mt-10 flex justify-center">
+              <div className="mt-10 flex items-center justify-center gap-3 sm:gap-5">
+                <button
+                  type="button"
+                  onClick={() => goTo(index - 1)}
+                  disabled={atStart}
+                  aria-label="Previous step"
+                  className={cn(
+                    "flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-foreground/55 transition-colors",
+                    atStart
+                      ? "cursor-default opacity-30"
+                      : "hover:bg-black/[0.06] hover:text-foreground",
+                  )}
+                >
+                  <ForayIcon name="arrowLeft" size="small" />
+                </button>
                 <ProductPhone
                   screen={step.screen}
                   className="w-[230px] sm:w-[260px] lg:w-[278px]"
                 />
+                <button
+                  type="button"
+                  onClick={() => goTo(index + 1)}
+                  disabled={atEnd}
+                  aria-label="Next step"
+                  className={cn(
+                    "flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-foreground/55 transition-colors",
+                    atEnd
+                      ? "cursor-default opacity-30"
+                      : "hover:bg-black/[0.06] hover:text-foreground",
+                  )}
+                >
+                  <ForayIcon name="arrowRight" size="small" />
+                </button>
               </div>
             </motion.div>
           </AnimatePresence>
-
-          <div className="mt-10 flex items-center justify-center gap-2">
-            <button
-              type="button"
-              onClick={() => goTo(index - 1)}
-              disabled={atStart}
-              aria-label="Previous step"
-              className={cn(
-                "flex h-10 w-10 items-center justify-center rounded-full bg-[#e8e8ed] text-foreground/70 transition-colors",
-                atStart
-                  ? "cursor-default opacity-40"
-                  : "hover:bg-[#d2d2d7] hover:text-foreground",
-              )}
-            >
-              <ForayIcon name="arrowLeft" size="small" />
-            </button>
-            <button
-              type="button"
-              onClick={() => goTo(index + 1)}
-              disabled={atEnd}
-              aria-label="Next step"
-              className={cn(
-                "flex h-10 w-10 items-center justify-center rounded-full bg-[#e8e8ed] text-foreground/70 transition-colors",
-                atEnd
-                  ? "cursor-default opacity-40"
-                  : "hover:bg-[#d2d2d7] hover:text-foreground",
-              )}
-            >
-              <ForayIcon name="arrowRight" size="small" />
-            </button>
-          </div>
         </div>
       </div>
     </section>
