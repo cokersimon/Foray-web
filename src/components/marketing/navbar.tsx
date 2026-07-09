@@ -36,24 +36,13 @@ export function Navbar() {
 
   return (
     <>
-      {/* Floating chrome — content scrolls to the edge underneath. */}
       <header className="pointer-events-none fixed inset-x-0 top-0 z-50">
-        {/* Apple-style scroll-edge mask: soft fade + light blur, not a frosted bar. */}
-        <div
-          aria-hidden="true"
-          className={cn(
-            "scroll-edge-mask pointer-events-none absolute inset-x-0 top-0 h-20 sm:h-24 transition-opacity duration-300",
-            menuOpen ? "opacity-0 md:opacity-100" : "opacity-100",
-          )}
-        />
-
         <div
           className={cn(
-            "pointer-events-auto relative mx-auto max-w-[1600px] transition-[background-color,border-radius,box-shadow] duration-300 ease-[cubic-bezier(0.22,1,0.36,1)]",
+            "pointer-events-auto mx-auto max-w-[1600px] transition-[background-color,border-radius,box-shadow,backdrop-filter] duration-300 ease-[cubic-bezier(0.22,1,0.36,1)]",
             menuOpen
-              ? "bg-ink text-white shadow-[0_24px_60px_rgba(0,0,0,0.28)] md:bg-transparent md:text-foreground md:shadow-none"
-              : "bg-transparent",
-            menuOpen && "rounded-b-[2rem] sm:rounded-b-[2.5rem] md:rounded-none",
+              ? "rounded-b-[2rem] bg-ink text-white shadow-[0_24px_60px_rgba(0,0,0,0.28)] sm:rounded-b-[2.5rem] md:rounded-none md:border-b md:border-black/5 md:bg-[rgba(255,255,255,0.48)] md:text-foreground md:shadow-none md:backdrop-blur-[16px] md:backdrop-saturate-150"
+              : "toolbar-frost",
           )}
         >
           <div className="flex items-center justify-between px-5 py-3 sm:px-6 md:px-10 md:py-4">

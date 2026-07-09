@@ -127,13 +127,13 @@ export function WaitlistModal() {
             exit={{ opacity: 0, scale: 0.95, y: 10 }}
             transition={{ type: "spring", stiffness: 400, damping: 30 }}
             onClick={(e) => e.stopPropagation()}
-            className="relative z-10 w-full max-w-md rounded-3xl border border-border bg-surface p-8 shadow-2xl shadow-black/20"
+            className="relative z-10 w-full max-w-md rounded-3xl border border-white/10 bg-ink p-8 text-white shadow-2xl shadow-black/40"
           >
             <button
               type="button"
               onClick={handleClose}
               aria-label="Close"
-              className="absolute top-4 right-4 rounded-full p-1.5 text-foreground transition-colors hover:bg-foreground/[0.06]"
+              className="glass-chip absolute top-4 right-4 flex h-9 w-9 items-center justify-center text-ink"
             >
               <ForayIcon name="close" size="small" />
             </button>
@@ -144,27 +144,27 @@ export function WaitlistModal() {
                   <div className="mb-4 text-4xl" aria-hidden="true">
                     &#10024;
                   </div>
-                  <h2 id="waitlist-title" className="text-2xl font-bold text-foreground">
+                  <h2 id="waitlist-title" className="text-2xl font-bold text-white">
                     You&rsquo;re on the list!
                   </h2>
-                  <p className="mt-3 text-base leading-relaxed text-muted">
+                  <p className="mt-3 text-base leading-relaxed text-white/60">
                     We&rsquo;ll email you the moment early access opens. Check
                     your inbox for a confirmation.
                   </p>
                   <button
                     type="button"
                     onClick={handleClose}
-                    className="marketing-button marketing-button-compact mt-8"
+                    className="marketing-button marketing-button-on-dark marketing-button-compact mt-8"
                   >
                     Done
                   </button>
                 </div>
               ) : (
                 <>
-                  <h2 id="waitlist-title" className="text-2xl font-bold text-foreground">
+                  <h2 id="waitlist-title" className="text-2xl font-bold text-white">
                     Join the waitlist
                   </h2>
-                  <p className="mt-2 text-base leading-relaxed text-muted">
+                  <p className="mt-2 text-base leading-relaxed text-white/60">
                     Recipes in, groceries out. Be first in line when Foray
                     opens in the UK.
                   </p>
@@ -182,7 +182,7 @@ export function WaitlistModal() {
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
                       placeholder="Enter your email address"
-                      className="w-full rounded-xl border border-border bg-background px-4 py-3 text-base text-foreground outline-none placeholder:text-muted focus:border-foreground/40 focus:ring-1 focus:ring-foreground/20"
+                      className="w-full rounded-xl border border-white/15 bg-white/[0.06] px-4 py-3 text-base text-white outline-none placeholder:text-white/40 focus:border-white/35 focus:ring-1 focus:ring-white/20"
                       style={{ fontSize: "16px" }}
                     />
 
@@ -199,7 +199,7 @@ export function WaitlistModal() {
                     />
 
                     {status === "error" && (
-                      <p className="text-xs text-red-600" role="alert">
+                      <p className="text-xs text-red-400" role="alert">
                         {errorMsg}
                       </p>
                     )}
@@ -207,18 +207,18 @@ export function WaitlistModal() {
                     <button
                       type="submit"
                       disabled={status === "loading"}
-                      className="marketing-button w-full disabled:opacity-50"
+                      className="marketing-button marketing-button-on-dark w-full disabled:opacity-50"
                     >
                       {status === "loading" ? "Joining…" : "Join waitlist"}
                     </button>
                   </form>
 
-                  <p className="mt-6 text-center text-xs leading-relaxed text-muted">
+                  <p className="mt-6 text-center text-xs leading-relaxed text-white/45">
                     We&rsquo;ll only email you about Foray, and you can
                     unsubscribe any time. By joining you agree to our{" "}
                     <Link
                       href="/privacy"
-                      className="underline underline-offset-2 transition-colors hover:text-foreground"
+                      className="underline underline-offset-2 transition-colors hover:text-white"
                     >
                       Privacy Policy
                     </Link>
