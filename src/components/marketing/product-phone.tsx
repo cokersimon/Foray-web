@@ -1,5 +1,5 @@
 import Image from "next/image";
-import { ForayIcon } from "@/components/brand/foray-icon";
+import { SfSymbol } from "@/components/brand/sf-symbol";
 import { cn } from "@/lib/cn";
 
 export type ProductScreen = "recipes" | "swipe" | "groceries" | "cook";
@@ -18,7 +18,7 @@ function RecipesScreen() {
           <p className="mt-0.5 text-lg font-bold tracking-tight">What sounds good?</p>
         </div>
         <div className="flex h-8 w-8 items-center justify-center rounded-full border border-black/10 bg-white">
-          <ForayIcon name="menu" size={14} />
+          <SfSymbol name="line3Horizontal" size={14} />
         </div>
       </div>
       <div className="scrollbar-hide flex gap-2 overflow-hidden px-4 pb-3">
@@ -51,10 +51,10 @@ function RecipesScreen() {
               <p className="text-sm font-bold leading-tight">Lemony tomato pasta</p>
               <p className="mt-1 text-[9px] text-neutral-500">25 min · easy · serves 2</p>
             </div>
-            <ForayIcon name="heart" size={16} filled className="shrink-0" />
+            <SfSymbol name="heartFill" size={16} className="shrink-0" />
           </div>
           <div className="mt-3 flex w-full items-center justify-center gap-1.5 rounded-xl bg-black py-2.5 text-[10px] font-semibold text-white">
-            Add to groceries <ForayIcon name="arrowRight" size={12} />
+            Add to groceries <SfSymbol name="arrowRight" size={12} />
           </div>
         </div>
       </div>
@@ -95,7 +95,7 @@ function SwipeScreen() {
             <p className="text-base font-bold">Tomato basil pasta</p>
             <div className="mt-1 flex items-center gap-2 text-[9px] text-neutral-500">
               <span className="flex items-center gap-1">
-                <ForayIcon name="clock" size={12} /> 25 min
+                <SfSymbol name="clock" size={12} /> 25 min
               </span>
               <span>Vegetarian</span>
             </div>
@@ -104,7 +104,7 @@ function SwipeScreen() {
                 Not today
               </div>
               <div className="flex flex-1 items-center justify-center gap-1 rounded-xl bg-black py-2 text-[10px] font-semibold text-white">
-                <ForayIcon name="heart" size={12} filled /> Fork it
+                <SfSymbol name="heartFill" size={12} /> Fork it
               </div>
             </div>
           </div>
@@ -152,7 +152,7 @@ function GroceriesScreen() {
       </div>
       <div className="mt-auto px-4 pb-5">
         <div className="flex w-full items-center justify-center gap-1.5 rounded-xl bg-black py-3 text-[10px] font-semibold text-white">
-          <ForayIcon name="cart" size={14} /> Shop this list
+          <SfSymbol name="cart" size={14} /> Shop this list
         </div>
         <p className="mt-2 text-center text-[8px] text-neutral-400">
           Online checkout or take it in-store
@@ -185,7 +185,7 @@ function CookScreen() {
           Stir occasionally until glossy and beginning to break down.
         </p>
         <div className="mt-5 flex w-fit items-center gap-2 rounded-full border border-black/10 bg-white px-3 py-2 text-[10px] font-semibold">
-          <ForayIcon name="clock" size={14} /> Set 8 minute timer
+          <SfSymbol name="clock" size={14} /> Set 8 minute timer
         </div>
       </div>
       <div className="flex gap-2">
@@ -193,7 +193,7 @@ function CookScreen() {
           Back
         </div>
         <div className="flex flex-[1.6] items-center justify-center gap-1 rounded-xl bg-black py-2.5 text-[10px] font-semibold text-white">
-          Next step <ForayIcon name="check" size={12} />
+          Next step <SfSymbol name="checkmark" size={12} />
         </div>
       </div>
     </div>

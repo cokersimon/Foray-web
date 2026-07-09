@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useLenis } from "lenis/react";
 import { Wordmark } from "@/components/brand/wordmark";
-import { ForayIcon } from "@/components/brand/foray-icon";
+import { SfSymbol } from "@/components/brand/sf-symbol";
 import { AppStoreBadge } from "./app-store-badge";
 import { cn } from "@/lib/cn";
 
@@ -198,8 +198,8 @@ export function Navbar() {
                 )}
               >
                 <span className="relative block h-5 w-5">
-                  <ForayIcon
-                    name="menu"
+                  <SfSymbol
+                    name="line3Horizontal"
                     size="small"
                     className={cn(
                       "absolute inset-0 m-auto transition-[opacity,transform] duration-200 ease-[cubic-bezier(0.22,1,0.36,1)]",
@@ -208,8 +208,8 @@ export function Navbar() {
                         : "scale-100 rotate-0 opacity-100",
                     )}
                   />
-                  <ForayIcon
-                    name="close"
+                  <SfSymbol
+                    name="xmark"
                     size="small"
                     className={cn(
                       "absolute inset-0 m-auto transition-[opacity,transform] duration-200 ease-[cubic-bezier(0.22,1,0.36,1)]",

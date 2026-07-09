@@ -2,7 +2,7 @@
 
 import { useRef, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { ForayIcon } from "@/components/brand/foray-icon";
+import { SfSymbol } from "@/components/brand/sf-symbol";
 import { ProductPhone, type ProductScreen } from "./product-phone";
 import { cn } from "@/lib/cn";
 
@@ -104,7 +104,7 @@ export function ScrollytellingSection() {
                       : "hover:bg-black/[0.06] hover:text-foreground",
                   )}
                 >
-                  <ForayIcon name="arrowLeft" size="small" />
+                  <SfSymbol name="chevronLeft" size="small" />
                 </button>
                 <ProductPhone
                   screen={step.screen}
@@ -122,7 +122,7 @@ export function ScrollytellingSection() {
                       : "hover:bg-black/[0.06] hover:text-foreground",
                   )}
                 >
-                  <ForayIcon name="arrowRight" size="small" />
+                  <SfSymbol name="chevronRight" size="small" />
                 </button>
               </div>
             </motion.div>

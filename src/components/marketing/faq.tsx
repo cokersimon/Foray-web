@@ -1,6 +1,6 @@
 "use client";
 
-import { ForayIcon } from "@/components/brand/foray-icon";
+import { SfSymbol } from "@/components/brand/sf-symbol";
 import { CHECKOUT_FEE_GBP } from "@/lib/site";
 
 const FAQS = [
@@ -60,7 +60,7 @@ export function Faq() {
             >
               <summary className="flex cursor-pointer list-none items-center justify-between gap-4 py-6 text-left text-lg font-semibold tracking-tight text-foreground sm:py-7 [&::-webkit-details-marker]:hidden">
                 {faq.question}
-                <ForayIcon
+                <SfSymbol
                   name="chevronDown"
                   size="row"
                   className="shrink-0 text-muted transition-transform duration-300 group-open:rotate-180"

@@ -53,8 +53,10 @@ function FloatingCard({
     >
       <SfSymbol
         name={icon}
-        className="h-10 w-10 text-white sm:h-11 sm:w-11"
-      />      <p className="text-center text-[10px] font-semibold leading-tight text-white sm:text-[11px] lg:text-xs">
+        size="feature"
+        className="text-white"
+      />
+      <p className="text-center text-[10px] font-semibold leading-tight text-white sm:text-[11px] lg:text-xs">
         {label}
       </p>
     </div>

@@ -1,6 +1,6 @@
 "use client";
 
-import { ForayIcon } from "@/components/brand/foray-icon";
+import { SfSymbol } from "@/components/brand/sf-symbol";
 import { CHECKOUT_FEE_GBP } from "@/lib/site";
 import { AppStoreBadge } from "./app-store-badge";
 
@@ -49,8 +49,8 @@ export function Pricing() {
                 key={item}
                 className="flex items-start gap-3 text-sm leading-relaxed text-black/70"
               >
-                <ForayIcon
-                  name="checkBadge"
+                <SfSymbol
+                  name="checkmarkSealFill"
                   size="small"
                   className="mt-0.5 text-black"
                 />
