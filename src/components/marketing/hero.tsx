@@ -73,7 +73,7 @@ export function Hero() {
   const { open } = useWaitlist();
 
   return (
-    <section className="relative overflow-hidden bg-background px-5 pb-16 pt-6 sm:px-6 sm:pb-20 sm:pt-10 md:pb-28 md:pt-14 lg:px-10 lg:pb-32 lg:pt-16">
+    <section className="relative overflow-hidden bg-background px-5 pb-16 pt-20 sm:px-6 sm:pb-20 sm:pt-24 md:pb-28 md:pt-28 lg:px-10 lg:pb-32 lg:pt-32">
       <div className="mx-auto grid max-w-7xl items-center gap-8 sm:gap-12 lg:grid-cols-[0.92fr_1.08fr] lg:gap-10">
         <div className="relative z-10 text-center lg:text-left">
           <h1

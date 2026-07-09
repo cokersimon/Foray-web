@@ -17,7 +17,7 @@ export function Pricing() {
   return (
     <section
       id="pricing"
-      className="scroll-mt-24 bg-[#f5f5f7] px-5 py-20 sm:px-6 md:py-28 lg:px-10 lg:py-32"
+      className="scroll-mt-20 bg-[#f5f5f7] px-5 py-20 sm:px-6 md:py-28 lg:px-10 lg:py-32"
     >
       <div className="mx-auto grid max-w-7xl items-center gap-12 lg:grid-cols-[0.85fr_1.15fr] lg:gap-20">
         <div>
