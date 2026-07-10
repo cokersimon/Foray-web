@@ -29,7 +29,9 @@ export function AppStoreBadge({
     <a
       href={APP_STORE_URL}
       className={cn(
-        "inline-flex shrink-0 items-center transition-opacity hover:opacity-90 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-current",
+        // Artwork stays official; only opacity + focus match other CTAs.
+        // Do not wrap in glass/marketing-button (Apple forbids restyling the badge).
+        "inline-flex shrink-0 items-center rounded-sm transition-opacity duration-160 hover:opacity-90 active:opacity-80 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-current",
         className,
       )}
       aria-label="Download on the App Store"

@@ -73,94 +73,113 @@ export function ScrollytellingSection() {
     <section
       id="how-it-works"
       className="bg-section-grey text-foreground"
+      onTouchStart={onTouchStart}
+      onTouchEnd={onTouchEnd}
     >
-      <div className="mx-auto max-w-3xl px-5 py-20 sm:px-6 md:py-28 lg:max-w-5xl lg:py-32 xl:max-w-6xl">
-        <div
-          className="flex flex-col items-center text-center"
-          onTouchStart={onTouchStart}
-          onTouchEnd={onTouchEnd}
-        >
-          <AnimatePresence mode="wait">
-            <motion.div
-              key={step.number}
-              initial={{ opacity: 0, y: 12 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -8 }}
-              transition={{ duration: 0.32, ease: [0.22, 1, 0.36, 1] }}
-              className="w-full"
-            >
-              <h2 className="text-balance text-[clamp(2rem,5vw,3.25rem)] font-bold leading-[1.08] tracking-[-0.04em]">
-                <span className="tabular-nums">{step.number}</span>
-                <span className="text-brand-dot">.</span>{" "}
-                {step.label}
-              </h2>
-              <p className="mx-auto mt-4 max-w-lg text-pretty text-base leading-relaxed text-muted sm:text-lg">
-                {step.body}
-              </p>
-              <div className="mt-10 flex items-center justify-center gap-3 sm:gap-5 lg:gap-8 xl:gap-12">
-                {/* Mobile: plain chevrons. lg+: clear liquid glass (design system). */}
-                <button
-                  type="button"
-                  onClick={() => goTo(index - 1)}
-                  disabled={atStart}
-                  aria-label="Previous step"
-                  className={cn(
-                    "flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-foreground/55 lg:hidden",
-                    atStart
-                      ? "cursor-default opacity-30"
-                      : "hover:bg-black/[0.06] hover:text-foreground",
-                  )}
-                >
-                  <SfSymbol name="chevronLeft" size="small" />
-                </button>
-                <button
-                  type="button"
-                  onClick={() => goTo(index - 1)}
-                  disabled={atStart}
-                  aria-label="Previous step"
-                  className={cn(
-                    "glass-chip-clear relative hidden h-10 w-10 shrink-0 cursor-pointer items-center justify-center lg:flex",
-                    atStart && "pointer-events-none cursor-default opacity-35",
-                  )}
-                >
-                  <SfSymbol name="chevronLeft" size="small" />
-                </button>
+      <div className="mx-auto max-w-3xl px-5 pt-20 sm:px-6 md:pt-28 lg:pt-32">
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={`copy-${step.number}`}
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -8 }}
+            transition={{ duration: 0.32, ease: [0.22, 1, 0.36, 1] }}
+            className="text-center"
+          >
+            <h2 className="text-balance text-[clamp(2rem,5vw,3.25rem)] font-bold leading-[1.08] tracking-[-0.04em]">
+              <span className="tabular-nums">{step.number}</span>
+              <span className="text-brand-dot">.</span>{" "}
+              {step.label}
+            </h2>
+            <p className="mx-auto mt-4 max-w-lg text-pretty text-base leading-relaxed text-muted sm:text-lg">
+              {step.body}
+            </p>
+          </motion.div>
+        </AnimatePresence>
+      </div>
 
-                <ProductPhone
-                  screen={step.screen}
-                  className="w-[230px] sm:w-[260px] lg:w-[278px]"
-                />
+      {/*
+        Phone stays dead-centre. On lg+, side columns are equal (1fr) so each
+        glass control sits in the middle of the gutter between the phone and
+        the viewport edge. Mobile keeps tight plain chevrons beside the phone.
+      */}
+      <div className="mx-auto w-full px-5 pb-20 pt-10 sm:px-6 md:pb-28 lg:px-0 lg:pb-32">
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={`stage-${step.number}`}
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -8 }}
+            transition={{ duration: 0.32, ease: [0.22, 1, 0.36, 1] }}
+            className={cn(
+              "flex w-full items-center justify-center gap-3 sm:gap-5",
+              "lg:grid lg:grid-cols-[1fr_auto_1fr] lg:gap-0",
+            )}
+          >
+            <div className="flex justify-center">
+              <button
+                type="button"
+                onClick={() => goTo(index - 1)}
+                disabled={atStart}
+                aria-label="Previous step"
+                className={cn(
+                  "flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-foreground/55 lg:hidden",
+                  atStart
+                    ? "cursor-default opacity-30"
+                    : "hover:bg-black/[0.06] hover:text-foreground",
+                )}
+              >
+                <SfSymbol name="chevronLeft" size="small" />
+              </button>
+              <button
+                type="button"
+                onClick={() => goTo(index - 1)}
+                disabled={atStart}
+                aria-label="Previous step"
+                className={cn(
+                  "glass-chip-clear relative hidden h-10 w-10 shrink-0 cursor-pointer items-center justify-center lg:flex",
+                  atStart && "pointer-events-none cursor-default opacity-35",
+                )}
+              >
+                <SfSymbol name="chevronLeft" size="small" />
+              </button>
+            </div>
 
-                <button
-                  type="button"
-                  onClick={() => goTo(index + 1)}
-                  disabled={atEnd}
-                  aria-label="Next step"
-                  className={cn(
-                    "flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-foreground/55 lg:hidden",
-                    atEnd
-                      ? "cursor-default opacity-30"
-                      : "hover:bg-black/[0.06] hover:text-foreground",
-                  )}
-                >
-                  <SfSymbol name="chevronRight" size="small" />
-                </button>
-                <button
-                  type="button"
-                  onClick={() => goTo(index + 1)}
-                  disabled={atEnd}
-                  aria-label="Next step"
-                  className={cn(
-                    "glass-chip-clear relative hidden h-10 w-10 shrink-0 cursor-pointer items-center justify-center lg:flex",
-                    atEnd && "pointer-events-none cursor-default opacity-35",
-                  )}
-                >
-                  <SfSymbol name="chevronRight" size="small" />
-                </button>
-              </div>
-            </motion.div>
-          </AnimatePresence>
-        </div>
+            <ProductPhone
+              screen={step.screen}
+              className="w-[230px] sm:w-[260px] lg:w-[278px]"
+            />
+
+            <div className="flex justify-center">
+              <button
+                type="button"
+                onClick={() => goTo(index + 1)}
+                disabled={atEnd}
+                aria-label="Next step"
+                className={cn(
+                  "flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-foreground/55 lg:hidden",
+                  atEnd
+                    ? "cursor-default opacity-30"
+                    : "hover:bg-black/[0.06] hover:text-foreground",
+                )}
+              >
+                <SfSymbol name="chevronRight" size="small" />
+              </button>
+              <button
+                type="button"
+                onClick={() => goTo(index + 1)}
+                disabled={atEnd}
+                aria-label="Next step"
+                className={cn(
+                  "glass-chip-clear relative hidden h-10 w-10 shrink-0 cursor-pointer items-center justify-center lg:flex",
+                  atEnd && "pointer-events-none cursor-default opacity-35",
+                )}
+              >
+                <SfSymbol name="chevronRight" size="small" />
+              </button>
+            </div>
+          </motion.div>
+        </AnimatePresence>
       </div>
     </section>
   );
