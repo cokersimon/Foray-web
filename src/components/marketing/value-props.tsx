@@ -139,7 +139,7 @@ export function ValueProps() {
                   {prop.body}
                 </p>
               </div>
-              <div className="relative mt-auto h-56 overflow-hidden bg-[#fbfbfd] sm:h-64">
+              <div className="relative mt-auto h-56 overflow-hidden bg-white sm:h-64">
                 <Image
                   src={prop.image}
                   alt=""
