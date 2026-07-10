@@ -182,14 +182,11 @@ export function Navbar() {
                   {link.label}
                 </a>
               ))}
-              <AppStoreBadge size="compact" className="ml-1" />
+              <AppStoreBadge size="compact" variant="white" className="ml-1" />
             </div>
 
             <div className="flex items-center gap-2 md:hidden">
-              <AppStoreBadge
-                size="compact"
-                variant={menuOpen ? "white" : "black"}
-              />
+              <AppStoreBadge size="compact" variant="white" />
               <button
                 type="button"
                 onClick={() => setMenuOpen((v) => !v)}

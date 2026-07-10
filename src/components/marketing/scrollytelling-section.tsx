@@ -16,24 +16,30 @@ interface Step {
 const STEPS: Step[] = [
   {
     number: "01",
-    label: "Bring the recipe",
-    body: "Share or paste a link from TikTok, Instagram or a food blog. Foray turns it into clear ingredients and steps.",
+    label: "Choose a recipe",
+    body: "Browse hundreds of curated Foray recipes, or import from TikTok, Instagram or a food blog. Foray turns it into clear ingredients and steps.",
     screen: "recipes",
   },
   {
     number: "02",
-    label: "Choose without overthinking",
-    body: "Browse a small set that fits your time and tastes, then fork the one that sounds good.",
-    screen: "swipe",
-  },
-  {
-    number: "03",
     label: "One accurate shop",
-    body: "Quantities are scaled, duplicates combined and the list sorted by aisle, ready for online checkout or in-store.",
+    body: "Quantities scale to your household servings. Duplicates are combined and the list is sorted by aisle, ready to check out online or in person.",
     screen: "groceries",
   },
   {
+    number: "03",
+    label: "Shop in person",
+    body: "Take the aisle-sorted list into the store and tick items off as you go. No online checkout needed.",
+    screen: "instore",
+  },
+  {
     number: "04",
+    label: "Shop online",
+    body: "Foray fills your supermarket basket for you. Review, then check out with your usual retailer.",
+    screen: "online",
+  },
+  {
+    number: "05",
     label: "Get dinner on",
     body: "Clear steps and timers stay beside the hob, so you can cook without juggling apps.",
     screen: "cook",

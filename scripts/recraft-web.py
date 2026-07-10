@@ -48,20 +48,48 @@ ASSETS: dict[str, str] = {
         "Fresh British weekly shop aesthetic, organised arrangement, landscape "
         "3:2 framing."
     ),
-    "outcome-choose": (
-        "Photorealistic editorial still, soft kitchen daylight, shallow depth of "
-        "field. Hands holding a phone showing a recipe card above a wooden "
-        "counter with fresh tomatoes and basil. Clean, premium, no text, no logos."
+    # Feature cards — Apple Personal Setup–style thick rounded line-art collage.
+    # One dominant stroke colour per card; white field; no photoreal; no text.
+    "feature-household": (
+        "Apple marketing style thick rounded outline line-art collage on a pure "
+        "white background. Single dominant stroke colour: vivid system orange "
+        "#ff9500 only (optional very light grey #d2d2d7 for depth, never a "
+        "second bright accent). Overlapping icons in the lower two-thirds: "
+        "simple people/household silhouettes, a servings dial or number ring, "
+        "and a scaled grocery list with checkmarks. Friendly modern product "
+        "illustration, consistent thick stroke weight, rounded line caps, no "
+        "fills except white, no gradients, no photoreal people, no text, no "
+        "logos, square composition."
     ),
-    "outcome-shop": (
-        "Photorealistic editorial still of a tidy grocery basket with fresh "
-        "produce and pantry items on a light counter. Soft daylight, premium "
-        "food photography, no text, no logos, no people faces."
+    "feature-pantry": (
+        "Apple marketing style thick rounded outline line-art collage on a pure "
+        "white background. Single dominant stroke colour: soft teal #30b0c7 "
+        "only (optional very light grey #d2d2d7 for depth). Overlapping icons "
+        "in the lower two-thirds: pantry jars and shelf, a checklist, and a "
+        "simple cupboard door or spice bottles. Friendly modern product "
+        "illustration, consistent thick stroke weight, rounded line caps, no "
+        "fills except white, no gradients, no photoreal, no text, no logos, "
+        "square composition."
     ),
-    "outcome-cook": (
-        "Photorealistic editorial still of a phone propped beside a hob with a "
-        "pan of tomato pasta simmering. Soft kitchen light, premium food "
-        "photography, no text, no logos."
+    "feature-create": (
+        "Apple marketing style thick rounded outline line-art collage on a pure "
+        "white background. Single dominant stroke colour: indigo #5856d6 only "
+        "(optional very light grey #d2d2d7 for depth). Overlapping icons in "
+        "the lower two-thirds: a camera or phone taking a photo, a recipe "
+        "card, and a pencil/edit mark. Friendly modern product illustration, "
+        "consistent thick stroke weight, rounded line caps, no fills except "
+        "white, no gradients, no photoreal, no text, no logos, square "
+        "composition."
+    ),
+    "feature-chef-siri": (
+        "Apple marketing style thick rounded outline line-art collage on a pure "
+        "white background. Single dominant stroke colour: system blue #007aff "
+        "only (optional very light grey #d2d2d7 for depth). Overlapping icons "
+        "in the lower two-thirds: a Siri-like waveform or orb, sparkles, a "
+        "simple chef hat or whisk, and a speech bubble outline. Friendly "
+        "modern product illustration, consistent thick stroke weight, rounded "
+        "line caps, no fills except white, no gradients, no photoreal, no "
+        "text, no logos, square composition."
     ),
 }
 

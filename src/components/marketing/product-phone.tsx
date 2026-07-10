@@ -2,7 +2,14 @@ import Image from "next/image";
 import { SfSymbol } from "@/components/brand/sf-symbol";
 import { cn } from "@/lib/cn";
 
-export type ProductScreen = "recipes" | "swipe" | "groceries" | "cook";
+export type ProductScreen =
+  | "recipes"
+  | "swipe"
+  | "groceries"
+  | "instore"
+  | "online"
+  | "cook";
+
 
 const groceryGroups = [
   { aisle: "Fruit & veg", items: ["Lemons", "Basil", "Tomatoes"] },
@@ -162,6 +169,102 @@ function GroceriesScreen() {
   );
 }
 
+function InStoreScreen() {
+  const items = [
+    { name: "Lemons", aisle: "Fruit & veg", done: true },
+    { name: "Basil", aisle: "Fruit & veg", done: true },
+    { name: "Tomatoes", aisle: "Fruit & veg", done: false },
+    { name: "Tagliatelle", aisle: "Cupboard", done: false },
+    { name: "Olive oil", aisle: "Cupboard", done: false },
+  ];
+  return (
+    <div className="flex h-full flex-col bg-[#f5f5f2] text-[#161616]">
+      <div className="px-4 pb-3 pt-5">
+        <p className="text-[9px] font-semibold text-neutral-500">In store</p>
+        <div className="mt-1 flex items-end justify-between">
+          <p className="text-lg font-bold tracking-tight">Tick as you go</p>
+          <span className="rounded-full bg-black/5 px-2 py-1 text-[8px] font-bold text-neutral-600">
+            2 of 5
+          </span>
+        </div>
+      </div>
+      <div className="mx-4 flex-1 overflow-hidden rounded-2xl border border-black/5 bg-white p-3 shadow-sm">
+        {items.map((item) => (
+          <div
+            key={item.name}
+            className="flex items-center gap-2.5 border-t border-black/5 py-2.5 first:border-0"
+          >
+            <span
+              className={cn(
+                "flex h-5 w-5 items-center justify-center rounded-full border",
+                item.done
+                  ? "border-black bg-black text-white"
+                  : "border-black/15 bg-white",
+              )}
+            >
+              {item.done ? <SfSymbol name="checkmark" size={10} /> : null}
+            </span>
+            <div className="min-w-0 flex-1">
+              <p
+                className={cn(
+                  "text-[10px] font-semibold",
+                  item.done && "text-neutral-400 line-through",
+                )}
+              >
+                {item.name}
+              </p>
+              <p className="text-[8px] text-neutral-400">{item.aisle}</p>
+            </div>
+          </div>
+        ))}
+      </div>
+      <p className="px-4 pb-5 pt-3 text-center text-[8px] text-neutral-400">
+        Sorted by aisle · no checkout fee
+      </p>
+    </div>
+  );
+}
+
+function OnlineScreen() {
+  return (
+    <div className="flex h-full flex-col bg-[#f5f5f2] text-[#161616]">
+      <div className="px-4 pb-3 pt-5">
+        <p className="text-[9px] font-semibold text-neutral-500">Online checkout</p>
+        <p className="mt-1 text-lg font-bold tracking-tight">Basket ready</p>
+      </div>
+      <div className="mx-4 rounded-2xl border border-black/5 bg-white p-3.5 shadow-sm">
+        <div className="flex items-center gap-2 rounded-xl bg-section-grey px-2.5 py-2">
+          <SfSymbol name="cart" size={14} />
+          <p className="text-[9px] font-semibold text-neutral-700">
+            Sainsbury&apos;s · 12 items filled
+          </p>
+        </div>
+        <div className="mt-3 space-y-2">
+          {["Lemony tomato pasta list", "Household · serves 4", "Ready to review"].map(
+            (line) => (
+              <div
+                key={line}
+                className="flex items-center gap-2 text-[10px] font-medium text-neutral-700"
+              >
+                <SfSymbol name="checkmark" size={12} className="text-black" />
+                {line}
+              </div>
+            ),
+          )}
+        </div>
+      </div>
+      <div className="mt-auto px-4 pb-5">
+        <div className="flex w-full items-center justify-center gap-1.5 rounded-xl bg-black py-3 text-[10px] font-semibold text-white">
+          Open retailer checkout <SfSymbol name="arrowRight" size={12} />
+        </div>
+        <p className="mt-2 text-center text-[8px] text-neutral-400">
+          Foray fills the trolley · you confirm
+        </p>
+      </div>
+    </div>
+  );
+}
+
 function CookScreen() {
   return (
     <div className="flex h-full flex-col bg-[#f5f5f2] px-4 pb-5 pt-5 text-[#161616]">
@@ -204,6 +307,8 @@ const screens: Record<ProductScreen, React.ReactNode> = {
   recipes: <RecipesScreen />,
   swipe: <SwipeScreen />,
   groceries: <GroceriesScreen />,
+  instore: <InStoreScreen />,
+  online: <OnlineScreen />,
   cook: <CookScreen />,
 };
 

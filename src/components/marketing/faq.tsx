@@ -1,7 +1,6 @@
 "use client";
 
 import { SfSymbol } from "@/components/brand/sf-symbol";
-import { CHECKOUT_FEE_GBP } from "@/lib/site";
 
 const FAQS = [
   {
@@ -25,8 +24,9 @@ const FAQS = [
       "Yes. Your first seven days include everything. After that, Foray Pro is £4.99 a month or £54.99 a year, billed through the App Store and cancellable at any time.",
   },
   {
-    question: `What is the £${CHECKOUT_FEE_GBP} fee?`,
-    answer: `Online checkout adds £${CHECKOUT_FEE_GBP} per order. It covers Foray filling your trolley at the supermarket so you do not have to. Shopping in store with the sorted list is always free.`,
+    question: "Can I shop for my whole household?",
+    answer:
+      "Yes. Set household servings once and Foray scales every recipe and grocery list to match. Change it whenever the numbers at home change.",
   },
   {
     question: "How do I cancel?",

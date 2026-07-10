@@ -3,22 +3,32 @@
 import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import { CarouselProgress, useTimedCarousel } from "./carousel-progress";
+import { cn } from "@/lib/cn";
 
 const PROPS = [
   {
-    image: "/brand/outcome-sunday.png",
-    title: "When nothing sounds obvious.",
-    body: "Sit down once, pick a small set that fits the week, and leave the rest. Your recipes wait until you are ready.",
+    image: "/brand/feature-household.png",
+    title: "Shop for the whole household.",
+    body: "Set servings once. Every list scales so you are not doing the maths for four people at the till.",
+    band: "bg-[#ff9500]",
   },
   {
-    image: "/brand/outcome-midweek.png",
-    title: "When your head is already full.",
-    body: "Open one tidy list with quantities combined and aisles sorted, and get through the shop without starting from scratch.",
+    image: "/brand/feature-pantry.png",
+    title: "Know what is already in the pantry.",
+    body: "Foray remembers staples you have, so the list skips what you do not need to buy again.",
+    band: "bg-[#30b0c7]",
   },
   {
-    image: "/brand/outcome-cook.png",
-    title: "When dinner needs to happen.",
-    body: "Prop the phone by the hob, follow one clear step at a time, and set timers without leaving cook mode.",
+    image: "/brand/feature-create.png",
+    title: "Make it yours.",
+    body: "Create recipes from scratch, or turn a photo or screenshot into ingredients and steps you can edit.",
+    band: "bg-[#5856d6]",
+  },
+  {
+    image: "/brand/feature-chef-siri.png",
+    title: "Ask Chef. Talk to Siri.",
+    body: "Chef AI builds a recipe from whatever you fancy. Siri can help when your hands are full.",
+    band: "bg-[#007aff]",
   },
 ];
 
@@ -101,12 +111,12 @@ export function ValueProps() {
       <div className="mx-auto max-w-7xl">
         <div className="max-w-3xl">
           <h2 className="text-balance text-[clamp(2.4rem,5vw,4.25rem)] font-bold leading-[1.02] tracking-[-0.045em] text-foreground">
-            Good plans should survive a busy week
+            Built for how you actually cook
             <span className="text-brand-dot">.</span>
           </h2>
           <p className="mt-5 max-w-xl text-pretty text-lg leading-relaxed text-muted">
-            Foray reduces the decisions you need to hold in your head. Miss a
-            day, or a fortnight, and everything is still there when you return.
+            Beyond the plan–shop–cook loop. Household servings, pantry, your own
+            recipes, and Chef AI with Siri.
           </p>
         </div>
 
@@ -119,24 +129,24 @@ export function ValueProps() {
             <article
               key={prop.title}
               data-outcome-card
-              className="relative flex w-[min(86vw,340px)] shrink-0 snap-center flex-col overflow-hidden rounded-[28px] bg-ink text-white sm:w-[380px] lg:w-[400px]"
+              className="relative flex w-[min(86vw,340px)] shrink-0 snap-center flex-col overflow-hidden rounded-[28px] bg-white shadow-[0_12px_40px_rgba(0,0,0,0.08)] sm:w-[380px] lg:w-[400px]"
             >
-              <div className="flex flex-1 flex-col p-7 sm:p-8">
+              <div className={cn("flex flex-1 flex-col p-7 text-white sm:p-8", prop.band)}>
                 <h3 className="text-balance text-2xl font-bold leading-tight tracking-[-0.03em] sm:text-[1.7rem]">
                   {prop.title}
                 </h3>
-                <p className="mt-3 text-sm leading-relaxed text-white/60 sm:text-[15px]">
+                <p className="mt-3 text-sm leading-relaxed text-white/85 sm:text-[15px]">
                   {prop.body}
                 </p>
               </div>
-              <div className="relative mt-auto h-56 overflow-hidden sm:h-64">
+              <div className="relative mt-auto h-56 overflow-hidden bg-[#fbfbfd] sm:h-64">
                 <Image
                   src={prop.image}
                   alt=""
                   aria-hidden="true"
                   fill
                   sizes="400px"
-                  className="object-cover"
+                  className="object-contain object-bottom p-3 sm:p-4"
                 />
               </div>
             </article>
