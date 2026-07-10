@@ -50,46 +50,44 @@ ASSETS: dict[str, str] = {
     ),
     # Feature cards — Apple Personal Setup–style thick rounded line-art collage.
     # One dominant stroke colour per card; white field; no photoreal; no text.
+    # Fruit-silhouette cards: same craft as existing Recraft outputs (large fruit
+    # outline as container, themed icons inside, monochrome stroke, white field).
+    # Each card uses a DIFFERENT fruit. Chef/Siri keeps the apple.
     "feature-household": (
-        "Apple marketing style thick rounded outline line-art collage on a pure "
-        "white background. Single dominant stroke colour: vivid system orange "
-        "#ff9500 only (optional very light grey #d2d2d7 for depth, never a "
-        "second bright accent). Overlapping icons in the lower two-thirds: "
-        "simple people/household silhouettes, a servings dial or number ring, "
-        "and a scaled grocery list with checkmarks. Friendly modern product "
-        "illustration, consistent thick stroke weight, rounded line caps, no "
-        "fills except white, no gradients, no photoreal people, no text, no "
-        "logos, square composition."
+        "Minimalist monochrome line-art illustration on pure white. Single "
+        "stroke colour vivid orange #ff9500 only. A LARGE ORANGE (citrus fruit) "
+        "silhouette with a small leaf is the outer container — NOT an apple. "
+        "Inside the orange, a grid of household cooking icons: people/family "
+        "silhouettes, shopping cart, servings dial, grocery bags, buildings, "
+        "bowls. Tiny orange fruit motifs may appear inside, never apples. "
+        "Uniform thick outline, rounded caps, light stipple texture allowed, "
+        "no photoreal, no text, no logos, square composition."
     ),
     "feature-pantry": (
-        "Apple marketing style thick rounded outline line-art collage on a pure "
-        "white background. Single dominant stroke colour: soft teal #30b0c7 "
-        "only (optional very light grey #d2d2d7 for depth). Overlapping icons "
-        "in the lower two-thirds: pantry jars and shelf, a checklist, and a "
-        "simple cupboard door or spice bottles. Friendly modern product "
-        "illustration, consistent thick stroke weight, rounded line caps, no "
-        "fills except white, no gradients, no photoreal, no text, no logos, "
-        "square composition."
+        "Minimalist monochrome line-art illustration on pure white. Single "
+        "stroke colour soft teal #30b0c7 only. A LARGE PEAR silhouette with "
+        "stem and leaf is the outer container — NOT an apple. Inside the pear, "
+        "pantry shelves, jars, bottles, fridge, bowls, checklist icons. Tiny "
+        "pear motifs may appear inside, never apples. Uniform thick outline, "
+        "rounded caps, light stipple texture allowed, no photoreal, no text, "
+        "no logos, square composition."
     ),
     "feature-create": (
-        "Apple marketing style thick rounded outline line-art collage on a pure "
-        "white background. Single dominant stroke colour: indigo #5856d6 only "
-        "(optional very light grey #d2d2d7 for depth). Overlapping icons in "
-        "the lower two-thirds: a camera or phone taking a photo, a recipe "
-        "card, and a pencil/edit mark. Friendly modern product illustration, "
-        "consistent thick stroke weight, rounded line caps, no fills except "
-        "white, no gradients, no photoreal, no text, no logos, square "
-        "composition."
+        "Minimalist monochrome line-art illustration on pure white. Single "
+        "stroke colour indigo #5856d6 only. A LARGE LEMON silhouette with a "
+        "small leaf is the outer container — NOT an apple. Inside the lemon, "
+        "creative icons: pencil, camera, photo frame, paintbrush, open book, "
+        "recipe card, paper airplane. Tiny lemon motifs may appear inside, "
+        "never apples. Uniform thick outline, rounded caps, light stipple "
+        "texture allowed, no photoreal, no text, no logos, square composition."
     ),
     "feature-chef-siri": (
-        "Apple marketing style thick rounded outline line-art collage on a pure "
-        "white background. Single dominant stroke colour: system blue #007aff "
-        "only (optional very light grey #d2d2d7 for depth). Overlapping icons "
-        "in the lower two-thirds: a Siri-like waveform or orb, sparkles, a "
-        "simple chef hat or whisk, and a speech bubble outline. Friendly "
-        "modern product illustration, consistent thick stroke weight, rounded "
-        "line caps, no fills except white, no gradients, no photoreal, no "
-        "text, no logos, square composition."
+        "Minimalist monochrome line-art illustration on pure white. Single "
+        "stroke colour system blue #007aff only. A LARGE APPLE silhouette with "
+        "stem and leaf is the outer container. Inside: chef with headphones, "
+        "whisk, mug, apple slice, berries, juicer. Keep apple motifs. Uniform "
+        "thick outline, rounded caps, light stipple texture allowed, no "
+        "photoreal, no text, no logos, square composition."
     ),
 }
 
