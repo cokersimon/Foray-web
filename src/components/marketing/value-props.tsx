@@ -13,16 +13,20 @@ const PROPS = [
     band: "bg-[#ff9500]",
   },
   {
-    image: "/brand/feature-pantry.png",
+    image: "/brand/feature-pantry-camera.png",
     title: "Snap your pantry. Get a recipe.",
     body: "Take a photo of what you already have. Foray turns it into a recipe you can cook tonight.",
     band: "bg-[#30b0c7]",
+    // 10% down from previous 1.28 boost
+    artScale: "scale-[1.15]",
   },
   {
-    image: "/brand/feature-create.png",
+    image: "/brand/feature-create-notepad.png",
     title: "Make it yours.",
     body: "Create recipes from scratch, or turn a photo or screenshot into ingredients and steps you can edit.",
     band: "bg-[#5856d6]",
+    // 10% down from previous 1.12 boost
+    artScale: "scale-[1.01]",
   },
   {
     image: "/brand/feature-chef-siri.png",
@@ -123,31 +127,41 @@ export function ValueProps() {
         <div
           ref={scrollerRef}
           onScroll={onScroll}
-          className="scrollbar-hide mt-12 flex snap-x snap-mandatory gap-5 overflow-x-auto scroll-smooth pb-8 pt-3"
+          className="scrollbar-hide mt-12 -mx-5 flex snap-x snap-mandatory gap-5 overflow-x-auto scroll-smooth px-5 pb-10 pt-4"
         >
           {PROPS.map((prop) => (
             <article
               key={prop.title}
               data-outcome-card
-              className="relative flex w-[min(86vw,340px)] shrink-0 snap-center flex-col overflow-hidden rounded-[28px] bg-white shadow-[0_12px_40px_rgba(0,0,0,0.08)] sm:w-[380px] lg:w-[400px]"
+              className="relative w-[min(86vw,340px)] shrink-0 snap-center rounded-[28px] shadow-[0_12px_40px_rgba(0,0,0,0.08)] sm:w-[380px] lg:w-[400px]"
             >
-              <div className={cn("flex flex-1 flex-col p-7 text-white sm:p-8", prop.band)}>
-                <h3 className="text-balance text-2xl font-bold leading-tight tracking-[-0.03em] sm:text-[1.7rem]">
-                  {prop.title}
-                </h3>
-                <p className="mt-3 text-sm leading-relaxed text-white/85 sm:text-[15px]">
-                  {prop.body}
-                </p>
-              </div>
-              <div className="relative mt-auto h-56 overflow-hidden bg-white sm:h-64">
-                <Image
-                  src={prop.image}
-                  alt=""
-                  aria-hidden="true"
-                  fill
-                  sizes="400px"
-                  className="object-contain object-bottom p-3 sm:p-4"
-                />
+              {/* Rounded face clips content; shadow lives on the article so it isn't cut off. */}
+              <div className="flex h-full flex-col overflow-hidden rounded-[28px] bg-white">
+                <div className={cn("flex flex-1 flex-col p-7 text-white sm:p-8", prop.band)}>
+                  <h3 className="text-balance text-2xl font-bold leading-tight tracking-[-0.03em] sm:text-[1.7rem]">
+                    {prop.title}
+                  </h3>
+                  <p className="mt-3 text-sm leading-relaxed text-white/85 sm:text-[15px]">
+                    {prop.body}
+                  </p>
+                </div>
+                <div className="relative mt-auto h-56 overflow-hidden bg-white sm:h-64">
+                  <Image
+                    src={prop.image}
+                    alt=""
+                    aria-hidden="true"
+                    fill
+                    sizes="400px"
+                    className={cn(
+                      "origin-center object-contain p-3 sm:p-4",
+                      // Camera + notepad: true vertical centre in the white well.
+                      // Orange + apple sit naturally with object-bottom.
+                      "artScale" in prop
+                        ? cn("object-center", prop.artScale)
+                        : "object-bottom",
+                    )}
+                  />
+                </div>
               </div>
             </article>
           ))}
