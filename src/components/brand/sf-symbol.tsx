@@ -1,9 +1,13 @@
+import { useId } from "react";
 import { cn } from "@/lib/cn";
 
 /**
  * Foray marketing icon system — geometry exported from SF Symbols.app
  * via sfsym (medium weight, nominal 32pt viewBox, currentColor fills).
  * Use only when promoting the Foray iOS app (Apple SF Symbols license).
+ *
+ * Filled symbols that use knock-out geometry keep an SVG mask so the
+ * checkmark (etc.) stays visible instead of rendering as a solid blob.
  */
 
 export const SF_SYMBOL_NAMES = [
@@ -25,7 +29,6 @@ export const SF_SYMBOL_NAMES = [
 
 export type SfSymbolName = (typeof SF_SYMBOL_NAMES)[number];
 
-/** Semantic size scale aligned with HIG / Foray UI. */
 export const SF_SYMBOL_SIZE = {
   caption: 12,
   small: 17,
@@ -36,13 +39,20 @@ export const SF_SYMBOL_SIZE = {
 
 export type SfSymbolSize = keyof typeof SF_SYMBOL_SIZE;
 
-const PATHS: Record<SfSymbolName, { viewBox: string; paths: string[] }> = {
+type SymbolDef = {
+  viewBox: string;
+  paths: string[];
+  /** Subtractive knock-out path (e.g. checkmark inside seal.fill). */
+  mask?: string;
+};
+
+const PATHS: Record<SfSymbolName, SymbolDef> = {
   checkmarkSealFill: {
     viewBox: "0 0 32 32",
     paths: [
-      "M14.6126 21.8224 C14.1773 21.8224 13.8237 21.6375 13.4929 21.2132 L10.6388 17.7456 C10.4363 17.4882 10.3265 17.2152 10.3265 16.9251 C10.3265 16.3246 10.7984 15.8464 11.3921 15.8464 C11.7522 15.8464 12.043 15.9735 12.3366 16.3557 L14.5799 19.1968 L19.3895 11.5144 C19.632 11.1063 19.9598 10.8966 20.3248 10.8966 C20.9082 10.8966 21.436 11.303 21.436 11.917 C21.436 12.1856 21.3026 12.4761 21.1297 12.7295 L15.6868 21.2058 C15.4268 21.6125 15.0511 21.8224 14.6126 21.8224 Z",
       "M8.8783 26.2653 L11.3728 26.2653 C11.5942 26.2653 11.7517 26.322 11.9186 26.4867 L13.6894 28.2451 C15.1972 29.7674 16.6129 29.7572 18.1251 28.2451 L19.8959 26.4867 C20.0605 26.322 20.2159 26.2653 20.4474 26.2653 L22.9318 26.2653 C25.0656 26.2653 26.0777 25.261 26.0777 23.1115 L26.0777 20.6271 C26.0777 20.4058 26.1492 20.2458 26.3092 20.0733 L28.0552 18.3128 C29.5797 16.8028 29.5695 15.3768 28.0552 13.8669 L26.3092 12.1063 C26.1467 11.9314 26.0777 11.7738 26.0777 11.5525 L26.0777 9.0681 C26.0777 6.9264 25.0733 5.9143 22.9318 5.9143 L20.4474 5.9143 C20.2159 5.9143 20.0581 5.8552 19.8959 5.693 L18.1251 3.9346 C16.6083 2.4076 15.1972 2.4178 13.6872 3.937 L11.9186 5.693 C11.7564 5.853 11.5942 5.9143 11.3728 5.9143 L8.8783 5.9143 C6.7365 5.9143 5.7368 6.9138 5.7368 9.0681 L5.7368 11.5525 C5.7368 11.7738 5.6755 11.9339 5.5155 12.1063 L3.7549 13.8669 C2.2326 15.3768 2.2427 16.8028 3.7549 18.3128 L5.5155 20.0733 C5.6755 20.2458 5.7368 20.4058 5.7368 20.6271 L5.7368 23.1115 C5.7368 25.2532 6.739 26.2653 8.8783 26.2653 Z",
     ],
+    mask: "M14.6126 21.8224 C14.1773 21.8224 13.8237 21.6375 13.4929 21.2132 L10.6388 17.7456 C10.4363 17.4882 10.3265 17.2152 10.3265 16.9251 C10.3265 16.3246 10.7984 15.8464 11.3921 15.8464 C11.7522 15.8464 12.043 15.9735 12.3366 16.3557 L14.5799 19.1968 L19.3895 11.5144 C19.632 11.1063 19.9598 10.8966 20.3248 10.8966 C20.9082 10.8966 21.436 11.303 21.436 11.917 C21.436 12.1856 21.3026 12.4761 21.1297 12.7295 L15.6868 21.2058 C15.4268 21.6125 15.0511 21.8224 14.6126 21.8224 Z",
   },
   checkmark: {
     viewBox: "0 0 32 32",
@@ -139,6 +149,7 @@ export function SfSymbol({
 }) {
   const symbol = PATHS[name];
   const px = typeof size === "number" ? size : SF_SYMBOL_SIZE[size];
+  const maskId = useId().replace(/:/g, "");
   return (
     <svg
       width={px}
@@ -148,8 +159,28 @@ export function SfSymbol({
       aria-hidden
       className={cn("shrink-0", className)}
     >
+      {symbol.mask ? (
+        <defs>
+          <mask
+            id={maskId}
+            maskUnits="userSpaceOnUse"
+            x="0"
+            y="0"
+            width="32"
+            height="32"
+          >
+            <rect x="0" y="0" width="32" height="32" fill="white" />
+            <path fill="black" d={symbol.mask} />
+          </mask>
+        </defs>
+      ) : null}
       {symbol.paths.map((d) => (
-        <path key={d.slice(0, 32)} fill="currentColor" d={d} />
+        <path
+          key={d.slice(0, 32)}
+          fill="currentColor"
+          d={d}
+          mask={symbol.mask ? `url(#${maskId})` : undefined}
+        />
       ))}
     </svg>
   );
