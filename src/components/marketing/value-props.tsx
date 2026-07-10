@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef } from "react";
 import Image from "next/image";
 import { CarouselProgress, useTimedCarousel } from "./carousel-progress";
 import { cn } from "@/lib/cn";
@@ -36,34 +36,17 @@ const PROPS = [
   },
 ];
 
-const SLIDE_MS = 8000;
 const SCROLL_SETTLE_MS = 900;
 
 export function ValueProps() {
   const sectionRef = useRef<HTMLElement>(null);
   const scrollerRef = useRef<HTMLDivElement>(null);
   const programmaticScroll = useRef(false);
-  const [inView, setInView] = useState(false);
 
-  useEffect(() => {
-    const el = sectionRef.current;
-    if (!el) return;
-    const observer = new IntersectionObserver(
-      ([entry]) => setInView(Boolean(entry?.isIntersecting)),
-      { threshold: 0.35, rootMargin: "0px 0px -10% 0px" },
-    );
-    observer.observe(el);
-    return () => observer.disconnect();
-  }, []);
-
-  const {
-    index,
-    goTo,
-    setPaused,
-    progressKey,
-    autoplay,
-    durationMs,
-  } = useTimedCarousel(PROPS.length, { durationMs: SLIDE_MS, inView });
+  const { index, goTo, progressKey, durationMs } = useTimedCarousel(
+    PROPS.length,
+    { autoplay: false },
+  );
 
   useEffect(() => {
     const el = scrollerRef.current;
@@ -100,44 +83,39 @@ export function ValueProps() {
   }
 
   return (
-    <section
-      ref={sectionRef}
-      className="bg-background py-20 md:py-28 lg:py-32"
-      onMouseEnter={() => setPaused(true)}
-      onMouseLeave={() => setPaused(false)}
-      onFocusCapture={() => setPaused(true)}
-      onBlurCapture={(e) => {
-        if (!e.currentTarget.contains(e.relatedTarget as Node | null)) {
-          setPaused(false);
-        }
-      }}
-    >
-      {/* Title keeps the same inset as hero/pricing. */}
-      <div className="mx-auto max-w-7xl px-5 sm:px-6 lg:px-10">
-        <div className="max-w-3xl">
-          <h2 className="text-balance text-[clamp(2.4rem,5vw,4.25rem)] font-bold leading-[1.02] tracking-[-0.045em] text-foreground">
-            Built for how you actually cook
-            <span className="text-brand-dot">.</span>
-          </h2>
-          <p className="mt-5 max-w-xl text-pretty text-lg leading-relaxed text-muted">
-            Beyond the plan–shop–cook loop. Household servings, pantry snaps,
-            your own recipes, and Chef AI with Siri.
-          </p>
+    <section ref={sectionRef} className="bg-background py-20 md:py-28 lg:py-32">
+      {/*
+        Match Pricing inset exactly: horizontal padding on a wrapper around
+        a bare max-w-7xl (not padding inside the max-width box).
+      */}
+      <div className="px-5 sm:px-6 lg:px-10">
+        <div className="mx-auto max-w-7xl">
+          <div className="max-w-3xl">
+            <h2 className="text-balance text-[clamp(2.4rem,5vw,4.25rem)] font-bold leading-[1.02] tracking-[-0.045em] text-foreground">
+              Built for how you actually cook
+              <span className="text-brand-dot">.</span>
+            </h2>
+            <p className="mt-5 max-w-xl text-pretty text-lg leading-relaxed text-muted">
+              Beyond the plan–shop–cook loop. Household servings, pantry snaps,
+              your own recipes, and Chef AI with Siri.
+            </p>
+          </div>
         </div>
       </div>
 
       {/*
-        Full-viewport scroller so neighbouring cards can peek past the
-        content column. Padding matches the title inset so the first card
-        still lines up — only the left/right clip is removed.
+        Full-width scroller (no section padding) so cards can peek to the
+        viewport edge. Padding uses the same inset as Pricing titles:
+        max(page-gutter, (sectionWidth - 80rem) / 2).
       */}
       <div
         ref={scrollerRef}
         onScroll={onScroll}
         className={cn(
-          "scrollbar-hide mt-12 flex snap-x snap-mandatory gap-5 overflow-x-auto scroll-smooth pb-10 pt-4",
-          "pl-5 pr-5 sm:pl-6 sm:pr-6 lg:pl-10 lg:pr-10",
-          "min-[80rem]:pl-[calc((100vw-80rem)/2+2.5rem)] min-[80rem]:pr-[calc((100vw-80rem)/2+2.5rem)]",
+          "scrollbar-hide mt-12 flex w-full snap-x snap-mandatory gap-5 overflow-x-auto scroll-smooth pb-10 pt-4",
+          "pl-[max(1.25rem,calc((100%-80rem)/2))] pr-[max(1.25rem,calc((100%-80rem)/2))]",
+          "sm:pl-[max(1.5rem,calc((100%-80rem)/2))] sm:pr-[max(1.5rem,calc((100%-80rem)/2))]",
+          "lg:pl-[max(2.5rem,calc((100%-80rem)/2))] lg:pr-[max(2.5rem,calc((100%-80rem)/2))]",
         )}
       >
         {PROPS.map((prop) => (
@@ -178,16 +156,18 @@ export function ValueProps() {
         ))}
       </div>
 
-      <div className="mx-auto max-w-7xl px-5 sm:px-6 lg:px-10">
-        <CarouselProgress
-          count={PROPS.length}
-          index={index}
-          onSelect={goTo}
-          autoplay={autoplay}
-          durationMs={durationMs}
-          progressKey={progressKey}
-          className="mt-8"
-        />
+      <div className="px-5 sm:px-6 lg:px-10">
+        <div className="mx-auto max-w-7xl">
+          <CarouselProgress
+            count={PROPS.length}
+            index={index}
+            onSelect={goTo}
+            autoplay={false}
+            durationMs={durationMs}
+            progressKey={progressKey}
+            className="mt-8"
+          />
+        </div>
       </div>
     </section>
   );

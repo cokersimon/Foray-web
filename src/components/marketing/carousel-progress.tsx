@@ -7,16 +7,17 @@ import { cn } from "@/lib/cn";
 const DEFAULT_DURATION_MS = 8000;
 
 /**
- * Apple-style pigmented progress dots: active index elongates into a pill that
- * fills over `durationMs`, then advances. Autoplay only runs while `inView` is
- * true. Pauses on hover/focus and when prefers-reduced-motion is set.
+ * Apple-style pigmented progress dots: active index elongates into a pill.
+ * When `autoplay` is enabled and the carousel is in view, the pill fills over
+ * `durationMs` then advances. Pass `autoplay: false` for manual-only control.
  */
 export function useTimedCarousel(
   count: number,
   {
     durationMs = DEFAULT_DURATION_MS,
     inView = false,
-  }: { durationMs?: number; inView?: boolean } = {},
+    autoplay: autoplayEnabled = true,
+  }: { durationMs?: number; inView?: boolean; autoplay?: boolean } = {},
 ) {
   const prefersReducedMotion = useReducedMotion();
   const [index, setIndex] = useState(0);
@@ -35,7 +36,12 @@ export function useTimedCarousel(
     goTo(index + 1);
   }, [goTo, index]);
 
-  const canAutoplay = Boolean(inView) && !prefersReducedMotion && !paused && count >= 2;
+  const canAutoplay =
+    autoplayEnabled &&
+    Boolean(inView) &&
+    !prefersReducedMotion &&
+    !paused &&
+    count >= 2;
 
   useEffect(() => {
     if (!canAutoplay) return;
