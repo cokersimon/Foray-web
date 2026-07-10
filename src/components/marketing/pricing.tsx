@@ -29,7 +29,7 @@ export function Pricing() {
             No trimmed-down trial. Plan, shop and cook with the full experience,
             then decide whether Foray has earned a place in your kitchen.
           </p>
-          <div className="mt-8">
+          <div className="mt-8 flex justify-center lg:justify-start">
             <AppStoreBadge location="pricing" />
           </div>
         </div>

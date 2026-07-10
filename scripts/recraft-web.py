@@ -36,10 +36,10 @@ ASSETS: dict[str, str] = {
         "halves, dry pasta, olive oil in a clear glass bottle (no label text), "
         "garlic, cracked black pepper. Soft natural daylight, shallow realistic "
         "shadows, premium editorial look. CRITICAL: keep the bottom-right "
-        "corner relatively open / less busy so a small smartphone mockup can "
-        "sit there without covering the main subject. No people, no phone in "
-        "the image, no logos, no readable brand names, no text, no watermarks. "
-        "Landscape 3:2 framing."
+        "corner relatively open / less busy for a UI overlay. ABSOLUTELY NO "
+        "smartphone, NO mobile phone, NO tablet, NO laptop, NO screen, NO "
+        "device of any kind in the frame. No people, no logos, no readable "
+        "brand names, no text, no watermarks. Landscape 3:2 framing."
     ),
     "hero-shopping": (
         "Ultra-photorealistic lifestyle photography for a UK grocery app hero. "

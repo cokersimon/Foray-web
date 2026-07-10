@@ -108,6 +108,7 @@ function GlassBadge({
 
 export function Hero() {
   const stageRef = useRef<HTMLDivElement>(null);
+  const touchStartX = useRef<number | null>(null);
   const [inView, setInView] = useState(true);
   const [currencyIcon, setCurrencyIcon] =
     useState<SfSymbolName>("sterlingsign");
@@ -134,6 +135,22 @@ export function Hero() {
     io.observe(el);
     return () => io.disconnect();
   }, []);
+
+  function onTouchStart(e: React.TouchEvent) {
+    touchStartX.current = e.touches[0]?.clientX ?? null;
+    setPaused(true);
+  }
+
+  function onTouchEnd(e: React.TouchEvent) {
+    const start = touchStartX.current;
+    touchStartX.current = null;
+    setPaused(false);
+    if (start == null) return;
+    const dx = (e.changedTouches[0]?.clientX ?? start) - start;
+    if (Math.abs(dx) < 48) return;
+    // Swipe left → next, swipe right → previous (same language as how-it-works).
+    goTo(index + (dx < 0 ? 1 : -1));
+  }
 
   return (
     <section className="relative overflow-hidden bg-background px-5 pb-16 pt-20 sm:px-6 sm:pb-20 sm:pt-24 md:pb-28 md:pt-28 lg:px-10 lg:pt-32 lg:pb-32">
@@ -173,13 +190,13 @@ export function Hero() {
             className="motion-safe:animate-rise mt-7 flex justify-center sm:mt-8 lg:justify-start"
             style={{ animationDelay: "0.24s" }}
           >
-            <AppStoreBadge />
+            <AppStoreBadge location="hero" />
           </div>
         </div>
 
         <div
           ref={stageRef}
-          className="motion-safe:animate-rise relative mx-auto w-full max-w-[380px] sm:max-w-[620px]"
+          className="motion-safe:animate-rise relative mx-auto w-full max-w-[380px] touch-pan-y sm:max-w-[620px]"
           style={{ animationDelay: "0.18s" }}
           onMouseEnter={() => setPaused(true)}
           onMouseLeave={() => setPaused(false)}
@@ -189,6 +206,8 @@ export function Hero() {
               setPaused(false);
             }
           }}
+          onTouchStart={onTouchStart}
+          onTouchEnd={onTouchEnd}
         >
           <div className="relative">
             <div className="relative aspect-[4/5] overflow-hidden rounded-[36px] bg-section-grey sm:aspect-[5/4] sm:rounded-[48px]">
@@ -204,6 +223,7 @@ export function Hero() {
                     "object-cover transition-opacity duration-700 ease-[cubic-bezier(0.22,1,0.36,1)]",
                     i === index ? "opacity-100" : "opacity-0",
                   )}
+                  draggable={false}
                 />
               ))}
 
