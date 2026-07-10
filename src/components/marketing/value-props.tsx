@@ -102,7 +102,7 @@ export function ValueProps() {
   return (
     <section
       ref={sectionRef}
-      className="bg-background px-5 py-20 sm:px-6 md:py-28 lg:px-10 lg:py-32"
+      className="bg-background py-20 md:py-28 lg:py-32"
       onMouseEnter={() => setPaused(true)}
       onMouseLeave={() => setPaused(false)}
       onFocusCapture={() => setPaused(true)}
@@ -112,7 +112,8 @@ export function ValueProps() {
         }
       }}
     >
-      <div className="mx-auto max-w-7xl">
+      {/* Title keeps the same inset as hero/pricing. */}
+      <div className="mx-auto max-w-7xl px-5 sm:px-6 lg:px-10">
         <div className="max-w-3xl">
           <h2 className="text-balance text-[clamp(2.4rem,5vw,4.25rem)] font-bold leading-[1.02] tracking-[-0.045em] text-foreground">
             Built for how you actually cook
@@ -123,50 +124,61 @@ export function ValueProps() {
             your own recipes, and Chef AI with Siri.
           </p>
         </div>
+      </div>
 
-        <div
-          ref={scrollerRef}
-          onScroll={onScroll}
-          className="scrollbar-hide mt-12 -mx-5 flex snap-x snap-mandatory gap-5 overflow-x-auto scroll-smooth px-5 pb-10 pt-4"
-        >
-          {PROPS.map((prop) => (
-            <article
-              key={prop.title}
-              data-outcome-card
-              className="relative w-[min(86vw,340px)] shrink-0 snap-center rounded-[28px] shadow-[0_12px_40px_rgba(0,0,0,0.08)] sm:w-[380px] lg:w-[400px]"
-            >
-              {/* Rounded face clips content; shadow lives on the article so it isn't cut off. */}
-              <div className="flex h-full flex-col overflow-hidden rounded-[28px] bg-white">
-                <div className={cn("flex flex-1 flex-col p-7 text-white sm:p-8", prop.band)}>
-                  <h3 className="text-balance text-2xl font-bold leading-tight tracking-[-0.03em] sm:text-[1.7rem]">
-                    {prop.title}
-                  </h3>
-                  <p className="mt-3 text-sm leading-relaxed text-white/85 sm:text-[15px]">
-                    {prop.body}
-                  </p>
-                </div>
-                <div className="relative mt-auto h-56 overflow-hidden bg-white sm:h-64">
-                  <Image
-                    src={prop.image}
-                    alt=""
-                    aria-hidden="true"
-                    fill
-                    sizes="400px"
-                    className={cn(
-                      "origin-center object-contain p-3 sm:p-4",
-                      // Camera + notepad: true vertical centre in the white well.
-                      // Orange + apple sit naturally with object-bottom.
-                      "artScale" in prop
-                        ? cn("object-center", prop.artScale)
-                        : "object-bottom",
-                    )}
-                  />
-                </div>
+      {/*
+        Full-viewport scroller so neighbouring cards can peek past the
+        content column. Padding matches the title inset so the first card
+        still lines up — only the left/right clip is removed.
+      */}
+      <div
+        ref={scrollerRef}
+        onScroll={onScroll}
+        className={cn(
+          "scrollbar-hide mt-12 flex snap-x snap-mandatory gap-5 overflow-x-auto scroll-smooth pb-10 pt-4",
+          "pl-5 pr-5 sm:pl-6 sm:pr-6 lg:pl-10 lg:pr-10",
+          "min-[80rem]:pl-[calc((100vw-80rem)/2+2.5rem)] min-[80rem]:pr-[calc((100vw-80rem)/2+2.5rem)]",
+        )}
+      >
+        {PROPS.map((prop) => (
+          <article
+            key={prop.title}
+            data-outcome-card
+            className="relative w-[min(86vw,340px)] shrink-0 snap-center rounded-[28px] shadow-[0_12px_40px_rgba(0,0,0,0.08)] sm:w-[380px] lg:w-[400px]"
+          >
+            {/* Rounded face clips content; shadow lives on the article so it isn't cut off. */}
+            <div className="flex h-full flex-col overflow-hidden rounded-[28px] bg-white">
+              <div className={cn("flex flex-1 flex-col p-7 text-white sm:p-8", prop.band)}>
+                <h3 className="text-balance text-2xl font-bold leading-tight tracking-[-0.03em] sm:text-[1.7rem]">
+                  {prop.title}
+                </h3>
+                <p className="mt-3 text-sm leading-relaxed text-white/85 sm:text-[15px]">
+                  {prop.body}
+                </p>
               </div>
-            </article>
-          ))}
-        </div>
+              <div className="relative mt-auto h-56 overflow-hidden bg-white sm:h-64">
+                <Image
+                  src={prop.image}
+                  alt=""
+                  aria-hidden="true"
+                  fill
+                  sizes="400px"
+                  className={cn(
+                    "origin-center object-contain p-3 sm:p-4",
+                    // Camera + notepad: true vertical centre in the white well.
+                    // Orange + apple sit naturally with object-bottom.
+                    "artScale" in prop
+                      ? cn("object-center", prop.artScale)
+                      : "object-bottom",
+                  )}
+                />
+              </div>
+            </div>
+          </article>
+        ))}
+      </div>
 
+      <div className="mx-auto max-w-7xl px-5 sm:px-6 lg:px-10">
         <CarouselProgress
           count={PROPS.length}
           index={index}
