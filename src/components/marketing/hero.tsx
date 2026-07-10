@@ -109,6 +109,7 @@ export function Hero() {
           <div className="absolute inset-x-0 bottom-0 top-[8%] z-10 flex items-center justify-center">
             <ProductPhone
               screen="recipes"
+              priority
               className="w-[168px] sm:w-[250px] lg:w-[270px]"
             />
           </div>

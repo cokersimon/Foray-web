@@ -98,7 +98,7 @@ export function ValueProps() {
   return (
     <section
       ref={sectionRef}
-      className="bg-background px-5 py-20 sm:px-6 md:py-28 lg:px-10 lg:py-32"
+      className="bg-background py-20 md:py-28 lg:py-32"
       onMouseEnter={() => setPaused(true)}
       onMouseLeave={() => setPaused(false)}
       onFocusCapture={() => setPaused(true)}
@@ -108,7 +108,7 @@ export function ValueProps() {
         }
       }}
     >
-      <div className="mx-auto max-w-7xl">
+      <div className="mx-auto max-w-7xl px-5 sm:px-6 lg:px-10">
         <div className="max-w-3xl">
           <h2 className="text-balance text-[clamp(2.4rem,5vw,4.25rem)] font-bold leading-[1.02] tracking-[-0.045em] text-foreground">
             Built for how you actually cook
@@ -119,40 +119,48 @@ export function ValueProps() {
             your own recipes, and Chef AI with Siri.
           </p>
         </div>
+      </div>
 
-        <div
-          ref={scrollerRef}
-          onScroll={onScroll}
-          className="scrollbar-hide mt-12 flex snap-x snap-mandatory gap-5 overflow-x-auto scroll-smooth pb-2"
-        >
-          {PROPS.map((prop) => (
-            <article
-              key={prop.title}
-              data-outcome-card
-              className="relative flex w-[min(86vw,340px)] shrink-0 snap-center flex-col overflow-hidden rounded-[28px] bg-white shadow-[0_12px_40px_rgba(0,0,0,0.08)] sm:w-[380px] lg:w-[400px]"
-            >
-              <div className={cn("flex flex-1 flex-col p-7 text-white sm:p-8", prop.band)}>
-                <h3 className="text-balance text-2xl font-bold leading-tight tracking-[-0.03em] sm:text-[1.7rem]">
-                  {prop.title}
-                </h3>
-                <p className="mt-3 text-sm leading-relaxed text-white/85 sm:text-[15px]">
-                  {prop.body}
-                </p>
-              </div>
-              <div className="relative mt-auto h-56 overflow-hidden bg-white sm:h-64">
-                <Image
-                  src={prop.image}
-                  alt=""
-                  aria-hidden="true"
-                  fill
-                  sizes="400px"
-                  className="object-contain object-bottom p-3 sm:p-4"
-                />
-              </div>
-            </article>
-          ))}
-        </div>
+      {/* Full-bleed scroller: cards exit at the viewport edge. */}
+      <div
+        ref={scrollerRef}
+        onScroll={onScroll}
+        className={cn(
+          "scrollbar-hide mt-12 flex snap-x snap-mandatory gap-5 overflow-x-auto scroll-smooth",
+          "pb-8 pt-3",
+          // Match the headline column inset; still full-bleed so cards exit the viewport.
+          "px-5 sm:px-6 lg:px-[max(2.5rem,calc((100vw-80rem)/2+2.5rem))]",
+        )}
+      >
+        {PROPS.map((prop) => (
+          <article
+            key={prop.title}
+            data-outcome-card
+            className="relative flex w-[min(86vw,340px)] shrink-0 snap-center flex-col overflow-hidden rounded-[28px] bg-white shadow-[0_12px_40px_rgba(0,0,0,0.08)] sm:w-[380px] lg:w-[400px]"
+          >
+            <div className={cn("flex flex-1 flex-col p-7 text-white sm:p-8", prop.band)}>
+              <h3 className="text-balance text-2xl font-bold leading-tight tracking-[-0.03em] sm:text-[1.7rem]">
+                {prop.title}
+              </h3>
+              <p className="mt-3 text-sm leading-relaxed text-white/85 sm:text-[15px]">
+                {prop.body}
+              </p>
+            </div>
+            <div className="relative mt-auto h-56 overflow-hidden bg-white sm:h-64">
+              <Image
+                src={prop.image}
+                alt=""
+                aria-hidden="true"
+                fill
+                sizes="400px"
+                className="object-contain object-bottom p-3 sm:p-4"
+              />
+            </div>
+          </article>
+        ))}
+      </div>
 
+      <div className="mx-auto max-w-7xl px-5 sm:px-6 lg:px-10">
         <CarouselProgress
           count={PROPS.length}
           index={index}

@@ -312,20 +312,77 @@ const screens: Record<ProductScreen, React.ReactNode> = {
   cook: <CookScreen />,
 };
 
+/**
+ * Official Apple Design Resources bezel — iPhone 17 Pro Silver (Portrait).
+ * Source: https://developer.apple.com/design/resources/ (Bezel-iPhone-17.dmg)
+ * Screen cutout measured from the transparent hole in the PNG.
+ */
+const BEZEL = {
+  src: "/brand/devices/iphone-17-pro-silver-portrait.png",
+  /** Filled phone body (screen + chrome) for clipping the assembly to the silhouette. */
+  maskSrc: "/brand/devices/iphone-17-pro-silhouette-mask.png",
+  /** Cropped asset pixel size */
+  width: 1318,
+  height: 2717,
+  /** Insets from phone edge to screen (px at asset resolution) */
+  inset: { top: 48, right: 56, bottom: 47, left: 56 },
+} as const;
+
 export function ProductPhone({
   screen,
   className,
+  priority = false,
 }: {
   screen: ProductScreen;
   className?: string;
+  priority?: boolean;
 }) {
+  const { inset, width, height, maskSrc } = BEZEL;
+
   return (
-    <div className={cn("relative mx-auto w-[250px]", className)}>
-      <div className="relative overflow-hidden rounded-[42px] border-[5px] border-[#1c1c1e] bg-black p-[5px] shadow-[0_30px_80px_rgba(0,0,0,0.18)]">
-        <div className="absolute left-1/2 top-[10px] z-30 h-[20px] w-[74px] -translate-x-1/2 rounded-full bg-black" />
-        <div className="aspect-[9/19] overflow-hidden rounded-[32px] bg-[#f5f5f2]">
+    <div
+      className={cn("relative mx-auto w-[250px]", className)}
+      style={{
+        filter: "drop-shadow(0 28px 48px rgba(0,0,0,0.22))",
+      }}
+    >
+      <div
+        className="relative w-full"
+        style={{
+          aspectRatio: `${width} / ${height}`,
+          WebkitMaskImage: `url(${maskSrc})`,
+          maskImage: `url(${maskSrc})`,
+          WebkitMaskSize: "100% 100%",
+          maskSize: "100% 100%",
+          WebkitMaskRepeat: "no-repeat",
+          maskRepeat: "no-repeat",
+          WebkitMaskPosition: "center",
+          maskPosition: "center",
+        }}
+      >
+        <div
+          className="absolute overflow-hidden bg-[#f5f5f2]"
+          style={{
+            top: `${(inset.top / height) * 100}%`,
+            right: `${(inset.right / width) * 100}%`,
+            bottom: `${(inset.bottom / height) * 100}%`,
+            left: `${(inset.left / width) * 100}%`,
+            borderRadius: "16.4% / 7.55%",
+          }}
+        >
           {screens[screen]}
         </div>
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          src={BEZEL.src}
+          alt=""
+          aria-hidden="true"
+          width={width}
+          height={height}
+          decoding="async"
+          {...(priority ? { fetchPriority: "high" as const } : {})}
+          className="pointer-events-none absolute inset-0 z-10 h-full w-full select-none object-contain"
+        />
       </div>
     </div>
   );
