@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { useLenis } from "lenis/react";
 import { Wordmark } from "@/components/brand/wordmark";
@@ -14,23 +14,43 @@ const NAV_LINKS = [
   { label: "FAQ", href: "/#faq" },
 ];
 
-/** Extra breathing room below the fixed toolbar when a section lands. */
-const SECTION_GAP_PX = 16;
+/** Ignore tiny trackpad jitter when deciding scroll direction. */
+const DIRECTION_THRESHOLD_PX = 8;
+/** Keep the bar visible while near the very top of the page. */
+const TOP_REVEAL_PX = 24;
+/** How long to ignore direction updates during a nav jump. */
+const JUMP_LOCK_MS = 1200;
 
-function getToolbarOffset(): number {
-  const bar = document.querySelector<HTMLElement>("[data-site-header-bar]");
-  const height = bar?.getBoundingClientRect().height ?? 64;
-  return -(Math.ceil(height) + SECTION_GAP_PX);
+function prefersReducedMotion() {
+  return window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+}
+
+/** Absolute document Y of an element's top edge. */
+function sectionTopY(el: HTMLElement) {
+  const current = window.scrollY || document.documentElement.scrollTop;
+  return Math.max(0, Math.round(el.getBoundingClientRect().top + current));
 }
 
 export function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false);
+  const [navHidden, setNavHidden] = useState(false);
   const lenis = useLenis();
+  const lastY = useRef(0);
+  const jumpLock = useRef(false);
+  const jumpTimer = useRef<number | null>(null);
+  const didHashScroll = useRef(false);
+  const menuOpenRef = useRef(menuOpen);
+  menuOpenRef.current = menuOpen;
+
+  useEffect(() => {
+    lastY.current = window.scrollY || document.documentElement.scrollTop;
+  }, []);
 
   useEffect(() => {
     if (!menuOpen) return;
     const previous = document.body.style.overflow;
     document.body.style.overflow = "hidden";
+    setNavHidden(false);
     return () => {
       document.body.style.overflow = previous;
     };
@@ -44,16 +64,20 @@ export function Navbar() {
     return () => window.removeEventListener("keydown", onKey);
   }, []);
 
-  // Keep CSS scroll-padding in sync with the real toolbar height.
+  // Keep CSS scroll-padding in sync. When the bar is hidden, land flush at 0.
   useEffect(() => {
     const bar = document.querySelector<HTMLElement>("[data-site-header-bar]");
     if (!bar) return;
 
     function sync() {
+      if (navHidden && !menuOpen) {
+        document.documentElement.style.setProperty("--site-header-offset", "0px");
+        return;
+      }
       const height = bar!.getBoundingClientRect().height;
       document.documentElement.style.setProperty(
         "--site-header-offset",
-        `${Math.ceil(height) + SECTION_GAP_PX}px`,
+        `${Math.ceil(height)}px`,
       );
     }
 
@@ -65,83 +89,119 @@ export function Navbar() {
       ro.disconnect();
       window.removeEventListener("resize", sync);
     };
+  }, [navHidden, menuOpen]);
+
+  function applyScrollY(y: number) {
+    if (jumpLock.current || menuOpenRef.current) {
+      lastY.current = y;
+      return;
+    }
+
+    if (y <= TOP_REVEAL_PX) {
+      setNavHidden(false);
+      lastY.current = y;
+      return;
+    }
+
+    const delta = y - lastY.current;
+    if (Math.abs(delta) < DIRECTION_THRESHOLD_PX) return;
+
+    const hide = delta > 0;
+    setNavHidden((prev) => (prev === hide ? prev : hide));
+    lastY.current = y;
+  }
+
+  // Hide on scroll down, reveal on scroll up (native / mobile; Lenis below).
+  useEffect(() => {
+    function onWindowScroll() {
+      applyScrollY(window.scrollY || document.documentElement.scrollTop);
+    }
+    window.addEventListener("scroll", onWindowScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onWindowScroll);
   }, []);
 
-  // Land correctly on deep links like /#pricing (after layout + toolbar measure).
+  useLenis((instance) => {
+    applyScrollY(instance.scroll);
+  });
+
+  function clearJumpTimer() {
+    if (jumpTimer.current != null) {
+      window.clearTimeout(jumpTimer.current);
+      jumpTimer.current = null;
+    }
+  }
+
+  function beginJumpLock(ms: number) {
+    jumpLock.current = true;
+    clearJumpTimer();
+    jumpTimer.current = window.setTimeout(() => {
+      jumpLock.current = false;
+      jumpTimer.current = null;
+      lastY.current = window.scrollY || document.documentElement.scrollTop;
+      lenis?.start();
+    }, ms);
+  }
+
+  function scrollToSectionTop(el: HTMLElement) {
+    const reduceMotion = prefersReducedMotion();
+    const y = sectionTopY(el);
+
+    document.body.style.overflow = "";
+    setMenuOpen(false);
+    setNavHidden(true);
+
+    lenis?.stop();
+    beginJumpLock(reduceMotion ? 80 : JUMP_LOCK_MS);
+
+    // Double-rAF so the hide transform starts before the jump.
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        window.scrollTo({
+          top: sectionTopY(el) || y,
+          behavior: reduceMotion ? "auto" : "smooth",
+        });
+      });
+    });
+  }
+
+  // Land correctly on deep links like /#pricing (once).
   useEffect(() => {
+    if (didHashScroll.current) return;
     const hash = window.location.hash.replace(/^#/, "");
     if (!hash) return;
     const el = document.getElementById(hash);
     if (!el) return;
 
     const id = window.setTimeout(() => {
-      scrollElementIntoView(el, lenis);
-    }, 50);
+      didHashScroll.current = true;
+      scrollToSectionTop(el);
+    }, 80);
 
     return () => window.clearTimeout(id);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [lenis]);
 
-  function scrollElementIntoView(
-    el: HTMLElement,
-    lenisInstance: ReturnType<typeof useLenis>,
-    precomputedY?: number,
-  ) {
-    const reduceMotion = window.matchMedia(
-      "(prefers-reduced-motion: reduce)",
-    ).matches;
-    const headerOffset = -getToolbarOffset(); // positive clearance
-    const current = window.scrollY || document.documentElement.scrollTop;
-    const y =
-      precomputedY ??
-      Math.max(0, el.getBoundingClientRect().top + current - headerOffset);
+  useEffect(() => () => clearJumpTimer(), []);
 
-    // Unlock any menu scroll lock.
-    document.body.style.overflow = "";
-
-    // Pause Lenis so it cannot fight the native section jump, then resume.
-    lenisInstance?.stop();
-    window.scrollTo({
-      top: y,
-      behavior: reduceMotion ? "auto" : "smooth",
-    });
-    window.setTimeout(() => {
-      lenisInstance?.start();
-    }, reduceMotion ? 0 : 1200);
-  }
-
-  function scrollToSection(href: string) {
+  function onNavLinkClick(href: string) {
     const id = href.includes("#") ? href.split("#")[1] : null;
     if (!id) return;
     const el = document.getElementById(id);
     if (!el) return;
-
-    const headerOffset = -getToolbarOffset();
-    const current = window.scrollY || document.documentElement.scrollTop;
-    const y = Math.max(
-      0,
-      el.getBoundingClientRect().top + current - headerOffset,
-    );
-    const reduceMotion = window.matchMedia(
-      "(prefers-reduced-motion: reduce)",
-    ).matches;
-
-    // Unlock and jump immediately in the click handler so body overflow:hidden
-    // from the open menu cannot swallow the scroll.
-    document.body.style.overflow = "";
-    lenis?.stop();
-    window.scrollTo({
-      top: y,
-      behavior: reduceMotion ? "auto" : "smooth",
-    });
-    setMenuOpen(false);
-    window.setTimeout(() => {
-      lenis?.start();
-    }, reduceMotion ? 0 : 1200);
+    scrollToSectionTop(el);
+    window.history.pushState(null, "", href);
   }
+
+  const barHidden = navHidden && !menuOpen;
 
   return (
     <>
-      <header className="pointer-events-none fixed inset-x-0 top-0 z-50">
+      <header
+        className={cn(
+          "pointer-events-none fixed inset-x-0 top-0 z-50 transition-transform duration-300 ease-[cubic-bezier(0.22,1,0.36,1)]",
+          barHidden ? "-translate-y-full" : "translate-y-0",
+        )}
+      >
         <div
           className={cn(
             "pointer-events-auto relative z-50 mx-auto max-w-[1600px] transition-[background-color,border-radius,box-shadow,backdrop-filter] duration-300 ease-[cubic-bezier(0.22,1,0.36,1)]",
@@ -174,8 +234,7 @@ export function Navbar() {
                   href={link.href}
                   onClick={(e) => {
                     e.preventDefault();
-                    scrollToSection(link.href);
-                    window.history.pushState(null, "", link.href);
+                    onNavLinkClick(link.href);
                   }}
                   className="rounded-full px-4 py-2.5 text-sm font-semibold text-muted transition-colors hover:bg-foreground/[0.04] hover:text-foreground focus-visible:outline-2 focus-visible:outline-foreground"
                 >
@@ -245,8 +304,7 @@ export function Navbar() {
                   href={link.href}
                   onClick={(e) => {
                     e.preventDefault();
-                    scrollToSection(link.href);
-                    window.history.pushState(null, "", link.href);
+                    onNavLinkClick(link.href);
                   }}
                   className="rounded-2xl px-3 py-3.5 text-left text-[1.65rem] font-semibold leading-none tracking-tight text-white transition-colors hover:bg-white/10"
                 >
