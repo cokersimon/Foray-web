@@ -22,12 +22,13 @@ export function Pricing() {
         {/* Left: copy + App Store CTA — vertically centred against the orange card. */}
         <div>
           <h2 className="text-balance text-[clamp(2.4rem,5vw,4.25rem)] font-bold leading-[1.02] tracking-[-0.045em] text-foreground">
-            Try the whole loop for a week
+            Try the whole loop free for a week
             <span className="text-brand-dot">.</span>
           </h2>
           <p className="mt-5 max-w-xl text-pretty text-lg leading-relaxed text-muted">
-            No trimmed-down trial. Plan, shop and cook with the full experience,
-            then decide whether Foray has earned a place in your kitchen.
+            Seven days free — no trimmed-down trial. Plan, shop and cook with
+            the full experience, then decide whether Foray has earned a place in
+            your kitchen.
           </p>
           <div className="mt-8 flex justify-center lg:justify-start">
             <AppStoreBadge location="pricing" />
