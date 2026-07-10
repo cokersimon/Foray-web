@@ -18,31 +18,31 @@ const STEPS: Step[] = [
     number: "01",
     label: "Choose a recipe",
     body: "Browse Foray recipes, or import from TikTok, Instagram or a food blog.",
-    screen: "recipes",
+    screen: "step-import",
   },
   {
     number: "02",
     label: "Grocery list",
     body: "Quantities scale to your household. The list is combined and sorted by aisle.",
-    screen: "groceries",
+    screen: "step-groceries",
   },
   {
     number: "03",
     label: "Shop in person",
     body: "Take the aisle-sorted list into the store and tick items off as you go.",
-    screen: "instore",
+    screen: "step-instore",
   },
   {
     number: "04",
     label: "Shop online",
     body: "Foray fills your supermarket basket. Review, then check out as usual.",
-    screen: "online",
+    screen: "step-online",
   },
   {
     number: "05",
     label: "Cooking",
     body: "Clear steps and timers stay beside the hob so you can cook hands-free.",
-    screen: "cook",
+    screen: "step-cook",
   },
 ];
 
@@ -140,7 +140,7 @@ export function ScrollytellingSection() {
 
           <ProductPhone
             screen={step.screen}
-            className="w-[230px] sm:w-[260px] lg:w-[278px]"
+            className="w-[230px] sm:w-[260px] md:w-[270px] lg:w-[278px]"
           />
 
           <div className="flex justify-center">

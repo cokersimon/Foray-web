@@ -1,25 +1,38 @@
-# App screenshots for the marketing scrollytelling
+# App screenshots for marketing phone mockups
 
-Drop real iOS Simulator captures here and the landing page's phone mockup will
-render them automatically (see `src/app/(marketing)/page.tsx` — the check is
-`existsSync` per file, so partial sets are fine). Until a file exists, the
-coded CSS mockup for that beat is shown instead.
+Drop real iOS Simulator captures here. [`ProductPhone`](../../src/components/marketing/product-phone.tsx)
+renders each PNG with `object-cover` inside the official **iPhone 17 Pro Max Silver**
+bezel. If a file is missing, the coded CSS mock for that slot is shown instead.
 
-## Expected files
+## Expected files (8)
 
-| File | Scrollytelling beat | Capture this app screen |
+| File | Slot | Capture this |
 | --- | --- | --- |
-| `import.png` | "Import any recipe." | Import flow — link pasted, AI Chef parsing / parsed recipe |
-| `plan.png` | "Swipe to fork." | Plan swipe deck with a recipe card front and centre |
-| `cart.png` | "One sorted trolley." | Groceries list, deduped and grouped by aisle |
-| `checkout.png` | "Five clicks to dinner." | Checkout summary / building-basket sheet |
+| `hero-nutrition.png` | Hero slide 1 | Meal detail + Nutrition Facts |
+| `hero-instore.png` | Hero slide 2 | In-store aisle checklist (shopping session) |
+| `hero-cook.png` | Hero slide 3 | Cook mode (ingredients / directions) |
+| `step-import.png` | Step 01 Choose a recipe | Planner / My Recipes (Instagram share when available) |
+| `step-groceries.png` | Step 02 Grocery list | Aisle-sorted groceries |
+| `step-instore.png` | Step 03 Shop in person | In-store checklist with progress |
+| `step-online.png` | Step 04 Shop online | Choose your store / basket handoff |
+| `step-cook.png` | Step 05 Cooking | Cook mode |
 
-## Dimensions
+## Capture specs
 
-- Capture on an iPhone with a 9:19.5-ish display (e.g. iPhone 16 Pro,
-  1206 x 2622). The slot crops to `object-cover` inside a 9:16 frame, so keep
-  key content centred and away from the extreme top/bottom.
-- PNG, light mode, no simulator bezel (plain `Cmd+S` capture is fine — the web
-  frame supplies its own bezel and notch).
-- Keep files under ~500 KB each if possible (`sips -Z 1200 file.png` helps);
-  they're served through `next/image` either way.
+- Simulator: **iPhone 17 Pro Max** (screen contents only — no device chrome)
+- Light or dark OK (app chrome); prefer a clean UI without blocking alerts
+- Resolution ~1320×2868 (matches the Pro Max screen hole in the web bezel)
+- Keep key UI away from extreme top/bottom
+- Prefer under ~800 KB (`sips --resampleWidth 1320` if needed — do **not** use `sips -Z` on tall portraits)
+
+## Re-capture
+
+From the Foray iOS repo UI tests:
+
+```bash
+cd /Users/simoncoker/Foray/app
+xcodegen generate
+xcodebuild test -scheme Foray \
+  -destination 'platform=iOS Simulator,name=iPhone 17 Pro Max' \
+  -only-testing:ForayUITests/MarketingScreenshotsUITests
+```

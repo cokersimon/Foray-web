@@ -11,7 +11,53 @@ export type ProductScreen =
   | "groceries"
   | "instore"
   | "online"
+  | "cook"
+  | "hero-nutrition"
+  | "hero-instore"
+  | "hero-cook"
+  | "step-import"
+  | "step-groceries"
+  | "step-instore"
+  | "step-online"
+  | "step-cook";
+
+type MockScreen =
+  | "recipes"
+  | "swipe"
+  | "groceries"
+  | "instore"
+  | "online"
   | "cook";
+
+/** Real simulator captures — drop PNGs in /public/screenshots/ (see README). */
+const SCREENSHOTS: Partial<Record<ProductScreen, string>> = {
+  "hero-nutrition": "/screenshots/hero-nutrition.png",
+  "hero-instore": "/screenshots/hero-instore.png",
+  "hero-cook": "/screenshots/hero-cook.png",
+  "step-import": "/screenshots/step-import.png",
+  "step-groceries": "/screenshots/step-groceries.png",
+  "step-instore": "/screenshots/step-instore.png",
+  "step-online": "/screenshots/step-online.png",
+  "step-cook": "/screenshots/step-cook.png",
+};
+
+/** CSS mock used when a slot’s PNG is missing. */
+const SCREENSHOT_FALLBACK: Record<ProductScreen, MockScreen> = {
+  recipes: "recipes",
+  swipe: "swipe",
+  groceries: "groceries",
+  instore: "instore",
+  online: "online",
+  cook: "cook",
+  "hero-nutrition": "recipes",
+  "hero-instore": "instore",
+  "hero-cook": "cook",
+  "step-import": "recipes",
+  "step-groceries": "groceries",
+  "step-instore": "instore",
+  "step-online": "online",
+  "step-cook": "cook",
+};
 
 /**
  * Screen mock UIs are authored for the default ~250px phone. Fixed Tailwind
@@ -313,7 +359,7 @@ function CookScreen() {
   );
 }
 
-const screens: Record<ProductScreen, React.ReactNode> = {
+const screens: Record<MockScreen, React.ReactNode> = {
   recipes: <RecipesScreen />,
   swipe: <SwipeScreen />,
   groceries: <GroceriesScreen />,
@@ -323,19 +369,20 @@ const screens: Record<ProductScreen, React.ReactNode> = {
 };
 
 /**
- * Official Apple Design Resources bezel — iPhone 17 Pro Silver (Portrait).
+ * Official Apple Design Resources bezel — iPhone 17 Pro Max Silver (Portrait).
  * Source: https://developer.apple.com/design/resources/ (Bezel-iPhone-17.dmg)
- * Screen cutout measured from the transparent hole in the PNG.
+ * Screen cutout measured from the transparent hole in the PNG (1320×2868).
+ * Caller widths are unchanged from the Pro layout so relative size stays the same.
  */
 const BEZEL = {
-  src: "/brand/devices/iphone-17-pro-silver-portrait.png",
+  src: "/brand/devices/iphone-17-pro-max-silver-portrait.png",
   /** Filled phone body (screen + chrome) for clipping the assembly to the silhouette. */
-  maskSrc: "/brand/devices/iphone-17-pro-silhouette-mask.png",
+  maskSrc: "/brand/devices/iphone-17-pro-max-silhouette-mask.png",
   /** Cropped asset pixel size */
-  width: 1318,
-  height: 2717,
+  width: 1428,
+  height: 2959,
   /** Insets from phone edge to screen (px at asset resolution) */
-  inset: { top: 48, right: 56, bottom: 47, left: 56 },
+  inset: { top: 46, right: 54, bottom: 45, left: 54 },
 } as const;
 
 const DESIGN_SCREEN_WIDTH =
@@ -384,6 +431,33 @@ function ScaledScreen({ children }: { children: ReactNode }) {
   );
 }
 
+function PhoneScreen({
+  screen,
+  priority,
+}: {
+  screen: ProductScreen;
+  priority: boolean;
+}) {
+  const src = SCREENSHOTS[screen];
+  const [useMock, setUseMock] = useState(!src);
+
+  if (!useMock && src) {
+    return (
+      <Image
+        src={src}
+        alt=""
+        fill
+        sizes="280px"
+        priority={priority}
+        className="object-cover object-top"
+        onError={() => setUseMock(true)}
+      />
+    );
+  }
+
+  return <ScaledScreen>{screens[SCREENSHOT_FALLBACK[screen]]}</ScaledScreen>;
+}
+
 export function ProductPhone({
   screen,
   className,
@@ -426,7 +500,9 @@ export function ProductPhone({
             borderRadius: "16.4% / 7.55%",
           }}
         >
-          <ScaledScreen>{screens[screen]}</ScaledScreen>
+          <div className="relative h-full w-full">
+            <PhoneScreen screen={screen} priority={priority} />
+          </div>
         </div>
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img

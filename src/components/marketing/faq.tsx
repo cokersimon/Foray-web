@@ -1,6 +1,7 @@
 "use client";
 
 import { SfSymbol } from "@/components/brand/sf-symbol";
+import { trackFaqOpen } from "@/lib/analytics";
 
 const FAQS = [
   {
@@ -57,6 +58,9 @@ export function Faq() {
             <details
               key={faq.question}
               className={`group ${index < FAQS.length - 1 ? "border-b border-black/[0.06]" : ""}`}
+              onToggle={(e) => {
+                if (e.currentTarget.open) trackFaqOpen(faq.question);
+              }}
             >
               <summary className="flex cursor-pointer list-none items-center justify-between gap-4 py-6 text-left text-lg font-semibold tracking-tight text-foreground sm:py-7 [&::-webkit-details-marker]:hidden">
                 {faq.question}

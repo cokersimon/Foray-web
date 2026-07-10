@@ -31,7 +31,7 @@ const SLIDES: HeroSlide[] = [
   {
     image: "/brand/hero-flatlay.webp",
     alt: "Fresh recipe ingredients laid out for cooking",
-    screen: "recipes",
+    screen: "hero-nutrition",
     badges: [
       {
         icon: "clock",
@@ -48,7 +48,7 @@ const SLIDES: HeroSlide[] = [
   {
     image: "/brand/hero-shopping.webp",
     alt: "Shopping with a trolley in a grocery aisle",
-    screen: "instore",
+    screen: "hero-instore",
     badges: [
       {
         icon: "forkKnife",
@@ -67,7 +67,7 @@ const SLIDES: HeroSlide[] = [
   {
     image: "/brand/hero-cooking.webp",
     alt: "Cooking a meal in progress on the hob",
-    screen: "cook",
+    screen: "hero-cook",
     badges: [
       {
         icon: "chartPieFill",
@@ -206,7 +206,7 @@ export function Hero() {
 
         <div
           ref={stageRef}
-          className="motion-safe:animate-rise relative mx-auto w-full max-w-[380px] touch-pan-y sm:max-w-[620px]"
+          className="motion-safe:animate-rise relative mx-auto w-full max-w-[380px] touch-pan-y sm:max-w-[620px] md:max-w-[700px] lg:max-w-none"
           style={{ animationDelay: "0.18s" }}
           onMouseEnter={() => setPaused(true)}
           onMouseLeave={() => setPaused(false)}
@@ -228,7 +228,7 @@ export function Hero() {
                   alt={i === index ? s.alt : ""}
                   fill
                   priority
-                  sizes="(max-width: 640px) 92vw, (max-width: 1024px) 620px, 640px"
+                  sizes="(max-width: 640px) 92vw, (max-width: 1024px) 700px, 640px"
                   className={cn(
                     "object-cover transition-opacity duration-700 ease-[cubic-bezier(0.22,1,0.36,1)]",
                     i === index ? "opacity-100" : "opacity-0",

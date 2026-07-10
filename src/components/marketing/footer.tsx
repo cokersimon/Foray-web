@@ -1,5 +1,8 @@
+"use client";
+
 import Link from "next/link";
 import { LEGAL_ENTITY, registeredOfficeBlock } from "@/lib/legal-entity";
+import { trackFooterClick, trackSocialClick } from "@/lib/analytics";
 import { SOCIAL_LINKS } from "@/lib/site";
 
 const FOOTER_LINKS = [
@@ -87,6 +90,7 @@ export function Footer() {
                 rel="noopener noreferrer"
                 aria-label={`Foray on ${social.label}`}
                 className="text-white/55 transition-colors hover:text-white"
+                onClick={() => trackSocialClick(social.label)}
               >
                 {social.icon}
               </a>
@@ -100,6 +104,7 @@ export function Footer() {
                   key={link.label}
                   href={link.href}
                   className="text-sm text-white/55 transition-colors hover:text-white"
+                  onClick={() => trackFooterClick(link.label)}
                 >
                   {link.label}
                 </Link>
@@ -108,6 +113,7 @@ export function Footer() {
                   key={link.label}
                   href={link.href}
                   className="text-sm text-white/55 transition-colors hover:text-white"
+                  onClick={() => trackFooterClick(link.label)}
                 >
                   {link.label}
                 </a>

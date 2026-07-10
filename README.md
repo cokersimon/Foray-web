@@ -49,6 +49,8 @@ Copy the required secrets into `.env.local` (git-ignored):
 ```bash
 NEXT_PUBLIC_SUPABASE_URL=...
 NEXT_PUBLIC_SUPABASE_ANON_KEY=...
+# Optional — marketing GA4 (loads only after cookie Accept)
+NEXT_PUBLIC_GA_MEASUREMENT_ID=G-XXXXXXXXXX
 ```
 
 Never expose the Supabase service-role key, Gemini, or Recraft keys client-side — admin actions are authorized server-side inside the Edge Functions.

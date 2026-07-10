@@ -104,7 +104,7 @@ export default async function SharedRecipePage({ params }: Props) {
             </>
           )}
           <div className="flex justify-center">
-            <AppStoreBadge />
+            <AppStoreBadge location="referral" />
           </div>
           <p className="mt-5 text-[13px] text-muted">Swipe to fork.</p>
         </div>

@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Inter } from "next/font/google";
 import { Providers } from "@/components/providers";
 import { SITE_URL } from "@/lib/site";
@@ -32,6 +32,13 @@ export const metadata: Metadata = {
     description:
       "The recipes you save, finally for dinner. Choose, shop and cook in one calm place.",
   },
+};
+
+/** Explicit viewport so iPad (and all tablets) get correct scale + safe-area. */
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  viewportFit: "cover",
 };
 
 export default function RootLayout({
