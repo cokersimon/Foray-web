@@ -58,7 +58,9 @@ const SLIDES: HeroSlide[] = [
       {
         icon: "cart",
         label: "Less to decide",
-        className: "right-[5%] top-[22%] sm:right-[8%] sm:top-[24%]",
+        // Mobile: down + left so it clears the phone; desktop keeps airier placement.
+        className:
+          "right-[14%] top-[32%] sm:right-[8%] sm:top-[24%]",
       },
     ],
   },
@@ -75,7 +77,9 @@ const SLIDES: HeroSlide[] = [
       {
         icon: "trashFill",
         label: "Less waste",
-        className: "right-[6%] top-[20%] sm:right-[10%] sm:top-[22%]",
+        // Mobile: nudge down ~16px so it sits clearer above the phone.
+        className:
+          "right-[8%] top-[calc(20%+1rem)] sm:right-[10%] sm:top-[22%]",
       },
     ],
   },
@@ -219,8 +223,9 @@ export function Hero() {
             </div>
 
             {/* Outside overflow-hidden so the bezel can break the frame edge.
-                Width is % of the frame so mobile/desktop scale together. */}
-            <div className="pointer-events-none absolute -bottom-[8%] -right-[6%] z-20 w-[28%] sm:-bottom-[10%] sm:-right-[4%] sm:w-[24%] lg:w-[23%]">
+                Width is % of the frame so mobile/desktop scale together.
+                Mobile: inset ~16px from the right so it doesn’t kiss the viewport. */}
+            <div className="pointer-events-none absolute -bottom-[8%] right-4 z-20 w-[28%] sm:-bottom-[10%] sm:right-[-4%] sm:w-[24%] lg:w-[23%]">
               <ProductPhone
                 screen={slide.screen}
                 priority

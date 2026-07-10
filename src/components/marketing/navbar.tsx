@@ -16,19 +16,20 @@ const NAV_LINKS = [
 ];
 
 /** Ignore tiny trackpad / touch jitter when reading direction. */
-const DIRECTION_THRESHOLD_PX = 2;
+const DIRECTION_THRESHOLD_PX = 1.5;
 /**
- * Once the bar is fully off-screen, this much upward travel maps linearly
- * from hidden → visible (mobile). Feels like the chrome easing back in
- * with the finger, not a timed CSS snap.
+ * Once fully hidden, this much upward travel maps onto the reveal.
+ * Visual motion is lerped so large Lenis/trackpad steps stay smooth.
  */
-const REVEAL_DISTANCE_MOBILE_PX = 100;
-/** Longer upward travel on laptop / desktop trackpads before fully shown. */
-const REVEAL_DISTANCE_DESKTOP_PX = 180;
+const REVEAL_DISTANCE_MOBILE_PX = 90;
+const REVEAL_DISTANCE_DESKTOP_PX = 140;
 /** Keep the bar pinned while near the very top of the page. */
-const TOP_REVEAL_PX = 24;
+const TOP_REVEAL_PX = 16;
 /** How long to ignore direction updates during a nav jump. */
 const JUMP_LOCK_MS = 1200;
+/** Visual lerp — lower = silkier (desktop), higher = snappier (touch). */
+const LERP_MOBILE = 0.28;
+const LERP_DESKTOP = 0.16;
 
 const COARSE_POINTER = "(hover: none), (pointer: coarse)";
 
@@ -36,10 +37,18 @@ function prefersReducedMotion() {
   return window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 }
 
+function isCoarsePointer() {
+  return window.matchMedia(COARSE_POINTER).matches;
+}
+
 function revealDistancePx() {
-  return window.matchMedia(COARSE_POINTER).matches
+  return isCoarsePointer()
     ? REVEAL_DISTANCE_MOBILE_PX
     : REVEAL_DISTANCE_DESKTOP_PX;
+}
+
+function lerpFactor() {
+  return isCoarsePointer() ? LERP_MOBILE : LERP_DESKTOP;
 }
 
 /** Absolute document Y of an element's top edge. */
@@ -56,14 +65,13 @@ export function Navbar() {
   const headerRef = useRef<HTMLElement>(null);
   const barRef = useRef<HTMLDivElement>(null);
   const lastY = useRef(0);
-  /** 0 = fully visible, barHeight = fully hidden. Scroll-linked, not CSS-tweened. */
-  const offsetY = useRef(0);
+  /** Desired hide amount (0 visible → barHeight hidden). */
+  const targetOffset = useRef(0);
+  /** Painted hide amount — lerps toward target for smooth in/out. */
+  const visualOffset = useRef(0);
   const barHeight = useRef(64);
-  /**
-   * Upward travel accumulated while fully hidden. Maps 0→revealDistance onto
-   * the reveal; reset when the user scrolls down again.
-   */
   const revealTravel = useRef(0);
+  const rafId = useRef<number | null>(null);
   const jumpLock = useRef(false);
   const jumpTimer = useRef<number | null>(null);
   const didHashScroll = useRef(false);
@@ -83,23 +91,59 @@ export function Navbar() {
     );
   }
 
-  function applyOffset(next: number, { snapHidden }: { snapHidden?: boolean } = {}) {
-    const height = Math.max(1, barHeight.current);
-    const clamped = Math.min(height, Math.max(0, next));
-    offsetY.current = clamped;
-
+  function paintOffset(px: number) {
     const el = headerRef.current;
     if (el) {
-      el.style.transform = `translate3d(0, ${-clamped}px, 0)`;
+      el.style.transform = `translate3d(0, ${-px}px, 0)`;
     }
-
-    const fullyHidden =
-      snapHidden ?? clamped >= height - 0.5;
+    const height = Math.max(1, barHeight.current);
+    const fullyHidden = px >= height - 0.5;
     setNavHidden((prev) => {
       if (prev === fullyHidden) return prev;
       syncHeaderOffsetCss(fullyHidden);
       return fullyHidden;
     });
+  }
+
+  function tickLerp() {
+    rafId.current = null;
+    const height = Math.max(1, barHeight.current);
+    const target = Math.min(height, Math.max(0, targetOffset.current));
+    targetOffset.current = target;
+
+    const diff = target - visualOffset.current;
+    if (Math.abs(diff) < 0.2 || prefersReducedMotion()) {
+      visualOffset.current = target;
+      paintOffset(target);
+      return;
+    }
+
+    visualOffset.current += diff * lerpFactor();
+    paintOffset(visualOffset.current);
+    rafId.current = window.requestAnimationFrame(tickLerp);
+  }
+
+  function setTargetOffset(
+    next: number,
+    { immediate = false }: { immediate?: boolean } = {},
+  ) {
+    const height = Math.max(1, barHeight.current);
+    const clamped = Math.min(height, Math.max(0, next));
+    targetOffset.current = clamped;
+
+    if (immediate || prefersReducedMotion()) {
+      if (rafId.current != null) {
+        window.cancelAnimationFrame(rafId.current);
+        rafId.current = null;
+      }
+      visualOffset.current = clamped;
+      paintOffset(clamped);
+      return;
+    }
+
+    if (rafId.current == null) {
+      rafId.current = window.requestAnimationFrame(tickLerp);
+    }
   }
 
   useEffect(() => {
@@ -109,7 +153,11 @@ export function Navbar() {
       if (h && h > 0) barHeight.current = h;
     };
     measure();
-    applyOffset(0);
+    setTargetOffset(0, { immediate: true });
+    return () => {
+      if (rafId.current != null) window.cancelAnimationFrame(rafId.current);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
@@ -117,7 +165,7 @@ export function Navbar() {
     const previous = document.body.style.overflow;
     document.body.style.overflow = "hidden";
     revealTravel.current = 0;
-    applyOffset(0);
+    setTargetOffset(0, { immediate: true });
     return () => {
       document.body.style.overflow = previous;
     };
@@ -140,9 +188,8 @@ export function Navbar() {
     function sync() {
       const height = bar!.getBoundingClientRect().height;
       if (height > 0) barHeight.current = height;
-      // If we were fully hidden, keep offset pinned to the new height.
-      if (offsetY.current >= barHeight.current - 0.5) {
-        applyOffset(barHeight.current, { snapHidden: true });
+      if (targetOffset.current >= barHeight.current - 0.5) {
+        setTargetOffset(barHeight.current, { immediate: true });
       }
       syncHeaderOffsetCss(navHidden && !menuOpen);
     }
@@ -166,7 +213,7 @@ export function Navbar() {
 
     if (y <= TOP_REVEAL_PX) {
       revealTravel.current = 0;
-      applyOffset(0);
+      setTargetOffset(0);
       lastY.current = y;
       return;
     }
@@ -178,58 +225,56 @@ export function Navbar() {
     const height = Math.max(1, barHeight.current);
     const reduceMotion = prefersReducedMotion();
 
-    // Scroll down — bar rides away with the page (1:1), then stays off.
+    // Scroll down — tuck away with the page.
     if (delta > 0) {
       revealTravel.current = 0;
       if (reduceMotion) {
-        applyOffset(height, { snapHidden: true });
+        setTargetOffset(height, { immediate: true });
         return;
       }
-      applyOffset(offsetY.current + delta);
+      setTargetOffset(targetOffset.current + delta);
       return;
     }
 
-    // Scroll up — progressive reveal.
+    // Scroll up — progressive reveal from fully hidden, else 1:1.
     const up = -delta;
 
     if (reduceMotion) {
       revealTravel.current += up;
       if (revealTravel.current >= revealDistancePx()) {
         revealTravel.current = 0;
-        applyOffset(0);
+        setTargetOffset(0, { immediate: true });
       }
       return;
     }
 
-    const fullyHidden = offsetY.current >= height - 0.5;
-    // From fully hidden (or mid progressive reveal): map ~100px of upward
-    // travel onto the full slide-in. Stay in this mode until shown or the
-    // user scrolls down again — don't flip to 1:1 after the first frame.
+    const fullyHidden = targetOffset.current >= height - 0.5;
     if (fullyHidden || revealTravel.current > 0) {
       const distance = revealDistancePx();
       revealTravel.current = Math.min(distance, revealTravel.current + up);
       const t = revealTravel.current / distance;
-      applyOffset(height * (1 - t));
+      setTargetOffset(height * (1 - t));
       if (t >= 1) {
         revealTravel.current = 0;
-        applyOffset(0);
+        setTargetOffset(0);
       }
       return;
     }
 
-    // Partially tucked from a downward scroll — keep tracking 1:1.
-    applyOffset(offsetY.current - up);
+    setTargetOffset(targetOffset.current - up);
   }
 
-  // Hide on scroll down, reveal on scroll up (native / mobile; Lenis below).
+  // One scroll source only: Lenis on desktop, native window scroll on touch.
+  // Listening to both made the bar fight itself and feel jumpy on laptops.
   useEffect(() => {
+    if (lenis) return;
     function onWindowScroll() {
       applyScrollY(window.scrollY || document.documentElement.scrollTop);
     }
     window.addEventListener("scroll", onWindowScroll, { passive: true });
     return () => window.removeEventListener("scroll", onWindowScroll);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [lenis]);
 
   useLenis((instance) => {
     applyScrollY(instance.scroll);
@@ -262,7 +307,7 @@ export function Navbar() {
     document.body.style.overflow = "";
     setMenuOpen(false);
     revealTravel.current = 0;
-    applyOffset(barHeight.current, { snapHidden: true });
+    setTargetOffset(barHeight.current, { immediate: true });
 
     lenis?.stop();
     beginJumpLock(reduceMotion ? 80 : JUMP_LOCK_MS);
