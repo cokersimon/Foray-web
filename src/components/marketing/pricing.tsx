@@ -3,6 +3,7 @@
 import { SfSymbol } from "@/components/brand/sf-symbol";
 import { CHECKOUT_FEE_GBP } from "@/lib/site";
 import { AppStoreBadge } from "./app-store-badge";
+import { ApplePayMark } from "./apple-pay-mark";
 
 const INCLUDED = [
   "Recipe imports, browsing and swipe planning",
@@ -63,11 +64,14 @@ export function Pricing() {
             ))}
           </ul>
 
-          <p className="mt-8 max-w-lg text-left text-xs leading-relaxed text-black/55">
-            Seven days free, then billed through the App Store. Online checkout
-            adds a £{CHECKOUT_FEE_GBP} convenience fee per order. Taking your
-            list in-store is always free.
-          </p>
+          <div className="mt-8 flex items-center justify-between gap-6 border-t border-black/15 pt-8">
+            <p className="min-w-0 max-w-[18rem] flex-1 text-left text-xs leading-relaxed text-black/55 sm:max-w-xs">
+              Seven days free, then billed through the App Store. Online checkout
+              adds a £{CHECKOUT_FEE_GBP} convenience fee per order. Taking your
+              list in-store is always free.
+            </p>
+            <ApplePayMark />
+          </div>
         </div>
       </div>
     </section>

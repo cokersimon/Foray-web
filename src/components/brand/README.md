@@ -38,5 +38,9 @@ Official App Store badge: `AppStoreBadge` in
 `src/components/marketing/app-store-badge.tsx`.
 Black on light surfaces; white variant on the open mobile menu.
 
+Apple Pay mark (black): `ApplePayMark` in
+`src/components/marketing/apple-pay-mark.tsx`. Use beside checkout fee copy
+in the pricing card — not in the same tile as the App Store badge.
+
 Glass chips/buttons: `.marketing-button` / `.glass-chip` (toolbar) /
 `.glass-chip-clear` (floating over section-grey) in `globals.css`.
