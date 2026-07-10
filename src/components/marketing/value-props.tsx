@@ -120,18 +120,10 @@ export function ValueProps() {
           </p>
         </div>
 
-        {/*
-          Same left inset as hero / pricing (max-w-7xl). Bleed only to the
-          right so cards can leave at the viewport edge while scrolling.
-        */}
         <div
           ref={scrollerRef}
           onScroll={onScroll}
-          className={cn(
-            "scrollbar-hide mt-12 flex snap-x snap-mandatory gap-5 overflow-x-auto scroll-smooth",
-            "pb-8 pt-3",
-            "mr-[calc(50%-50vw)] pr-[calc(50vw-50%)]",
-          )}
+          className="scrollbar-hide mt-12 flex snap-x snap-mandatory gap-5 overflow-x-auto scroll-smooth pb-8 pt-3"
         >
           {PROPS.map((prop) => (
             <article
