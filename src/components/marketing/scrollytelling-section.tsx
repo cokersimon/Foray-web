@@ -22,7 +22,7 @@ const STEPS: Step[] = [
   },
   {
     number: "02",
-    label: "One accurate shop",
+    label: "Grocery list",
     body: "Quantities scale to your household servings. Duplicates are combined and the list is sorted by aisle, ready to check out online or in person.",
     screen: "groceries",
   },
@@ -40,7 +40,7 @@ const STEPS: Step[] = [
   },
   {
     number: "05",
-    label: "Get dinner on",
+    label: "Cook",
     body: "Clear steps and timers stay beside the hob, so you can cook without juggling apps.",
     screen: "cook",
   },
