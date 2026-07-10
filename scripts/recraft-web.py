@@ -50,9 +50,9 @@ ASSETS: dict[str, str] = {
     ),
     # Feature cards — Apple Personal Setup–style thick rounded line-art collage.
     # One dominant stroke colour per card; white field; no photoreal; no text.
-    # Fruit-silhouette cards: same craft as existing Recraft outputs (large fruit
-    # outline as container, themed icons inside, monochrome stroke, white field).
-    # Each card uses a DIFFERENT fruit. Chef/Siri keeps the apple.
+    # Silhouette-as-container cards: large themed outline with icons inside,
+    # monochrome stroke, white field. Household=orange fruit, pantry=camera,
+    # create=notepad, chef=apple.
     "feature-household": (
         "Minimalist monochrome line-art illustration on pure white. Single "
         "stroke colour vivid orange #ff9500 only. A LARGE ORANGE (citrus fruit) "
@@ -65,21 +65,25 @@ ASSETS: dict[str, str] = {
     ),
     "feature-pantry": (
         "Minimalist monochrome line-art illustration on pure white. Single "
-        "stroke colour soft teal #30b0c7 only. A LARGE PEAR silhouette with "
-        "stem and leaf is the outer container — NOT an apple. Inside the pear, "
-        "pantry shelves, jars, bottles, fridge, bowls, checklist icons. Tiny "
-        "pear motifs may appear inside, never apples. Uniform thick outline, "
+        "stroke colour soft teal #30b0c7 only. A LARGE VINTAGE CAMERA "
+        "silhouette is the outer container — classic rangefinder / old-style "
+        "Canon look with body, lens barrel, viewfinder hump, and shutter "
+        "button, NOT a fruit, NOT an apple, NOT a pear. Inside the camera "
+        "body, a detailed pantry scene: shelves, jars, bottles, fridge, "
+        "bowls, baskets of produce, checklist icons. Uniform thick outline, "
         "rounded caps, light stipple texture allowed, no photoreal, no text, "
         "no logos, square composition."
     ),
     "feature-create": (
         "Minimalist monochrome line-art illustration on pure white. Single "
-        "stroke colour indigo #5856d6 only. A LARGE LEMON silhouette with a "
-        "small leaf is the outer container — NOT an apple. Inside the lemon, "
-        "creative icons: pencil, camera, photo frame, paintbrush, open book, "
-        "recipe card, paper airplane. Tiny lemon motifs may appear inside, "
-        "never apples. Uniform thick outline, rounded caps, light stipple "
-        "texture allowed, no photoreal, no text, no logos, square composition."
+        "stroke colour indigo #5856d6 only. A LARGE SPIRAL-BOUND NOTEPAD "
+        "silhouette is the outer container — ring binders / spiral coils "
+        "clearly along the TOP edge, rectangular paper page hanging down, "
+        "NOT a fruit, NOT a lemon, NOT an apple. Inside the paper area, "
+        "creative recipe icons arranged on the page: pencil, camera, photo, "
+        "paintbrush, open book, recipe card, lightbulb, paper airplane. "
+        "Uniform thick outline, rounded caps, light stipple texture allowed, "
+        "no photoreal, no text, no logos, square composition."
     ),
     "feature-chef-siri": (
         "Minimalist monochrome line-art illustration on pure white. Single "
