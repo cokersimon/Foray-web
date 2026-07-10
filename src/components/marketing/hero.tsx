@@ -110,19 +110,29 @@ export function Hero() {
   const stageRef = useRef<HTMLDivElement>(null);
   const touchStartX = useRef<number | null>(null);
   const [inView, setInView] = useState(true);
+  /** Desktop keeps autoplay; phones are swipe-only (no slideshow fill). */
+  const [autoplayEnabled, setAutoplayEnabled] = useState(false);
   const [currencyIcon, setCurrencyIcon] =
     useState<SfSymbolName>("sterlingsign");
   const { index, goTo, progressKey, durationMs, autoplay, setPaused } =
     useTimedCarousel(SLIDES.length, {
       durationMs: HERO_DURATION_MS,
       inView,
-      autoplay: true,
+      autoplay: autoplayEnabled,
     });
 
   const slide = SLIDES[index]!;
 
   useEffect(() => {
     setCurrencyIcon(currencySfSymbolFromLocale(browserLocale()));
+  }, []);
+
+  useEffect(() => {
+    const mq = window.matchMedia("(min-width: 768px)");
+    const sync = () => setAutoplayEnabled(mq.matches);
+    sync();
+    mq.addEventListener("change", sync);
+    return () => mq.removeEventListener("change", sync);
   }, []);
 
   useEffect(() => {
