@@ -329,6 +329,71 @@ a {
     0 4px 14px rgba(0, 0, 0, 0.08);
 }
 
+/*
+  Liquid-glass benefit badge — frosted outer pill with a solid white inner
+  card (icon disc + label). Used on hero photo overlays.
+*/
+.glass-badge {
+  display: inline-flex;
+  max-width: 100%;
+  border-radius: 9999px;
+  border: 1px solid rgba(255, 255, 255, 0.7);
+  padding: 5px;
+  background:
+    linear-gradient(
+      165deg,
+      rgba(255, 255, 255, 0.55) 0%,
+      rgba(255, 255, 255, 0.22) 48%,
+      rgba(255, 255, 255, 0.35) 100%
+    );
+  -webkit-backdrop-filter: blur(28px) saturate(200%);
+  backdrop-filter: blur(28px) saturate(200%);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.9),
+    inset 0 -1px 0 rgba(255, 255, 255, 0.25),
+    0 12px 32px rgba(0, 0, 0, 0.16),
+    0 2px 6px rgba(0, 0, 0, 0.08);
+}
+
+.glass-badge-inner {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  border-radius: 9999px;
+  background: #fff;
+  padding: 0.35rem 0.85rem 0.35rem 0.35rem;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+}
+
+.glass-badge-icon {
+  display: inline-flex;
+  height: 1.75rem;
+  width: 1.75rem;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  border-radius: 9999px;
+  background: #0a0a0a;
+  color: #fff;
+}
+
+.glass-badge-label {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  line-height: 1.15;
+  letter-spacing: -0.01em;
+  color: #0a0a0a;
+  max-width: 11.5rem;
+  white-space: normal;
+}
+
+@media (min-width: 640px) {
+  .glass-badge-label {
+    white-space: nowrap;
+    max-width: none;
+  }
+}
+
 /* Match white CTA glass when the chip sits on the black open menu. */
 .glass-chip-on-dark {
   border-color: rgba(255, 255, 255, 0.55);
@@ -374,7 +439,8 @@ a {
 
   .glass-chip,
   .glass-chip-on-dark,
-  .glass-chip-clear {
+  .glass-chip-clear,
+  .glass-badge {
     background: #fff;
     border-color: var(--border);
     -webkit-backdrop-filter: none;

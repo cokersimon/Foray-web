@@ -25,7 +25,7 @@ Apple SF Symbols geometry via `SfSymbol` in
 | How it works controls | `chevronLeft` / `chevronRight` — plain on mobile; `.glass-chip-clear` liquid-glass from `lg` up |
 | FAQ accordion | `chevronDown` |
 | Mobile menu | `line3Horizontal` / `xmark` |
-| Hero chips | `clock` / `banknote` / `forkKnife` / `cart` |
+| Hero liquid-glass badges | `clock` / `banknote` / `forkKnife` / `cart` / `chartBar` / `sparkles` |
 | Product phone chrome | `heartFill`, `arrowRight`, `checkmark`, etc. |
 
 Import from `@/components/brand` or `@/components/brand/sf-symbol`.
@@ -43,4 +43,5 @@ Apple Pay mark (black): `ApplePayMark` in
 in the pricing card — not in the same tile as the App Store badge.
 
 Glass chips/buttons: `.marketing-button` / `.glass-chip` (toolbar) /
-`.glass-chip-clear` (floating over section-grey) in `globals.css`.
+`.glass-chip-clear` (floating over section-grey) / `.glass-badge` (hero
+photo benefit pills — frosted outer + white inner card) in `globals.css`.

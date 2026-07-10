@@ -30,13 +30,13 @@ export function Pricing() {
             then decide whether Foray has earned a place in your kitchen.
           </p>
           <div className="mt-8">
-            <AppStoreBadge />
+            <AppStoreBadge location="pricing" />
           </div>
         </div>
 
         <div className="relative overflow-hidden rounded-[32px] bg-brand-dot p-7 text-black shadow-[0_20px_60px_rgba(255,149,0,0.28)] sm:p-10">
           <div className="border-b border-black/15 pb-8">
-            <p className="text-sm font-semibold text-black/55">Foray Pro</p>
+            <p className="text-base font-semibold text-black/55">Foray Pro</p>
             <div className="mt-3 flex flex-wrap items-baseline gap-x-3 gap-y-1">
               <span className="text-5xl font-bold tracking-[-0.045em] text-black">
                 £4.99

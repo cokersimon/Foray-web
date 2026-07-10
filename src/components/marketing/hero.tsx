@@ -1,71 +1,143 @@
 "use client";
 
+import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import { SfSymbol, type SfSymbolName } from "@/components/brand/sf-symbol";
 import { AppStoreBadge } from "./app-store-badge";
-import { ProductPhone } from "./product-phone";
+import { CarouselProgress, useTimedCarousel } from "./carousel-progress";
+import { ProductPhone, type ProductScreen } from "./product-phone";
 import { cn } from "@/lib/cn";
 
-const FLOATING_CARDS: {
+const HERO_DURATION_MS = 4500;
+
+type HeroBadge = {
   icon: SfSymbolName;
   label: string;
   className: string;
-}[] = [
+};
+
+type HeroSlide = {
+  image: string;
+  alt: string;
+  screen: ProductScreen;
+  badges: [HeroBadge, HeroBadge];
+};
+
+const SLIDES: HeroSlide[] = [
   {
-    icon: "clock",
-    label: "Save time",
-    className: "left-[1%] top-[15%] -rotate-6 sm:left-[-2%] sm:top-[22%]",
+    image: "/brand/hero-flatlay.webp",
+    alt: "Fresh recipe ingredients laid out for cooking",
+    screen: "recipes",
+    badges: [
+      {
+        icon: "clock",
+        label: "Save time",
+        className: "left-[4%] top-[10%] sm:left-[6%] sm:top-[12%]",
+      },
+      {
+        icon: "banknote",
+        label: "Save money",
+        className: "right-[6%] top-[18%] sm:right-[10%] sm:top-[20%]",
+      },
+    ],
   },
   {
-    icon: "banknote",
-    label: "Save money",
-    className: "right-[1%] top-[12%] rotate-6 sm:right-[-2%] sm:top-[18%]",
+    image: "/brand/hero-shopping.webp",
+    alt: "Shopping with a trolley in a grocery aisle",
+    screen: "instore",
+    badges: [
+      {
+        icon: "forkKnife",
+        label: "Eat better",
+        className: "left-[5%] top-[12%] sm:left-[7%] sm:top-[14%]",
+      },
+      {
+        icon: "cart",
+        label: "Less to decide",
+        className: "right-[5%] top-[22%] sm:right-[8%] sm:top-[24%]",
+      },
+    ],
   },
   {
-    icon: "forkKnife",
-    label: "Cook",
-    className:
-      "bottom-[16%] left-[1%] -rotate-[4deg] sm:bottom-[20%] sm:left-[-3%]",
-  },
-  {
-    icon: "cart",
-    label: "Shop",
-    className:
-      "bottom-[5%] right-[1%] rotate-3 sm:bottom-[10%] sm:right-[-3%]",
+    image: "/brand/hero-cooking.webp",
+    alt: "Cooking a meal in progress on the hob",
+    screen: "cook",
+    badges: [
+      {
+        icon: "chartBar",
+        label: "Know what you're eating",
+        className: "left-[3%] top-[10%] sm:left-[5%] sm:top-[12%]",
+      },
+      {
+        icon: "sparkles",
+        label: "Less mess",
+        className: "right-[6%] top-[20%] sm:right-[10%] sm:top-[22%]",
+      },
+    ],
   },
 ];
 
-function FloatingCard({
+function GlassBadge({
   icon,
   label,
   className,
 }: {
   icon: SfSymbolName;
   label: string;
-  className: string;
+  className?: string;
 }) {
   return (
-    <div
-      className={cn(
-        "absolute z-20 flex w-[5.25rem] flex-col items-center gap-1.5 rounded-2xl border border-white/10 bg-ink px-2.5 py-2.5 shadow-[0_12px_30px_rgba(0,0,0,0.22)] sm:w-[6.25rem] sm:gap-2 sm:rounded-[18px] sm:px-3 sm:py-3 lg:w-[7rem]",
-        className,
-      )}
-    >
-      <SfSymbol
-        name={icon}
-        size="feature"
-        className="text-white"
-      />
-      <p className="text-center text-[10px] font-semibold leading-tight text-white sm:text-[11px] lg:text-xs">
-        {label}
-      </p>
+    <div className={cn("glass-badge pointer-events-none absolute z-20", className)}>
+      <div className="glass-badge-inner">
+        <span className="glass-badge-icon">
+          <SfSymbol name={icon} size={14} className="text-white" />
+        </span>
+        <span className="glass-badge-label">{label}</span>
+      </div>
     </div>
   );
 }
 
 export function Hero() {
+  const stageRef = useRef<HTMLDivElement>(null);
+  const [inView, setInView] = useState(true);
+  const { index, goTo, progressKey, durationMs, autoplay, setPaused } =
+    useTimedCarousel(SLIDES.length, {
+      durationMs: HERO_DURATION_MS,
+      inView,
+      autoplay: true,
+    });
+
+  const slide = SLIDES[index]!;
+
+  useEffect(() => {
+    const el = stageRef.current;
+    if (!el) return;
+    const io = new IntersectionObserver(
+      ([entry]) => setInView(Boolean(entry?.isIntersecting)),
+      { threshold: 0.35 },
+    );
+    io.observe(el);
+    return () => io.disconnect();
+  }, []);
+
   return (
-    <section className="relative overflow-hidden bg-background px-5 pb-16 pt-20 sm:px-6 sm:pb-20 sm:pt-24 md:pb-28 md:pt-28 lg:px-10 lg:pb-32 lg:pt-32">
+    <section className="relative overflow-hidden bg-background px-5 pb-16 pt-20 sm:px-6 sm:pb-20 sm:pt-24 md:pb-28 md:pt-28 lg:px-10 lg:pt-32 lg:pb-32">
+      {/* Prefetch all carousel WebPs so the first crossfade never flashes. */}
+      <div className="pointer-events-none absolute h-0 w-0 overflow-hidden opacity-0" aria-hidden>
+        {SLIDES.map((s) => (
+          <Image
+            key={`preload-${s.image}`}
+            src={s.image}
+            alt=""
+            width={1536}
+            height={1024}
+            priority
+            sizes="1px"
+          />
+        ))}
+      </div>
+
       <div className="mx-auto grid max-w-7xl items-center gap-8 sm:gap-12 lg:grid-cols-[0.92fr_1.08fr] lg:gap-10">
         <div className="relative z-10 text-center lg:text-left">
           <h1
@@ -92,30 +164,64 @@ export function Hero() {
         </div>
 
         <div
-          className="motion-safe:animate-rise relative mx-auto min-h-[370px] w-full max-w-[380px] sm:min-h-[560px] sm:max-w-[620px] lg:min-h-[600px]"
+          ref={stageRef}
+          className="motion-safe:animate-rise relative mx-auto w-full max-w-[380px] sm:max-w-[620px]"
           style={{ animationDelay: "0.18s" }}
+          onMouseEnter={() => setPaused(true)}
+          onMouseLeave={() => setPaused(false)}
+          onFocusCapture={() => setPaused(true)}
+          onBlurCapture={(e) => {
+            if (!e.currentTarget.contains(e.relatedTarget as Node | null)) {
+              setPaused(false);
+            }
+          }}
         >
-          <div className="absolute inset-x-[2%] top-[2%] h-[86%] overflow-hidden rounded-[36px] bg-section-grey sm:top-[3%] sm:h-[78%] sm:rounded-[48px]">
-            <Image
-              src="/brand/foray-uk-groceries.png"
-              alt=""
-              aria-hidden="true"
-              fill
-              priority
-              sizes="(max-width: 1024px) 92vw, 620px"
-              className="object-cover opacity-95"
-            />
+          <div className="relative aspect-[4/5] overflow-hidden rounded-[36px] bg-section-grey sm:aspect-[5/4] sm:rounded-[48px]">
+            {SLIDES.map((s, i) => (
+              <Image
+                key={s.image}
+                src={s.image}
+                alt={i === index ? s.alt : ""}
+                fill
+                priority
+                sizes="(max-width: 640px) 92vw, (max-width: 1024px) 620px, 640px"
+                className={cn(
+                  "object-cover transition-opacity duration-700 ease-[cubic-bezier(0.22,1,0.36,1)]",
+                  i === index ? "opacity-100" : "opacity-0",
+                )}
+              />
+            ))}
+
+            {slide.badges.map((badge) => (
+              <GlassBadge
+                key={`${index}-${badge.label}`}
+                icon={badge.icon}
+                label={badge.label}
+                className={cn(
+                  badge.className,
+                  "motion-safe:animate-rise",
+                )}
+              />
+            ))}
+
+            <div className="pointer-events-none absolute -bottom-[8%] -right-[6%] z-10 sm:-bottom-[10%] sm:-right-[4%]">
+              <ProductPhone
+                screen={slide.screen}
+                priority
+                className="mx-0 w-[100px] sm:w-[130px] lg:w-[145px]"
+              />
+            </div>
           </div>
-          <div className="absolute inset-x-0 bottom-0 top-[8%] z-10 flex items-center justify-center">
-            <ProductPhone
-              screen="recipes"
-              priority
-              className="w-[168px] sm:w-[250px] lg:w-[270px]"
-            />
-          </div>
-          {FLOATING_CARDS.map((card) => (
-            <FloatingCard key={card.label} {...card} />
-          ))}
+
+          <CarouselProgress
+            count={SLIDES.length}
+            index={index}
+            onSelect={goTo}
+            autoplay={autoplay}
+            durationMs={durationMs}
+            progressKey={progressKey}
+            className="mt-5"
+          />
         </div>
       </div>
     </section>

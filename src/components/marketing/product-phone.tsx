@@ -1,3 +1,6 @@
+"use client";
+
+import { useEffect, useRef, useState, type ReactNode } from "react";
 import Image from "next/image";
 import { SfSymbol } from "@/components/brand/sf-symbol";
 import { cn } from "@/lib/cn";
@@ -9,6 +12,13 @@ export type ProductScreen =
   | "instore"
   | "online"
   | "cook";
+
+/**
+ * Screen mock UIs are authored for the default ~250px phone. Fixed Tailwind
+ * px values would overflow at hero sizes (~100–145px), so we scale from this
+ * design width to the live screen inset.
+ */
+const DESIGN_PHONE_WIDTH = 250;
 
 
 const groceryGroups = [
@@ -328,6 +338,52 @@ const BEZEL = {
   inset: { top: 48, right: 56, bottom: 47, left: 56 },
 } as const;
 
+const DESIGN_SCREEN_WIDTH =
+  DESIGN_PHONE_WIDTH *
+  (1 - (BEZEL.inset.left + BEZEL.inset.right) / BEZEL.width);
+
+/**
+ * Renders screen chrome at the design width, then scales to the live inset
+ * so fixed-px mock UI stays proportional at hero sizes.
+ */
+function ScaledScreen({ children }: { children: ReactNode }) {
+  const ref = useRef<HTMLDivElement>(null);
+  const [box, setBox] = useState({ w: DESIGN_SCREEN_WIDTH, h: 0 });
+
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+
+    function measure() {
+      const next = el!.getBoundingClientRect();
+      setBox({ w: next.width, h: next.height });
+    }
+
+    measure();
+    const ro = new ResizeObserver(measure);
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, []);
+
+  const scale = box.w > 0 ? box.w / DESIGN_SCREEN_WIDTH : 1;
+  const designHeight = scale > 0 && box.h > 0 ? box.h / scale : 0;
+
+  return (
+    <div ref={ref} className="absolute inset-0 overflow-hidden">
+      <div
+        className="origin-top-left"
+        style={{
+          width: DESIGN_SCREEN_WIDTH,
+          height: designHeight || "100%",
+          transform: `scale(${scale})`,
+        }}
+      >
+        {children}
+      </div>
+    </div>
+  );
+}
+
 export function ProductPhone({
   screen,
   className,
@@ -370,7 +426,7 @@ export function ProductPhone({
             borderRadius: "16.4% / 7.55%",
           }}
         >
-          {screens[screen]}
+          <ScaledScreen>{screens[screen]}</ScaledScreen>
         </div>
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img

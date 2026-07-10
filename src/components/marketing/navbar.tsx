@@ -6,6 +6,7 @@ import { useLenis } from "lenis/react";
 import { Wordmark } from "@/components/brand/wordmark";
 import { SfSymbol } from "@/components/brand/sf-symbol";
 import { AppStoreBadge } from "./app-store-badge";
+import { trackNavClick } from "@/lib/analytics";
 import { cn } from "@/lib/cn";
 
 const NAV_LINKS = [
@@ -14,15 +15,17 @@ const NAV_LINKS = [
   { label: "FAQ", href: "/#faq" },
 ];
 
-/** Ignore tiny trackpad jitter when deciding scroll direction. */
-const DIRECTION_THRESHOLD_PX = 8;
-/** Hide the bar after this much downward travel (still fairly snappy). */
-const HIDE_DISTANCE_PX = 24;
-/** Reveal after a solid upward swipe on phones. */
-const REVEAL_DISTANCE_MOBILE_PX = 110;
-/** Reveal after a longer upward scroll on laptop / desktop trackpads. */
-const REVEAL_DISTANCE_DESKTOP_PX = 200;
-/** Keep the bar visible while near the very top of the page. */
+/** Ignore tiny trackpad / touch jitter when reading direction. */
+const DIRECTION_THRESHOLD_PX = 2;
+/**
+ * Once the bar is fully off-screen, this much upward travel maps linearly
+ * from hidden → visible (mobile). Feels like the chrome easing back in
+ * with the finger, not a timed CSS snap.
+ */
+const REVEAL_DISTANCE_MOBILE_PX = 100;
+/** Longer upward travel on laptop / desktop trackpads before fully shown. */
+const REVEAL_DISTANCE_DESKTOP_PX = 180;
+/** Keep the bar pinned while near the very top of the page. */
 const TOP_REVEAL_PX = 24;
 /** How long to ignore direction updates during a nav jump. */
 const JUMP_LOCK_MS = 1200;
@@ -47,32 +50,78 @@ function sectionTopY(el: HTMLElement) {
 
 export function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false);
+  /** True only when the bar is fully translated off-screen (for scroll-padding). */
   const [navHidden, setNavHidden] = useState(false);
   const lenis = useLenis();
+  const headerRef = useRef<HTMLElement>(null);
+  const barRef = useRef<HTMLDivElement>(null);
   const lastY = useRef(0);
-  /** Accumulated travel in the current direction before hide/reveal fires. */
-  const travelY = useRef(0);
+  /** 0 = fully visible, barHeight = fully hidden. Scroll-linked, not CSS-tweened. */
+  const offsetY = useRef(0);
+  const barHeight = useRef(64);
+  /**
+   * Upward travel accumulated while fully hidden. Maps 0→revealDistance onto
+   * the reveal; reset when the user scrolls down again.
+   */
+  const revealTravel = useRef(0);
   const jumpLock = useRef(false);
   const jumpTimer = useRef<number | null>(null);
   const didHashScroll = useRef(false);
   const menuOpenRef = useRef(menuOpen);
-  const navHiddenRef = useRef(navHidden);
   menuOpenRef.current = menuOpen;
-  navHiddenRef.current = navHidden;
+
+  function syncHeaderOffsetCss(fullyHidden: boolean) {
+    if (fullyHidden && !menuOpenRef.current) {
+      document.documentElement.style.setProperty("--site-header-offset", "0px");
+      return;
+    }
+    const height =
+      barRef.current?.getBoundingClientRect().height ?? barHeight.current;
+    document.documentElement.style.setProperty(
+      "--site-header-offset",
+      `${Math.ceil(height)}px`,
+    );
+  }
+
+  function applyOffset(next: number, { snapHidden }: { snapHidden?: boolean } = {}) {
+    const height = Math.max(1, barHeight.current);
+    const clamped = Math.min(height, Math.max(0, next));
+    offsetY.current = clamped;
+
+    const el = headerRef.current;
+    if (el) {
+      el.style.transform = `translate3d(0, ${-clamped}px, 0)`;
+    }
+
+    const fullyHidden =
+      snapHidden ?? clamped >= height - 0.5;
+    setNavHidden((prev) => {
+      if (prev === fullyHidden) return prev;
+      syncHeaderOffsetCss(fullyHidden);
+      return fullyHidden;
+    });
+  }
 
   useEffect(() => {
     lastY.current = window.scrollY || document.documentElement.scrollTop;
+    const measure = () => {
+      const h = barRef.current?.getBoundingClientRect().height;
+      if (h && h > 0) barHeight.current = h;
+    };
+    measure();
+    applyOffset(0);
   }, []);
 
   useEffect(() => {
     if (!menuOpen) return;
     const previous = document.body.style.overflow;
     document.body.style.overflow = "hidden";
-    travelY.current = 0;
-    setNavHidden(false);
+    revealTravel.current = 0;
+    applyOffset(0);
     return () => {
       document.body.style.overflow = previous;
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [menuOpen]);
 
   useEffect(() => {
@@ -83,21 +132,19 @@ export function Navbar() {
     return () => window.removeEventListener("keydown", onKey);
   }, []);
 
-  // Keep CSS scroll-padding in sync. When the bar is hidden, land flush at 0.
+  // Keep CSS scroll-padding + bar height in sync.
   useEffect(() => {
-    const bar = document.querySelector<HTMLElement>("[data-site-header-bar]");
+    const bar = barRef.current;
     if (!bar) return;
 
     function sync() {
-      if (navHidden && !menuOpen) {
-        document.documentElement.style.setProperty("--site-header-offset", "0px");
-        return;
-      }
       const height = bar!.getBoundingClientRect().height;
-      document.documentElement.style.setProperty(
-        "--site-header-offset",
-        `${Math.ceil(height)}px`,
-      );
+      if (height > 0) barHeight.current = height;
+      // If we were fully hidden, keep offset pinned to the new height.
+      if (offsetY.current >= barHeight.current - 0.5) {
+        applyOffset(barHeight.current, { snapHidden: true });
+      }
+      syncHeaderOffsetCss(navHidden && !menuOpen);
     }
 
     sync();
@@ -108,43 +155,70 @@ export function Navbar() {
       ro.disconnect();
       window.removeEventListener("resize", sync);
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [navHidden, menuOpen]);
 
   function applyScrollY(y: number) {
     if (jumpLock.current || menuOpenRef.current) {
       lastY.current = y;
-      travelY.current = 0;
       return;
     }
 
     if (y <= TOP_REVEAL_PX) {
-      travelY.current = 0;
-      setNavHidden(false);
+      revealTravel.current = 0;
+      applyOffset(0);
       lastY.current = y;
       return;
     }
 
     const delta = y - lastY.current;
     if (Math.abs(delta) < DIRECTION_THRESHOLD_PX) return;
-
-    // Same direction as current travel → accumulate; reverse → reset.
-    if ((delta > 0 && travelY.current >= 0) || (delta < 0 && travelY.current <= 0)) {
-      travelY.current += delta;
-    } else {
-      travelY.current = delta;
-    }
     lastY.current = y;
 
-    if (!navHiddenRef.current && travelY.current >= HIDE_DISTANCE_PX) {
-      travelY.current = 0;
-      setNavHidden(true);
+    const height = Math.max(1, barHeight.current);
+    const reduceMotion = prefersReducedMotion();
+
+    // Scroll down — bar rides away with the page (1:1), then stays off.
+    if (delta > 0) {
+      revealTravel.current = 0;
+      if (reduceMotion) {
+        applyOffset(height, { snapHidden: true });
+        return;
+      }
+      applyOffset(offsetY.current + delta);
       return;
     }
 
-    if (navHiddenRef.current && travelY.current <= -revealDistancePx()) {
-      travelY.current = 0;
-      setNavHidden(false);
+    // Scroll up — progressive reveal.
+    const up = -delta;
+
+    if (reduceMotion) {
+      revealTravel.current += up;
+      if (revealTravel.current >= revealDistancePx()) {
+        revealTravel.current = 0;
+        applyOffset(0);
+      }
+      return;
     }
+
+    const fullyHidden = offsetY.current >= height - 0.5;
+    // From fully hidden (or mid progressive reveal): map ~100px of upward
+    // travel onto the full slide-in. Stay in this mode until shown or the
+    // user scrolls down again — don't flip to 1:1 after the first frame.
+    if (fullyHidden || revealTravel.current > 0) {
+      const distance = revealDistancePx();
+      revealTravel.current = Math.min(distance, revealTravel.current + up);
+      const t = revealTravel.current / distance;
+      applyOffset(height * (1 - t));
+      if (t >= 1) {
+        revealTravel.current = 0;
+        applyOffset(0);
+      }
+      return;
+    }
+
+    // Partially tucked from a downward scroll — keep tracking 1:1.
+    applyOffset(offsetY.current - up);
   }
 
   // Hide on scroll down, reveal on scroll up (native / mobile; Lenis below).
@@ -154,6 +228,7 @@ export function Navbar() {
     }
     window.addEventListener("scroll", onWindowScroll, { passive: true });
     return () => window.removeEventListener("scroll", onWindowScroll);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useLenis((instance) => {
@@ -169,12 +244,12 @@ export function Navbar() {
 
   function beginJumpLock(ms: number) {
     jumpLock.current = true;
-    travelY.current = 0;
+    revealTravel.current = 0;
     clearJumpTimer();
     jumpTimer.current = window.setTimeout(() => {
       jumpLock.current = false;
       jumpTimer.current = null;
-      travelY.current = 0;
+      revealTravel.current = 0;
       lastY.current = window.scrollY || document.documentElement.scrollTop;
       lenis?.start();
     }, ms);
@@ -186,7 +261,8 @@ export function Navbar() {
 
     document.body.style.overflow = "";
     setMenuOpen(false);
-    setNavHidden(true);
+    revealTravel.current = 0;
+    applyOffset(barHeight.current, { snapHidden: true });
 
     lenis?.stop();
     beginJumpLock(reduceMotion ? 80 : JUMP_LOCK_MS);
@@ -226,19 +302,17 @@ export function Navbar() {
     if (!id) return;
     const el = document.getElementById(id);
     if (!el) return;
+    trackNavClick(id);
     scrollToSectionTop(el);
     window.history.pushState(null, "", href);
   }
 
-  const barHidden = navHidden && !menuOpen;
-
   return (
     <>
       <header
-        className={cn(
-          "pointer-events-none fixed inset-x-0 top-0 z-50 transition-transform duration-300 ease-[cubic-bezier(0.22,1,0.36,1)]",
-          barHidden ? "-translate-y-full" : "translate-y-0",
-        )}
+        ref={headerRef}
+        className="pointer-events-none fixed inset-x-0 top-0 z-50 will-change-transform"
+        style={{ transform: "translate3d(0, 0, 0)" }}
       >
         <div
           className={cn(
@@ -249,6 +323,7 @@ export function Navbar() {
           )}
         >
           <div
+            ref={barRef}
             data-site-header-bar
             className="flex items-center justify-between px-5 py-3 sm:px-6 md:px-10 md:py-4"
           >
@@ -279,11 +354,16 @@ export function Navbar() {
                   {link.label}
                 </a>
               ))}
-              <AppStoreBadge size="compact" variant="white" className="ml-1" />
+              <AppStoreBadge
+                size="compact"
+                variant="white"
+                location="nav"
+                className="ml-1"
+              />
             </div>
 
             <div className="flex items-center gap-2 md:hidden">
-              <AppStoreBadge size="compact" variant="white" />
+              <AppStoreBadge size="compact" variant="white" location="nav" />
               <button
                 type="button"
                 onClick={() => setMenuOpen((v) => !v)}
