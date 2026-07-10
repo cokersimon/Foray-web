@@ -1,12 +1,10 @@
 /**
  * Registered entity — mirror `docs/03-legal/company-profile.md` in the Foray repo.
  *
- * `registeredOffice` — Companies House (Hornton Place, AD01 filed 8 Jul 2026).
- * `dunsAddress` — Dun & Bradstreet / Apple Developer enrollment (Woodlands Gate).
- *
- * TEMP: all public website surfaces use `dunsAddress` until Apple's business
- * transfer is approved and D&B catches up. Then point `publicAddress` at
- * `registeredOffice` (one-line change below).
+ * `registeredOffice` — Companies House (First Floor Office, 3 Hornton Place;
+ * AD01 filed 8 Jul 2026). Used on all public website surfaces.
+ * `dunsAddress` — Dun & Bradstreet / Apple Developer enrollment (Woodlands Gate);
+ * kept for reference until those records catch up.
  */
 export const LEGAL_ENTITY = {
   legalName: "Foray App Limited",
@@ -28,14 +26,13 @@ export const LEGAL_ENTITY = {
     country: "United Kingdom",
   },
   effectiveDate: "7 July 2026",
-  lastUpdated: "8 July 2026",
+  lastUpdated: "10 July 2026",
   privacyEmail: "privacy@forayapp.co.uk",
   legalEmail: "legal@forayapp.co.uk",
   supportEmail: "support@forayapp.co.uk",
 } as const;
 
-/** Flip to LEGAL_ENTITY.registeredOffice once D-U-N-S shows Hornton Place. */
-const publicAddress = LEGAL_ENTITY.dunsAddress;
+const publicAddress = LEGAL_ENTITY.registeredOffice;
 
 interface EntityAddress {
   line1: string;
@@ -64,8 +61,8 @@ export function registeredOfficeLine(includeCountry = false): string {
   return addressLine(publicAddress, includeCountry);
 }
 
-export function dunsAddressLine(includeCountry = false): string {
-  return addressLine(publicAddress, includeCountry);
+export function registeredOfficeBlock(): string[] {
+  return addressBlock(publicAddress);
 }
 
 export function dataControllerLine(): string {
@@ -74,8 +71,4 @@ export function dataControllerLine(): string {
 
 export function postalContactLine(): string {
   return `${LEGAL_ENTITY.legalName}, ${registeredOfficeLine(true)}.`;
-}
-
-export function dunsAddressBlock(): string[] {
-  return addressBlock(publicAddress);
 }
