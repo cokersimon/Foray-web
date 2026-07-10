@@ -22,7 +22,7 @@ Apple SF Symbols geometry via `SfSymbol` in
 | Usage | Symbol |
 | --- | --- |
 | Pricing checklist | `checkmarkSealFill` |
-| How it works controls | `chevronLeft` / `chevronRight` in plain circles on mobile; `.glass-chip` liquid-glass circles from `lg` up |
+| How it works controls | `chevronLeft` / `chevronRight` — plain on mobile; `.glass-chip-clear` liquid-glass from `lg` up |
 | FAQ accordion | `chevronDown` |
 | Mobile menu | `line3Horizontal` / `xmark` |
 | Hero chips | `clock` / `banknote` / `forkKnife` / `cart` |
@@ -37,5 +37,5 @@ Social network marks in the footer stay as brand SVGs (not SF Symbols).
 Official App Store badge: `AppStoreBadge` in
 `src/components/marketing/app-store-badge.tsx`.
 
-Glass chips/buttons (cookies, misc): `.marketing-button` / `.glass-chip`
-in `globals.css`.
+Glass chips/buttons: `.marketing-button` / `.glass-chip` (toolbar) /
+`.glass-chip-clear` (floating over section-grey) in `globals.css`.

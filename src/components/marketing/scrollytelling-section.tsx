@@ -97,8 +97,8 @@ export function ScrollytellingSection() {
               <p className="mx-auto mt-4 max-w-lg text-pretty text-base leading-relaxed text-muted sm:text-lg">
                 {step.body}
               </p>
-              <div className="mt-10 flex items-center justify-center gap-3 sm:gap-5 lg:gap-12 xl:gap-16">
-                {/* Mobile: plain chevrons. lg+: design-system glass-chip (same press as navbar). */}
+              <div className="mt-10 flex items-center justify-center gap-3 sm:gap-5 lg:gap-8 xl:gap-12">
+                {/* Mobile: plain chevrons. lg+: clear liquid glass (design system). */}
                 <button
                   type="button"
                   onClick={() => goTo(index - 1)}
@@ -119,7 +119,7 @@ export function ScrollytellingSection() {
                   disabled={atStart}
                   aria-label="Previous step"
                   className={cn(
-                    "glass-chip relative hidden h-14 w-14 shrink-0 cursor-pointer items-center justify-center lg:flex",
+                    "glass-chip-clear relative hidden h-10 w-10 shrink-0 cursor-pointer items-center justify-center lg:flex",
                     atStart && "pointer-events-none cursor-default opacity-35",
                   )}
                 >
@@ -151,7 +151,7 @@ export function ScrollytellingSection() {
                   disabled={atEnd}
                   aria-label="Next step"
                   className={cn(
-                    "glass-chip relative hidden h-14 w-14 shrink-0 cursor-pointer items-center justify-center lg:flex",
+                    "glass-chip-clear relative hidden h-10 w-10 shrink-0 cursor-pointer items-center justify-center lg:flex",
                     atEnd && "pointer-events-none cursor-default opacity-35",
                   )}
                 >
