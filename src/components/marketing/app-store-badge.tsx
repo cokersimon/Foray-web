@@ -5,37 +5,41 @@ import { cn } from "@/lib/cn";
 /**
  * Official Apple "Download on the App Store" badge.
  * Artwork from Apple Media Services; do not recolour, rotate, or restyle.
+ * Use the white variant on dark surfaces (open mobile menu).
  */
 export function AppStoreBadge({
   className,
   size = "default",
+  variant = "black",
 }: {
   className?: string;
   size?: "compact" | "default";
+  variant?: "black" | "white";
 }) {
-  // Toolbar stays compact (original ~32px). Hero/pricing/share use a larger badge.
+  // Compact matches the nav close chip (h-10). Hero/pricing stay larger.
   const isCompact = size === "compact";
-  const height = isCompact ? 32 : 60;
+  const height = isCompact ? 40 : 60;
   const width = Math.round(height * (119.66407 / 40));
+  const src =
+    variant === "white"
+      ? "/brand/app-store-badge-white.svg"
+      : "/brand/app-store-badge.svg";
 
   return (
     <a
       href={APP_STORE_URL}
       className={cn(
-        "inline-flex shrink-0 transition-opacity hover:opacity-90 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-foreground",
+        "inline-flex shrink-0 items-center transition-opacity hover:opacity-90 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-current",
         className,
       )}
       aria-label="Download on the App Store"
     >
       <Image
-        src="/brand/app-store-badge.svg"
+        src={src}
         alt="Download on the App Store"
         width={width}
         height={height}
-        className={cn(
-          "w-auto",
-          isCompact ? "h-8" : "h-[60px] sm:h-16",
-        )}
+        className={cn("w-auto", isCompact ? "h-10" : "h-[60px] sm:h-16")}
         unoptimized
         priority={!isCompact}
       />
