@@ -64,8 +64,8 @@ export function Pricing() {
             ))}
           </ul>
 
-          <div className="mt-8 flex items-center justify-between gap-6 border-t border-black/15 pt-8">
-            <p className="min-w-0 max-w-[18rem] flex-1 text-left text-xs leading-relaxed text-black/55 sm:max-w-xs">
+          <div className="mt-8 flex items-center gap-5 border-t border-black/15 pt-8 sm:gap-6">
+            <p className="min-w-0 flex-1 text-left text-xs leading-relaxed text-black/55">
               Seven days free, then billed through the App Store. Online checkout
               adds a £{CHECKOUT_FEE_GBP} convenience fee per order. Taking your
               list in-store is always free.
