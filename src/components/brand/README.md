@@ -22,7 +22,7 @@ Apple SF Symbols geometry via `SfSymbol` in
 | Usage | Symbol |
 | --- | --- |
 | Pricing checklist | `checkmarkSealFill` |
-| How it works controls | `chevronLeft` / `chevronRight` |
+| How it works controls | `chevronLeft` / `chevronRight` in plain circles on mobile; `.glass-chip` liquid-glass circles from `lg` up |
 | FAQ accordion | `chevronDown` |
 | Mobile menu | `line3Horizontal` / `xmark` |
 | Hero chips | `clock` / `banknote` / `forkKnife` / `cart` |

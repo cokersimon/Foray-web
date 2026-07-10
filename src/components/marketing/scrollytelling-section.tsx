@@ -74,7 +74,7 @@ export function ScrollytellingSection() {
       id="how-it-works"
       className="bg-section-grey text-foreground"
     >
-      <div className="mx-auto max-w-3xl px-5 py-20 sm:px-6 md:py-28 lg:py-32">
+      <div className="mx-auto max-w-3xl px-5 py-20 sm:px-6 md:py-28 lg:max-w-5xl lg:py-32 xl:max-w-6xl">
         <div
           className="flex flex-col items-center text-center"
           onTouchStart={onTouchStart}
@@ -97,14 +97,15 @@ export function ScrollytellingSection() {
               <p className="mx-auto mt-4 max-w-lg text-pretty text-base leading-relaxed text-muted sm:text-lg">
                 {step.body}
               </p>
-              <div className="mt-10 flex items-center justify-center gap-3 sm:gap-5">
+              <div className="mt-10 flex items-center justify-center gap-3 sm:gap-5 lg:gap-12 xl:gap-16">
+                {/* Mobile: plain chevrons. lg+: design-system glass-chip (same press as navbar). */}
                 <button
                   type="button"
                   onClick={() => goTo(index - 1)}
                   disabled={atStart}
                   aria-label="Previous step"
                   className={cn(
-                    "flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-foreground/55 transition-colors",
+                    "flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-foreground/55 lg:hidden",
                     atStart
                       ? "cursor-default opacity-30"
                       : "hover:bg-black/[0.06] hover:text-foreground",
@@ -112,20 +113,46 @@ export function ScrollytellingSection() {
                 >
                   <SfSymbol name="chevronLeft" size="small" />
                 </button>
+                <button
+                  type="button"
+                  onClick={() => goTo(index - 1)}
+                  disabled={atStart}
+                  aria-label="Previous step"
+                  className={cn(
+                    "glass-chip relative hidden h-14 w-14 shrink-0 cursor-pointer items-center justify-center lg:flex",
+                    atStart && "pointer-events-none cursor-default opacity-35",
+                  )}
+                >
+                  <SfSymbol name="chevronLeft" size="small" />
+                </button>
+
                 <ProductPhone
                   screen={step.screen}
                   className="w-[230px] sm:w-[260px] lg:w-[278px]"
                 />
+
                 <button
                   type="button"
                   onClick={() => goTo(index + 1)}
                   disabled={atEnd}
                   aria-label="Next step"
                   className={cn(
-                    "flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-foreground/55 transition-colors",
+                    "flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-foreground/55 lg:hidden",
                     atEnd
                       ? "cursor-default opacity-30"
                       : "hover:bg-black/[0.06] hover:text-foreground",
+                  )}
+                >
+                  <SfSymbol name="chevronRight" size="small" />
+                </button>
+                <button
+                  type="button"
+                  onClick={() => goTo(index + 1)}
+                  disabled={atEnd}
+                  aria-label="Next step"
+                  className={cn(
+                    "glass-chip relative hidden h-14 w-14 shrink-0 cursor-pointer items-center justify-center lg:flex",
+                    atEnd && "pointer-events-none cursor-default opacity-35",
                   )}
                 >
                   <SfSymbol name="chevronRight" size="small" />
