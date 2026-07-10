@@ -1,5 +1,8 @@
+"use client";
+
 import Image from "next/image";
 import { APP_STORE_URL } from "@/lib/site";
+import { trackDownloadApp } from "@/lib/analytics";
 import { cn } from "@/lib/cn";
 
 /**
@@ -11,10 +14,13 @@ export function AppStoreBadge({
   className,
   size = "default",
   variant = "black",
+  location = "unknown",
 }: {
   className?: string;
   size?: "compact" | "default";
   variant?: "black" | "white";
+  /** GA4 `download_app` location param (hero, nav, pricing, referral, …). */
+  location?: string;
 }) {
   // Compact matches the nav close chip (h-10). Hero/pricing stay larger.
   const isCompact = size === "compact";
@@ -28,6 +34,7 @@ export function AppStoreBadge({
   return (
     <a
       href={APP_STORE_URL}
+      onClick={() => trackDownloadApp(location)}
       className={cn(
         // Artwork stays official; only opacity + focus match other CTAs.
         // Do not wrap in glass/marketing-button (Apple forbids restyling the badge).
