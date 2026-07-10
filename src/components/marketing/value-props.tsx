@@ -14,8 +14,8 @@ const PROPS = [
   },
   {
     image: "/brand/feature-pantry.png",
-    title: "Know what is already in the pantry.",
-    body: "Foray remembers staples you have, so the list skips what you do not need to buy again.",
+    title: "Snap your pantry. Get a recipe.",
+    body: "Take a photo of what you already have. Foray turns it into a recipe you can cook tonight.",
     band: "bg-[#30b0c7]",
   },
   {
@@ -115,8 +115,8 @@ export function ValueProps() {
             <span className="text-brand-dot">.</span>
           </h2>
           <p className="mt-5 max-w-xl text-pretty text-lg leading-relaxed text-muted">
-            Beyond the plan–shop–cook loop. Household servings, pantry, your own
-            recipes, and Chef AI with Siri.
+            Beyond the plan–shop–cook loop. Household servings, pantry snaps,
+            your own recipes, and Chef AI with Siri.
           </p>
         </div>
 
