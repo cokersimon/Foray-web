@@ -25,7 +25,7 @@ Apple SF Symbols geometry via `SfSymbol` in
 | How it works controls | `chevronLeft` / `chevronRight` — plain on mobile; `.glass-chip-clear` liquid-glass from `lg` up |
 | FAQ accordion | `chevronDown` |
 | Mobile menu | `line3Horizontal` / `xmark` |
-| Hero liquid-glass badges | `clock` / `banknote` / `forkKnife` / `cart` / `chartBar` / `sparkles` |
+| Hero liquid-glass badges | `clock` / currency (`sterlingsign` default; `dollarsign` / `eurosign` / `yensign` / `australiandollarsign` by locale) / `forkKnife` / `cart` / `chartPieFill` / `trashFill` |
 | Product phone chrome | `heartFill`, `arrowRight`, `checkmark`, etc. |
 
 Import from `@/components/brand` or `@/components/brand/sf-symbol`.

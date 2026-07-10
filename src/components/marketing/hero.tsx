@@ -3,6 +3,10 @@
 import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import { SfSymbol, type SfSymbolName } from "@/components/brand/sf-symbol";
+import {
+  browserLocale,
+  currencySfSymbolFromLocale,
+} from "@/lib/currency-sf-symbol";
 import { AppStoreBadge } from "./app-store-badge";
 import { CarouselProgress, useTimedCarousel } from "./carousel-progress";
 import { ProductPhone, type ProductScreen } from "./product-phone";
@@ -11,7 +15,7 @@ import { cn } from "@/lib/cn";
 const HERO_DURATION_MS = 4500;
 
 type HeroBadge = {
-  icon: SfSymbolName;
+  icon: SfSymbolName | "currency";
   label: string;
   className: string;
 };
@@ -35,7 +39,7 @@ const SLIDES: HeroSlide[] = [
         className: "left-[4%] top-[10%] sm:left-[6%] sm:top-[12%]",
       },
       {
-        icon: "banknote",
+        icon: "currency",
         label: "Save money",
         className: "right-[6%] top-[18%] sm:right-[10%] sm:top-[20%]",
       },
@@ -48,7 +52,7 @@ const SLIDES: HeroSlide[] = [
     badges: [
       {
         icon: "forkKnife",
-        label: "Eat better",
+        label: "Eat healthier",
         className: "left-[5%] top-[12%] sm:left-[7%] sm:top-[14%]",
       },
       {
@@ -64,13 +68,13 @@ const SLIDES: HeroSlide[] = [
     screen: "cook",
     badges: [
       {
-        icon: "chartBar",
+        icon: "chartPieFill",
         label: "Know what you're eating",
         className: "left-[3%] top-[10%] sm:left-[5%] sm:top-[12%]",
       },
       {
-        icon: "sparkles",
-        label: "Less mess",
+        icon: "trashFill",
+        label: "Less waste",
         className: "right-[6%] top-[20%] sm:right-[10%] sm:top-[22%]",
       },
     ],
@@ -101,6 +105,8 @@ function GlassBadge({
 export function Hero() {
   const stageRef = useRef<HTMLDivElement>(null);
   const [inView, setInView] = useState(true);
+  const [currencyIcon, setCurrencyIcon] =
+    useState<SfSymbolName>("sterlingsign");
   const { index, goTo, progressKey, durationMs, autoplay, setPaused } =
     useTimedCarousel(SLIDES.length, {
       durationMs: HERO_DURATION_MS,
@@ -109,6 +115,10 @@ export function Hero() {
     });
 
   const slide = SLIDES[index]!;
+
+  useEffect(() => {
+    setCurrencyIcon(currencySfSymbolFromLocale(browserLocale()));
+  }, []);
 
   useEffect(() => {
     const el = stageRef.current;
@@ -176,39 +186,45 @@ export function Hero() {
             }
           }}
         >
-          <div className="relative aspect-[4/5] overflow-hidden rounded-[36px] bg-section-grey sm:aspect-[5/4] sm:rounded-[48px]">
-            {SLIDES.map((s, i) => (
-              <Image
-                key={s.image}
-                src={s.image}
-                alt={i === index ? s.alt : ""}
-                fill
-                priority
-                sizes="(max-width: 640px) 92vw, (max-width: 1024px) 620px, 640px"
-                className={cn(
-                  "object-cover transition-opacity duration-700 ease-[cubic-bezier(0.22,1,0.36,1)]",
-                  i === index ? "opacity-100" : "opacity-0",
-                )}
-              />
-            ))}
+          <div className="relative">
+            <div className="relative aspect-[4/5] overflow-hidden rounded-[36px] bg-section-grey sm:aspect-[5/4] sm:rounded-[48px]">
+              {SLIDES.map((s, i) => (
+                <Image
+                  key={s.image}
+                  src={s.image}
+                  alt={i === index ? s.alt : ""}
+                  fill
+                  priority
+                  sizes="(max-width: 640px) 92vw, (max-width: 1024px) 620px, 640px"
+                  className={cn(
+                    "object-cover transition-opacity duration-700 ease-[cubic-bezier(0.22,1,0.36,1)]",
+                    i === index ? "opacity-100" : "opacity-0",
+                  )}
+                />
+              ))}
 
-            {slide.badges.map((badge) => (
-              <GlassBadge
-                key={`${index}-${badge.label}`}
-                icon={badge.icon}
-                label={badge.label}
-                className={cn(
-                  badge.className,
-                  "motion-safe:animate-rise",
-                )}
-              />
-            ))}
+              {slide.badges.map((badge) => (
+                <GlassBadge
+                  key={`${index}-${badge.label}`}
+                  icon={
+                    badge.icon === "currency" ? currencyIcon : badge.icon
+                  }
+                  label={badge.label}
+                  className={cn(
+                    badge.className,
+                    "motion-safe:animate-rise",
+                  )}
+                />
+              ))}
+            </div>
 
-            <div className="pointer-events-none absolute -bottom-[8%] -right-[6%] z-10 sm:-bottom-[10%] sm:-right-[4%]">
+            {/* Outside overflow-hidden so the bezel can break the frame edge.
+                Width is % of the frame so mobile/desktop scale together. */}
+            <div className="pointer-events-none absolute -bottom-[8%] -right-[6%] z-20 w-[28%] sm:-bottom-[10%] sm:-right-[4%] sm:w-[24%] lg:w-[23%]">
               <ProductPhone
                 screen={slide.screen}
                 priority
-                className="mx-0 w-[100px] sm:w-[130px] lg:w-[145px]"
+                className="mx-0 w-full"
               />
             </div>
           </div>
