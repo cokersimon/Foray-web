@@ -16,6 +16,13 @@ const NAV_LINKS = [
 
 /** Ignore tiny trackpad jitter when deciding scroll direction. */
 const DIRECTION_THRESHOLD_PX = 8;
+/** Hide the bar after this much downward travel (still fairly snappy). */
+const HIDE_DISTANCE_PX = 24;
+/**
+ * Reveal only after a meaningful upward swipe — about one solid flick —
+ * so small page adjustments do not pop the toolbar back.
+ */
+const REVEAL_DISTANCE_PX = 110;
 /** Keep the bar visible while near the very top of the page. */
 const TOP_REVEAL_PX = 24;
 /** How long to ignore direction updates during a nav jump. */
@@ -36,11 +43,15 @@ export function Navbar() {
   const [navHidden, setNavHidden] = useState(false);
   const lenis = useLenis();
   const lastY = useRef(0);
+  /** Accumulated travel in the current direction before hide/reveal fires. */
+  const travelY = useRef(0);
   const jumpLock = useRef(false);
   const jumpTimer = useRef<number | null>(null);
   const didHashScroll = useRef(false);
   const menuOpenRef = useRef(menuOpen);
+  const navHiddenRef = useRef(navHidden);
   menuOpenRef.current = menuOpen;
+  navHiddenRef.current = navHidden;
 
   useEffect(() => {
     lastY.current = window.scrollY || document.documentElement.scrollTop;
@@ -50,6 +61,7 @@ export function Navbar() {
     if (!menuOpen) return;
     const previous = document.body.style.overflow;
     document.body.style.overflow = "hidden";
+    travelY.current = 0;
     setNavHidden(false);
     return () => {
       document.body.style.overflow = previous;
@@ -94,10 +106,12 @@ export function Navbar() {
   function applyScrollY(y: number) {
     if (jumpLock.current || menuOpenRef.current) {
       lastY.current = y;
+      travelY.current = 0;
       return;
     }
 
     if (y <= TOP_REVEAL_PX) {
+      travelY.current = 0;
       setNavHidden(false);
       lastY.current = y;
       return;
@@ -106,9 +120,24 @@ export function Navbar() {
     const delta = y - lastY.current;
     if (Math.abs(delta) < DIRECTION_THRESHOLD_PX) return;
 
-    const hide = delta > 0;
-    setNavHidden((prev) => (prev === hide ? prev : hide));
+    // Same direction as current travel → accumulate; reverse → reset.
+    if ((delta > 0 && travelY.current >= 0) || (delta < 0 && travelY.current <= 0)) {
+      travelY.current += delta;
+    } else {
+      travelY.current = delta;
+    }
     lastY.current = y;
+
+    if (!navHiddenRef.current && travelY.current >= HIDE_DISTANCE_PX) {
+      travelY.current = 0;
+      setNavHidden(true);
+      return;
+    }
+
+    if (navHiddenRef.current && travelY.current <= -REVEAL_DISTANCE_PX) {
+      travelY.current = 0;
+      setNavHidden(false);
+    }
   }
 
   // Hide on scroll down, reveal on scroll up (native / mobile; Lenis below).
@@ -133,10 +162,12 @@ export function Navbar() {
 
   function beginJumpLock(ms: number) {
     jumpLock.current = true;
+    travelY.current = 0;
     clearJumpTimer();
     jumpTimer.current = window.setTimeout(() => {
       jumpLock.current = false;
       jumpTimer.current = null;
+      travelY.current = 0;
       lastY.current = window.scrollY || document.documentElement.scrollTop;
       lenis?.start();
     }, ms);
