@@ -18,18 +18,25 @@ const NAV_LINKS = [
 const DIRECTION_THRESHOLD_PX = 8;
 /** Hide the bar after this much downward travel (still fairly snappy). */
 const HIDE_DISTANCE_PX = 24;
-/**
- * Reveal only after a meaningful upward swipe — about one solid flick —
- * so small page adjustments do not pop the toolbar back.
- */
-const REVEAL_DISTANCE_PX = 110;
+/** Reveal after a solid upward swipe on phones. */
+const REVEAL_DISTANCE_MOBILE_PX = 110;
+/** Reveal after a longer upward scroll on laptop / desktop trackpads. */
+const REVEAL_DISTANCE_DESKTOP_PX = 200;
 /** Keep the bar visible while near the very top of the page. */
 const TOP_REVEAL_PX = 24;
 /** How long to ignore direction updates during a nav jump. */
 const JUMP_LOCK_MS = 1200;
 
+const COARSE_POINTER = "(hover: none), (pointer: coarse)";
+
 function prefersReducedMotion() {
   return window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+}
+
+function revealDistancePx() {
+  return window.matchMedia(COARSE_POINTER).matches
+    ? REVEAL_DISTANCE_MOBILE_PX
+    : REVEAL_DISTANCE_DESKTOP_PX;
 }
 
 /** Absolute document Y of an element's top edge. */
@@ -134,7 +141,7 @@ export function Navbar() {
       return;
     }
 
-    if (navHiddenRef.current && travelY.current <= -REVEAL_DISTANCE_PX) {
+    if (navHiddenRef.current && travelY.current <= -revealDistancePx()) {
       travelY.current = 0;
       setNavHidden(false);
     }
