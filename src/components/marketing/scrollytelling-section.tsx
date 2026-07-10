@@ -17,31 +17,31 @@ const STEPS: Step[] = [
   {
     number: "01",
     label: "Choose a recipe",
-    body: "Browse hundreds of curated Foray recipes, or import from TikTok, Instagram or a food blog. Foray turns it into clear ingredients and steps.",
+    body: "Browse Foray recipes, or import from TikTok, Instagram or a food blog.",
     screen: "recipes",
   },
   {
     number: "02",
     label: "Grocery list",
-    body: "Quantities scale to your household servings. Duplicates are combined and the list is sorted by aisle, ready to check out online or in person.",
+    body: "Quantities scale to your household. The list is combined and sorted by aisle.",
     screen: "groceries",
   },
   {
     number: "03",
     label: "Shop in person",
-    body: "Take the aisle-sorted list into the store and tick items off as you go. No online checkout needed.",
+    body: "Take the aisle-sorted list into the store and tick items off as you go.",
     screen: "instore",
   },
   {
     number: "04",
     label: "Shop online",
-    body: "Foray fills your supermarket basket for you. Review, then check out with your usual retailer.",
+    body: "Foray fills your supermarket basket. Review, then check out as usual.",
     screen: "online",
   },
   {
     number: "05",
-    label: "Cook",
-    body: "Clear steps and timers stay beside the hob, so you can cook without juggling apps.",
+    label: "Cooking",
+    body: "Clear steps and timers stay beside the hob so you can cook hands-free.",
     screen: "cook",
   },
 ];
