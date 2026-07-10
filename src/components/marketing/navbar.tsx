@@ -5,8 +5,8 @@ import Link from "next/link";
 import { useLenis } from "lenis/react";
 import { Wordmark } from "@/components/brand/wordmark";
 import { SfSymbol } from "@/components/brand/sf-symbol";
-import { AppStoreBadge } from "./app-store-badge";
-import { trackNavClick } from "@/lib/analytics";
+import { trackDownloadApp, trackNavClick } from "@/lib/analytics";
+import { APP_STORE_URL } from "@/lib/site";
 import { cn } from "@/lib/cn";
 
 const NAV_LINKS = [
@@ -399,16 +399,26 @@ export function Navbar() {
                   {link.label}
                 </a>
               ))}
-              <AppStoreBadge
-                size="compact"
-                variant="white"
-                location="nav"
-                className="ml-1"
-              />
+              <a
+                href={APP_STORE_URL}
+                onClick={() => trackDownloadApp("nav")}
+                className="marketing-button marketing-button-compact ml-1"
+              >
+                Get Foray
+              </a>
             </div>
 
             <div className="flex items-center gap-2 md:hidden">
-              <AppStoreBadge size="compact" variant="white" location="nav" />
+              <a
+                href={APP_STORE_URL}
+                onClick={() => trackDownloadApp("nav")}
+                className={cn(
+                  "marketing-button marketing-button-compact",
+                  menuOpen && "marketing-button-on-dark",
+                )}
+              >
+                Download
+              </a>
               <button
                 type="button"
                 onClick={() => setMenuOpen((v) => !v)}
