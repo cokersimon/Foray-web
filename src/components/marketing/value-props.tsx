@@ -36,12 +36,14 @@ const PROPS = [
   },
 ];
 
-const SCROLL_SETTLE_MS = 900;
+const SCROLL_SETTLE_MS = 500;
 
 export function ValueProps() {
   const sectionRef = useRef<HTMLElement>(null);
   const scrollerRef = useRef<HTMLDivElement>(null);
   const programmaticScroll = useRef(false);
+  /** When true, index changed from user scroll — don't fight with a scrollTo. */
+  const indexFromScroll = useRef(false);
 
   const { index, goTo, progressKey, durationMs } = useTimedCarousel(
     PROPS.length,
@@ -49,6 +51,10 @@ export function ValueProps() {
   );
 
   useEffect(() => {
+    if (indexFromScroll.current) {
+      indexFromScroll.current = false;
+      return;
+    }
     const el = scrollerRef.current;
     if (!el) return;
     const card = el.querySelectorAll<HTMLElement>("[data-outcome-card]")[index];
@@ -79,7 +85,15 @@ export function ValueProps() {
         best = i;
       }
     });
-    if (best !== index) goTo(best);
+    if (best !== index) {
+      indexFromScroll.current = true;
+      goTo(best);
+    }
+  }
+
+  function selectDot(i: number) {
+    indexFromScroll.current = false;
+    goTo(i);
   }
 
   return (
@@ -107,12 +121,14 @@ export function ValueProps() {
         Full-width scroller (no section padding) so cards can peek to the
         viewport edge. Padding uses the same inset as Pricing titles:
         max(page-gutter, (sectionWidth - 80rem) / 2).
+        No scroll-smooth here — native snap feels better for swipe; dots still
+        use smooth scrollTo.
       */}
       <div
         ref={scrollerRef}
         onScroll={onScroll}
         className={cn(
-          "scrollbar-hide mt-12 flex w-full snap-x snap-mandatory gap-5 overflow-x-auto scroll-smooth pb-10 pt-4",
+          "scrollbar-hide mt-12 flex w-full snap-x snap-mandatory gap-5 overflow-x-auto pb-10 pt-4",
           "pl-[max(1.25rem,calc((100%-80rem)/2))] pr-[max(1.25rem,calc((100%-80rem)/2))]",
           "sm:pl-[max(1.5rem,calc((100%-80rem)/2))] sm:pr-[max(1.5rem,calc((100%-80rem)/2))]",
           "lg:pl-[max(2.5rem,calc((100%-80rem)/2))] lg:pr-[max(2.5rem,calc((100%-80rem)/2))]",
@@ -161,7 +177,7 @@ export function ValueProps() {
           <CarouselProgress
             count={PROPS.length}
             index={index}
-            onSelect={goTo}
+            onSelect={selectDot}
             autoplay={false}
             durationMs={durationMs}
             progressKey={progressKey}
