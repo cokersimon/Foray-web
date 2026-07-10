@@ -187,7 +187,7 @@ export function Hero() {
           </p>
 
           <div
-            className="motion-safe:animate-rise mt-7 flex justify-center sm:mt-8 lg:justify-start"
+            className="motion-safe:animate-rise mt-7 hidden justify-center sm:mt-8 md:flex lg:justify-start"
             style={{ animationDelay: "0.24s" }}
           >
             <AppStoreBadge location="hero" />
