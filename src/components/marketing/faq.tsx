@@ -10,6 +10,11 @@ const FAQS = [
       "Foray works with Sainsbury's, Tesco and Waitrose at launch, with more to follow. If online checkout is ever unavailable at your shop, the same aisle-sorted list works in store.",
   },
   {
+    question: "Where can I use Foray?",
+    answer:
+      "Foray is UK-first. Online checkout works at Sainsbury's, Tesco and Waitrose, and the in-store list works anywhere you shop. Europe and the US are next on the roadmap — follow @forayapp to hear when we land.",
+  },
+  {
     question: "What phone do I need?",
     answer:
       "Foray is an iPhone app and needs iOS 26 or later. Android is planned, and we will announce it when it lands.",
@@ -25,16 +30,24 @@ const FAQS = [
       "Yes. Your first seven days include everything. After that, Foray Pro is £4.99 a month or £54.99 a year, billed through the App Store and cancellable at any time.",
   },
   {
-    question: "Can I shop for my whole household?",
-    answer:
-      "Yes. Set household servings once and Foray scales every recipe and grocery list to match. Change it whenever the numbers at home change.",
-  },
-  {
     question: "How do I cancel?",
     answer:
       "In the App Store, like any other subscription: Settings, your name, Subscriptions, Foray. No emails to send, no hoops. Your plan and recipes stay put if you come back.",
   },
 ];
+
+const FAQ_JSON_LD = {
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  mainEntity: FAQS.map((faq) => ({
+    "@type": "Question",
+    name: faq.question,
+    acceptedAnswer: {
+      "@type": "Answer",
+      text: faq.answer,
+    },
+  })),
+};
 
 export function Faq() {
   return (
@@ -42,6 +55,10 @@ export function Faq() {
       id="faq"
       className="bg-background px-5 py-20 sm:px-6 md:py-28 lg:px-10 lg:py-32"
     >
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(FAQ_JSON_LD) }}
+      />
       <div className="mx-auto max-w-7xl">
         <div className="max-w-3xl">
           <h2 className="text-balance text-[clamp(2.4rem,5vw,4.25rem)] font-bold leading-[1.02] tracking-[-0.045em] text-foreground">

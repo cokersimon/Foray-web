@@ -12,6 +12,10 @@ export type ProductScreen =
   | "instore"
   | "online"
   | "cook"
+  | "hero-plan"
+  | "hero-groceries"
+  | "hero-recipes"
+  | "hero-create"
   | "hero-nutrition"
   | "hero-allergies"
   | "hero-instore"
@@ -32,6 +36,10 @@ type MockScreen =
 
 /** Real simulator captures — drop PNGs in /public/screenshots/ (see README). */
 const SCREENSHOTS: Partial<Record<ProductScreen, string>> = {
+  "hero-plan": "/screenshots/hero-plan.png",
+  "hero-groceries": "/screenshots/hero-groceries.png",
+  "hero-recipes": "/screenshots/hero-recipes.png",
+  "hero-create": "/screenshots/hero-create.png",
   "hero-nutrition": "/screenshots/hero-nutrition.png",
   "hero-allergies": "/screenshots/hero-allergies.png",
   "hero-instore": "/screenshots/hero-instore.png",
@@ -51,6 +59,10 @@ const SCREENSHOT_FALLBACK: Record<ProductScreen, MockScreen> = {
   instore: "instore",
   online: "online",
   cook: "cook",
+  "hero-plan": "recipes",
+  "hero-groceries": "online",
+  "hero-recipes": "recipes",
+  "hero-create": "recipes",
   "hero-nutrition": "recipes",
   "hero-allergies": "recipes",
   "hero-instore": "instore",

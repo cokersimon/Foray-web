@@ -1,102 +1,124 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import Image from "next/image";
 import { SfSymbol, type SfSymbolName } from "@/components/brand/sf-symbol";
-import {
-  browserLocale,
-  currencySfSymbolFromLocale,
-} from "@/lib/currency-sf-symbol";
 import { AppStoreBadge } from "./app-store-badge";
 import { CarouselProgress, useTimedCarousel } from "./carousel-progress";
 import { ProductPhone, type ProductScreen } from "./product-phone";
 import { cn } from "@/lib/cn";
 
-const HERO_DURATION_MS = 4500;
+const HERO_DURATION_MS = 4000;
 
 type HeroBadge = {
-  icon: SfSymbolName | "currency";
+  icon: SfSymbolName;
   label: string;
   className: string;
 };
 
 type HeroSlide = {
-  image: string;
   alt: string;
   screen: ProductScreen;
   badges: [HeroBadge, HeroBadge];
 };
 
+/**
+ * Six screens — slides 1–2 are the sales pitch; 3–6 for lingerers.
+ * Tags alternate corners so consecutive slides don’t stack in the same spot.
+ */
 const SLIDES: HeroSlide[] = [
   {
-    image: "/brand/hero-flatlay.webp",
-    alt: "Fresh recipe ingredients laid out for cooking",
-    screen: "hero-nutrition",
-    badges: [
-      {
-        icon: "clock",
-        label: "Save time",
-        className: "left-[4%] top-[10%] sm:left-[6%] sm:top-[12%]",
-      },
-      {
-        icon: "currency",
-        label: "Save money",
-        className: "right-[6%] top-[18%] sm:right-[10%] sm:top-[20%]",
-      },
-    ],
-  },
-  {
-    image: "/brand/hero-flatlay.webp",
-    alt: "Dietary preferences and allergens you can set in Foray",
-    screen: "hero-allergies",
-    badges: [
-      {
-        icon: "checkmarkSealFill",
-        label: "Diet-safe picks",
-        className: "left-[4%] top-[12%] sm:left-[6%] sm:top-[14%]",
-      },
-      {
-        icon: "forkKnife",
-        label: "Eat healthier",
-        className: "right-[6%] top-[22%] sm:right-[10%] sm:top-[24%]",
-      },
-    ],
-  },
-  {
-    image: "/brand/hero-shopping.webp",
-    alt: "Shopping with a trolley in a grocery aisle",
-    screen: "hero-instore",
+    alt: "A populated week of breakfasts, lunches and dinners in the Foray planner",
+    screen: "hero-plan",
     badges: [
       {
         icon: "forkKnife",
-        label: "Eat healthier",
-        className: "left-[5%] top-[12%] sm:left-[7%] sm:top-[14%]",
+        label: "Less to decide",
+        className: "-left-[18%] top-[18%] sm:-left-[14%] sm:top-[16%]",
       },
       {
         icon: "cart",
-        label: "Less to decide",
-        // Mobile: down + left so it clears the phone; desktop keeps airier placement.
-        className:
-          "right-[14%] top-[32%] sm:right-[8%] sm:top-[24%]",
+        label: "Trolley builds itself",
+        className: "-right-[22%] bottom-[28%] sm:-right-[18%] sm:bottom-[26%]",
       },
     ],
   },
   {
-    image: "/brand/hero-cooking.webp",
-    alt: "Cooking a meal in progress on the hob",
-    screen: "hero-cook",
+    alt: "Grocery list with prices and supermarket checkout options",
+    screen: "hero-groceries",
+    badges: [
+      {
+        icon: "banknote",
+        label: "Priced as you plan",
+        className: "-right-[18%] top-[16%] sm:-right-[14%] sm:top-[14%]",
+      },
+      {
+        icon: "cart",
+        label: "One tap to Tesco",
+        className: "-left-[20%] bottom-[30%] sm:-left-[16%] sm:bottom-[28%]",
+      },
+    ],
+  },
+  {
+    alt: "My Recipes library with saved meals and social import sources",
+    screen: "hero-recipes",
+    badges: [
+      {
+        icon: "heartFill",
+        label: "Save your recipes",
+        className: "-left-[18%] top-[20%] sm:-left-[14%] sm:top-[18%]",
+      },
+      {
+        icon: "arrowRight",
+        label: "Import from TikTok",
+        className: "-right-[20%] bottom-[26%] sm:-right-[16%] sm:bottom-[24%]",
+      },
+    ],
+  },
+  {
+    alt: "Add a Recipe hub with Chef AI, URL import, photo and pantry",
+    screen: "hero-create",
+    badges: [
+      {
+        icon: "checkmarkSealFill",
+        label: "Snap your pantry",
+        className: "-right-[18%] top-[18%] sm:-right-[14%] sm:top-[16%]",
+      },
+      {
+        icon: "forkKnife",
+        label: "Get creative with Chef AI",
+        className: "-left-[24%] bottom-[28%] sm:-left-[20%] sm:bottom-[26%]",
+      },
+    ],
+  },
+  {
+    alt: "Meal nutrition facts and allergy-safe dietary picks",
+    screen: "hero-nutrition",
     badges: [
       {
         icon: "chartPieFill",
         label: "Know what you're eating",
-        className: "left-[3%] top-[10%] sm:left-[5%] sm:top-[12%]",
+        className: "-left-[22%] top-[16%] sm:-left-[18%] sm:top-[14%]",
       },
       {
-        icon: "trashFill",
-        label: "Less waste",
-        // Mobile: nudge down ~16px so it sits clearer above the phone.
-        className:
-          "right-[8%] top-[calc(20%+1rem)] sm:right-[10%] sm:top-[22%]",
+        icon: "checkmarkSealFill",
+        label: "Allergy-safe picks",
+        className: "-right-[18%] bottom-[30%] sm:-right-[14%] sm:bottom-[28%]",
+      },
+    ],
+  },
+  {
+    alt: "Cook mode with a live countdown timer and step tracking",
+    screen: "hero-cook",
+    badges: [
+      {
+        icon: "clock",
+        label: "Live timers",
+        className: "-right-[14%] top-[18%] sm:-right-[12%] sm:top-[16%]",
+      },
+      {
+        icon: "checkmark",
+        label: "Steps on Lock Screen",
+        className: "-left-[22%] bottom-[26%] sm:-left-[18%] sm:bottom-[24%]",
       },
     ],
   },
@@ -127,30 +149,14 @@ export function Hero() {
   const stageRef = useRef<HTMLDivElement>(null);
   const touchStartX = useRef<number | null>(null);
   const [inView, setInView] = useState(true);
-  /** Desktop keeps autoplay; phones are swipe-only (no slideshow fill). */
-  const [autoplayEnabled, setAutoplayEnabled] = useState(false);
-  const [currencyIcon, setCurrencyIcon] =
-    useState<SfSymbolName>("sterlingsign");
   const { index, goTo, progressKey, durationMs, autoplay, setPaused } =
     useTimedCarousel(SLIDES.length, {
       durationMs: HERO_DURATION_MS,
       inView,
-      autoplay: autoplayEnabled,
+      autoplay: true,
     });
 
   const slide = SLIDES[index]!;
-
-  useEffect(() => {
-    setCurrencyIcon(currencySfSymbolFromLocale(browserLocale()));
-  }, []);
-
-  useEffect(() => {
-    const mq = window.matchMedia("(min-width: 768px)");
-    const sync = () => setAutoplayEnabled(mq.matches);
-    sync();
-    mq.addEventListener("change", sync);
-    return () => mq.removeEventListener("change", sync);
-  }, []);
 
   useEffect(() => {
     const el = stageRef.current;
@@ -175,28 +181,12 @@ export function Hero() {
     if (start == null) return;
     const dx = (e.changedTouches[0]?.clientX ?? start) - start;
     if (Math.abs(dx) < 48) return;
-    // Swipe left → next, swipe right → previous (same language as how-it-works).
     goTo(index + (dx < 0 ? 1 : -1));
   }
 
   return (
     <section className="relative overflow-hidden bg-background px-5 pb-16 pt-12 sm:px-6 sm:pb-20 sm:pt-16 md:pb-28 md:pt-20 lg:px-10 lg:pt-24 lg:pb-32">
-      {/* Prefetch all carousel WebPs so the first crossfade never flashes. */}
-      <div className="pointer-events-none absolute h-0 w-0 overflow-hidden opacity-0" aria-hidden>
-        {SLIDES.map((s) => (
-          <Image
-            key={`preload-${s.image}`}
-            src={s.image}
-            alt=""
-            width={1536}
-            height={1024}
-            priority
-            sizes="1px"
-          />
-        ))}
-      </div>
-
-      <div className="mx-auto grid max-w-7xl items-center gap-8 sm:gap-12 lg:grid-cols-[0.92fr_1.08fr] lg:gap-10">
+      <div className="mx-auto grid max-w-7xl items-center gap-10 sm:gap-12 lg:grid-cols-[0.9fr_1.1fr] lg:gap-8">
         <div className="relative z-10 text-center lg:text-left">
           <h1
             className="motion-safe:animate-rise text-balance text-[clamp(2.6rem,7.2vw,5.75rem)] font-bold leading-[1.02] tracking-[-0.045em] text-foreground"
@@ -210,11 +200,11 @@ export function Hero() {
             style={{ animationDelay: "0.16s" }}
           >
             Swipe through recipes, tap to add, and your trolley builds itself.
-            Foray fills your online basket for you, or shop in person.
+            Foray fills your online basket for you, or helps you shop in person.
           </p>
 
           <div
-            className="motion-safe:animate-rise mt-7 hidden justify-center sm:mt-8 md:flex lg:justify-start"
+            className="motion-safe:animate-rise mt-7 flex justify-center sm:mt-8 lg:justify-start"
             style={{ animationDelay: "0.24s" }}
           >
             <AppStoreBadge location="hero" />
@@ -223,7 +213,7 @@ export function Hero() {
 
         <div
           ref={stageRef}
-          className="motion-safe:animate-rise relative mx-auto w-full max-w-[380px] touch-pan-y sm:max-w-[620px] md:max-w-[700px] lg:max-w-none"
+          className="motion-safe:animate-rise relative mx-auto w-full max-w-[280px] touch-pan-y sm:max-w-[320px] md:max-w-[360px] lg:max-w-[400px]"
           style={{ animationDelay: "0.18s" }}
           onMouseEnter={() => setPaused(true)}
           onMouseLeave={() => setPaused(false)}
@@ -236,50 +226,24 @@ export function Hero() {
           onTouchStart={onTouchStart}
           onTouchEnd={onTouchEnd}
         >
-          <div className="relative">
-            <div className="relative aspect-[4/5] overflow-hidden rounded-[36px] bg-section-grey sm:aspect-[5/4] sm:rounded-[48px]">
-              {SLIDES.map((s, i) => (
-                <Image
-                  key={s.image}
-                  src={s.image}
-                  alt={i === index ? s.alt : ""}
-                  fill
-                  priority
-                  sizes="(max-width: 640px) 92vw, (max-width: 1024px) 700px, 640px"
-                  className={cn(
-                    "object-cover transition-opacity duration-700 ease-[cubic-bezier(0.22,1,0.36,1)]",
-                    i === index ? "opacity-100" : "opacity-0",
-                  )}
-                  draggable={false}
-                />
-              ))}
-
-              {slide.badges.map((badge) => (
-                <GlassBadge
-                  key={`${index}-${badge.label}`}
-                  icon={
-                    badge.icon === "currency" ? currencyIcon : badge.icon
-                  }
-                  label={badge.label}
-                  className={cn(
-                    badge.className,
-                    "motion-safe:animate-rise",
-                  )}
-                />
-              ))}
-            </div>
-
-            {/* Outside overflow-hidden so the bezel can break the frame edge.
-                Width is % of the frame so mobile/desktop scale together.
-                Mobile: inset ~16px from the right so it doesn’t kiss the viewport. */}
-            <div className="pointer-events-none absolute -bottom-[8%] right-4 z-20 w-[28%] sm:-bottom-[10%] sm:right-[-4%] sm:w-[24%] lg:w-[23%]">
-              <ProductPhone
-                screen={slide.screen}
-                priority
-                className="mx-0 w-full"
+          {/* Phone is the hero object; tags sit half-on / half-off the bezel. */}
+          <div className="relative mx-auto w-[78%] sm:w-[80%]">
+            <ProductPhone
+              screen={slide.screen}
+              priority
+              className="mx-0 w-full"
+            />
+            {slide.badges.map((badge) => (
+              <GlassBadge
+                key={`${slide.screen}-${badge.label}`}
+                icon={badge.icon}
+                label={badge.label}
+                className={cn(badge.className, "motion-safe:animate-rise")}
               />
-            </div>
+            ))}
           </div>
+
+          <p className="sr-only">{slide.alt}</p>
 
           <CarouselProgress
             count={SLIDES.length}
@@ -288,7 +252,7 @@ export function Hero() {
             autoplay={autoplay}
             durationMs={durationMs}
             progressKey={progressKey}
-            className="mt-5"
+            className="mt-6"
           />
         </div>
       </div>
