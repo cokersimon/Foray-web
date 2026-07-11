@@ -77,15 +77,15 @@ export function ScrollytellingSection() {
       onTouchEnd={onTouchEnd}
     >
       <div className="mx-auto max-w-3xl px-5 pt-20 text-center sm:px-6 md:pt-28 lg:pt-32">
-        <p className="text-sm font-semibold tracking-wide text-muted">
-          How it works
-        </p>
-        <h2 className="mt-3 text-balance text-[clamp(2rem,5vw,3.25rem)] font-bold leading-[1.08] tracking-[-0.04em]">
+        <h2 className="text-balance text-[clamp(2rem,5vw,3.25rem)] font-bold leading-[1.08] tracking-[-0.04em]">
           The whole loop
           <span className="text-brand-dot">.</span>
         </h2>
-        <p className="mx-auto mt-4 max-w-lg text-pretty text-base leading-relaxed text-muted sm:text-lg">
-          Five steps, one app — here&apos;s how a week with Foray actually runs.
+        <p className="mt-4 text-balance text-[clamp(1.35rem,2.6vw,1.9rem)] font-bold leading-[1.15] tracking-[-0.03em] text-foreground">
+          How it works?
+        </p>
+        <p className="mx-auto mt-3 max-w-lg text-pretty text-base leading-relaxed text-muted sm:text-lg">
+          Five steps, one app. Here&apos;s how a week with Foray actually runs.
         </p>
 
         <AnimatePresence mode="wait">
@@ -97,10 +97,9 @@ export function ScrollytellingSection() {
             transition={{ duration: 0.32, ease: [0.22, 1, 0.36, 1] }}
             className="mt-10"
           >
-            <p className="font-mono text-xs font-semibold tracking-[0.14em] text-muted tabular-nums">
-              {step.number}
-            </p>
-            <h3 className="mt-2 text-balance text-[clamp(1.35rem,2.6vw,1.9rem)] font-bold leading-[1.15] tracking-[-0.03em]">
+            <h3 className="text-balance text-[clamp(1.35rem,2.6vw,1.9rem)] font-bold leading-[1.15] tracking-[-0.03em]">
+              <span className="tabular-nums">{step.number}</span>
+              <span className="text-brand-dot">.</span>{" "}
               {step.label}
             </h3>
             <p className="mx-auto mt-3 max-w-lg text-pretty text-base leading-relaxed text-muted">
