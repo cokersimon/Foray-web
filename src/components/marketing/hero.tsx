@@ -141,14 +141,15 @@ const SLIDES: HeroSlide[] = [
   },
 ];
 
-function badgePositionClass(side: BadgeSide, edge: BadgeEdge, order: number) {
+function badgePositionClass(side: BadgeSide, edge: BadgeEdge) {
   return cn(
     "absolute z-20 max-w-[min(11.5rem,42vw)] lg:max-w-[12.5rem]",
-    // Mobile: top-left + bottom-right, 16px from the phone bezel (not the stage).
-    order === 0
-      ? "left-4 top-4 right-auto bottom-auto"
-      : "right-4 bottom-4 left-auto top-auto",
-    // Desktop: keep per-slide side/edge beside the phone.
+    // Mobile: 16px from the device/stage edge (not the mockup bezel).
+    side === "left" && "left-4 right-auto",
+    side === "right" && "right-4 left-auto",
+    edge === "top" && "top-4 bottom-auto",
+    edge === "bottom" && "bottom-4 top-auto",
+    // Desktop: beside the phone bezel.
     "lg:left-auto lg:right-auto lg:top-auto lg:bottom-auto",
     side === "left" && "lg:right-full lg:mr-4",
     side === "right" && "lg:left-full lg:ml-4",
@@ -265,32 +266,49 @@ export function Hero() {
               priority
               className="mx-0 w-full"
             >
-              {/* Tags sit on the phone box so 16px is from the bezel, not the stage */}
+              {/* Desktop: tags beside the phone bezel */}
               <AnimatePresence mode="wait">
                 <motion.div
-                  key={slide.screen}
-                  className="pointer-events-none absolute inset-0 z-20"
+                  key={`desk-${slide.screen}`}
+                  className="pointer-events-none absolute inset-0 z-20 hidden lg:block"
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   exit={{ opacity: 0 }}
                   transition={{ duration: 0.28, ease: [0.22, 1, 0.36, 1] }}
                 >
-                  {slide.badges.map((badge, order) => (
+                  {slide.badges.map((badge) => (
                     <GlassBadge
                       key={badge.label}
                       icon={badge.icon}
                       label={badge.label}
-                      className={badgePositionClass(
-                        badge.side,
-                        badge.edge,
-                        order,
-                      )}
+                      className={badgePositionClass(badge.side, badge.edge)}
                     />
                   ))}
                 </motion.div>
               </AnimatePresence>
             </ProductPhone>
           </div>
+
+          {/* Mobile: 16px from the device edge, overlapping the mockup */}
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={`mob-${slide.screen}`}
+              className="pointer-events-none absolute inset-x-0 top-0 bottom-14 z-20 lg:hidden"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.28, ease: [0.22, 1, 0.36, 1] }}
+            >
+              {slide.badges.map((badge) => (
+                <GlassBadge
+                  key={badge.label}
+                  icon={badge.icon}
+                  label={badge.label}
+                  className={badgePositionClass(badge.side, badge.edge)}
+                />
+              ))}
+            </motion.div>
+          </AnimatePresence>
 
           <p className="sr-only">{slide.alt}</p>
 

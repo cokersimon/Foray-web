@@ -471,7 +471,7 @@ function PhoneScreen({
         fill
         sizes="280px"
         priority={priority}
-        className="object-cover object-top"
+        className="bg-black object-cover object-top"
         onError={() => setUseMock(true)}
       />
     );
@@ -523,7 +523,7 @@ export function ProductPhone({
             }}
           >
             <div
-              className="absolute overflow-hidden bg-[#f5f5f2]"
+              className="absolute overflow-hidden bg-black"
               style={{
                 top: `${(inset.top / height) * 100}%`,
                 right: `${(inset.right / width) * 100}%`,
