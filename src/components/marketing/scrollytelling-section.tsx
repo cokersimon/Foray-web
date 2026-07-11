@@ -46,10 +46,36 @@ const STEPS: Step[] = [
   },
 ];
 
+function StepArrow({
+  direction,
+  disabled,
+  onClick,
+}: {
+  direction: "prev" | "next";
+  disabled: boolean;
+  onClick: () => void;
+}) {
+  const isPrev = direction === "prev";
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      disabled={disabled}
+      aria-label={isPrev ? "Previous step" : "Next step"}
+      className={cn(
+        "glass-chip-clear relative flex h-10 w-10 shrink-0 cursor-pointer items-center justify-center",
+        disabled && "pointer-events-none cursor-default opacity-35",
+      )}
+    >
+      <SfSymbol name={isPrev ? "chevronLeft" : "chevronRight"} size="small" />
+    </button>
+  );
+}
+
 export function ScrollytellingSection() {
   const [index, setIndex] = useState(0);
   const touchStartX = useRef<number | null>(null);
-  const step = STEPS[index];
+  const step = STEPS[index]!;
   const atStart = index === 0;
   const atEnd = index === STEPS.length - 1;
 
@@ -63,124 +89,90 @@ export function ScrollytellingSection() {
 
   function onTouchEnd(e: React.TouchEvent) {
     if (touchStartX.current == null) return;
-    const dx = (e.changedTouches[0]?.clientX ?? touchStartX.current) - touchStartX.current;
+    const dx =
+      (e.changedTouches[0]?.clientX ?? touchStartX.current) - touchStartX.current;
     touchStartX.current = null;
     if (Math.abs(dx) < 48) return;
     goTo(index + (dx < 0 ? 1 : -1));
   }
 
   return (
-    <section
-      id="how-it-works"
-      className="bg-section-grey text-foreground"
-      onTouchStart={onTouchStart}
-      onTouchEnd={onTouchEnd}
-    >
-      <div className="mx-auto max-w-3xl px-5 pt-20 text-center sm:px-6 md:pt-28 lg:pt-32">
-        <h2 className="text-balance text-[clamp(2rem,5vw,3.25rem)] font-bold leading-[1.08] tracking-[-0.04em]">
-          The whole loop
-          <span className="text-brand-dot">.</span>
-        </h2>
-        <p className="mt-4 text-balance text-[clamp(1.35rem,2.6vw,1.9rem)] font-bold leading-[1.15] tracking-[-0.03em] text-foreground">
-          How it works?
-        </p>
-        <p className="mx-auto mt-3 max-w-lg text-pretty text-base leading-relaxed text-muted sm:text-lg">
-          Five steps, one app. Here&apos;s how a week with Foray actually runs.
-        </p>
+    <section id="how-it-works" className="bg-section-grey text-foreground">
+      <div className="mx-auto grid max-w-7xl gap-12 px-5 py-20 sm:px-6 md:py-28 lg:grid-cols-[minmax(0,0.95fr)_minmax(0,1.05fr)] lg:items-center lg:gap-16 lg:px-10 lg:py-32">
+        {/* Left — fixed context */}
+        <div className="max-w-xl text-center lg:text-left">
+          <p className="text-[0.7rem] font-semibold uppercase tracking-[0.18em] text-brand-dot sm:text-xs">
+            The Foray experience
+          </p>
+          <h2 className="mt-4 text-balance text-[clamp(2.25rem,5vw,3.75rem)] font-bold leading-[1.05] tracking-[-0.045em]">
+            Your week on autoplay
+            <span className="text-brand-dot">.</span>
+          </h2>
+          <p className="mx-auto mt-5 max-w-md text-pretty text-base leading-relaxed text-muted sm:text-lg lg:mx-0">
+            Five steps, one app. Here&apos;s how a week with Foray actually runs.
+          </p>
+        </div>
 
-        <AnimatePresence mode="wait">
-          <motion.div
-            key={`copy-${step.number}`}
-            initial={{ opacity: 0, y: 12 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -8 }}
-            transition={{ duration: 0.32, ease: [0.22, 1, 0.36, 1] }}
-            className="mt-10"
-          >
-            <h3 className="text-balance text-[clamp(1.35rem,2.6vw,1.9rem)] font-bold leading-[1.15] tracking-[-0.03em]">
-              <span className="tabular-nums">{step.number}</span>
-              <span className="text-brand-dot">.</span>{" "}
-              {step.label}
-            </h3>
-            <p className="mx-auto mt-3 max-w-lg text-pretty text-base leading-relaxed text-muted">
-              {step.body}
-            </p>
-          </motion.div>
-        </AnimatePresence>
-      </div>
-
-      {/*
-        Bezel stays mounted across steps — only screen content + copy change.
-        On lg+, glass controls sit mid-gutter via 1fr | phone | 1fr.
-      */}
-      <div className="mx-auto w-full px-5 pb-20 pt-10 sm:px-6 md:pb-28 lg:px-0 lg:pb-32">
+        {/* Right — interactive step slider only */}
         <div
-          className={cn(
-            "flex w-full items-center justify-center gap-3 sm:gap-5",
-            "lg:grid lg:grid-cols-[1fr_auto_1fr] lg:gap-0",
-          )}
+          className="relative flex flex-col items-center"
+          onTouchStart={onTouchStart}
+          onTouchEnd={onTouchEnd}
         >
-          <div className="flex justify-center">
-            <button
-              type="button"
-              onClick={() => goTo(index - 1)}
-              disabled={atStart}
-              aria-label="Previous step"
-              className={cn(
-                "flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-foreground/55 lg:hidden",
-                atStart
-                  ? "cursor-default opacity-30"
-                  : "hover:bg-black/[0.06] hover:text-foreground",
-              )}
-            >
-              <SfSymbol name="chevronLeft" size="small" />
-            </button>
-            <button
-              type="button"
-              onClick={() => goTo(index - 1)}
-              disabled={atStart}
-              aria-label="Previous step"
-              className={cn(
-                "glass-chip-clear relative hidden h-10 w-10 shrink-0 cursor-pointer items-center justify-center lg:flex",
-                atStart && "pointer-events-none cursor-default opacity-35",
-              )}
-            >
-              <SfSymbol name="chevronLeft" size="small" />
-            </button>
+          <div className="flex w-full max-w-md items-start justify-center gap-3 sm:gap-4">
+            <div className="flex pt-1">
+              <StepArrow
+                direction="prev"
+                disabled={atStart}
+                onClick={() => goTo(index - 1)}
+              />
+            </div>
+
+            <div className="min-w-0 flex-1 text-center">
+              <AnimatePresence mode="wait">
+                <motion.div
+                  key={`step-${step.number}`}
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -8 }}
+                  transition={{ duration: 0.28, ease: [0.22, 1, 0.36, 1] }}
+                >
+                  <h3 className="text-balance text-[clamp(1.35rem,2.6vw,1.9rem)] font-bold leading-[1.15] tracking-[-0.03em]">
+                    <span className="tabular-nums">{step.number}</span>
+                    <span className="text-brand-dot">.</span>{" "}
+                    {step.label}
+                  </h3>
+                  <p className="mx-auto mt-3 max-w-sm text-pretty text-base leading-relaxed text-muted">
+                    {step.body}
+                  </p>
+                </motion.div>
+              </AnimatePresence>
+            </div>
+
+            <div className="flex pt-1">
+              <StepArrow
+                direction="next"
+                disabled={atEnd}
+                onClick={() => goTo(index + 1)}
+              />
+            </div>
           </div>
 
-          <ProductPhone
-            screen={step.screen}
-            className="w-[230px] sm:w-[260px] md:w-[270px] lg:w-[278px]"
-          />
-
-          <div className="flex justify-center">
-            <button
-              type="button"
-              onClick={() => goTo(index + 1)}
-              disabled={atEnd}
-              aria-label="Next step"
-              className={cn(
-                "flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-foreground/55 lg:hidden",
-                atEnd
-                  ? "cursor-default opacity-30"
-                  : "hover:bg-black/[0.06] hover:text-foreground",
-              )}
-            >
-              <SfSymbol name="chevronRight" size="small" />
-            </button>
-            <button
-              type="button"
-              onClick={() => goTo(index + 1)}
-              disabled={atEnd}
-              aria-label="Next step"
-              className={cn(
-                "glass-chip-clear relative hidden h-10 w-10 shrink-0 cursor-pointer items-center justify-center lg:flex",
-                atEnd && "pointer-events-none cursor-default opacity-35",
-              )}
-            >
-              <SfSymbol name="chevronRight" size="small" />
-            </button>
+          <div className="mt-8 flex justify-center sm:mt-10">
+            <AnimatePresence mode="wait">
+              <motion.div
+                key={`phone-${step.screen}`}
+                initial={{ opacity: 0, y: 12 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -8 }}
+                transition={{ duration: 0.28, ease: [0.22, 1, 0.36, 1] }}
+              >
+                <ProductPhone
+                  screen={step.screen}
+                  className="w-[230px] sm:w-[260px] md:w-[270px] lg:w-[278px]"
+                />
+              </motion.div>
+            </AnimatePresence>
           </div>
         </div>
       </div>
