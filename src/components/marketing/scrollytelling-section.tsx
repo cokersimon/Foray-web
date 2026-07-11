@@ -46,7 +46,7 @@ const STEPS: Step[] = [
   },
 ];
 
-function StepArrow({
+function StepControl({
   direction,
   disabled,
   onClick,
@@ -56,19 +56,40 @@ function StepArrow({
   onClick: () => void;
 }) {
   const isPrev = direction === "prev";
+  const label = isPrev ? "Previous step" : "Next step";
+  const icon = isPrev ? "chevronLeft" : "chevronRight";
+
   return (
-    <button
-      type="button"
-      onClick={onClick}
-      disabled={disabled}
-      aria-label={isPrev ? "Previous step" : "Next step"}
-      className={cn(
-        "glass-chip-clear relative flex h-10 w-10 shrink-0 cursor-pointer items-center justify-center",
-        disabled && "pointer-events-none cursor-default opacity-35",
-      )}
-    >
-      <SfSymbol name={isPrev ? "chevronLeft" : "chevronRight"} size="small" />
-    </button>
+    <>
+      {/* Mobile — plain chevron beside the phone */}
+      <button
+        type="button"
+        onClick={onClick}
+        disabled={disabled}
+        aria-label={label}
+        className={cn(
+          "flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-foreground/55 lg:hidden",
+          disabled
+            ? "cursor-default opacity-30"
+            : "hover:bg-black/[0.06] hover:text-foreground",
+        )}
+      >
+        <SfSymbol name={icon} size="small" />
+      </button>
+      {/* Desktop — liquid-glass chip beside the phone */}
+      <button
+        type="button"
+        onClick={onClick}
+        disabled={disabled}
+        aria-label={label}
+        className={cn(
+          "glass-chip-clear relative hidden h-10 w-10 shrink-0 cursor-pointer items-center justify-center lg:flex",
+          disabled && "pointer-events-none cursor-default opacity-35",
+        )}
+      >
+        <SfSymbol name={icon} size="small" />
+      </button>
+    </>
   );
 }
 
@@ -90,7 +111,8 @@ export function ScrollytellingSection() {
   function onTouchEnd(e: React.TouchEvent) {
     if (touchStartX.current == null) return;
     const dx =
-      (e.changedTouches[0]?.clientX ?? touchStartX.current) - touchStartX.current;
+      (e.changedTouches[0]?.clientX ?? touchStartX.current) -
+      touchStartX.current;
     touchStartX.current = null;
     if (Math.abs(dx) < 48) return;
     goTo(index + (dx < 0 ? 1 : -1));
@@ -113,56 +135,47 @@ export function ScrollytellingSection() {
           </p>
         </div>
 
-        {/* Right — interactive step slider only */}
+        {/* Right — step copy, then phone with controls immediately beside it */}
         <div
           className="relative flex flex-col items-center"
           onTouchStart={onTouchStart}
           onTouchEnd={onTouchEnd}
         >
-          <div className="flex w-full max-w-md items-start justify-center gap-3 sm:gap-4">
-            <div className="flex pt-1">
-              <StepArrow
-                direction="prev"
-                disabled={atStart}
-                onClick={() => goTo(index - 1)}
-              />
-            </div>
-
-            <div className="min-w-0 flex-1 text-center">
-              <AnimatePresence mode="wait">
-                <motion.div
-                  key={`step-${step.number}`}
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -8 }}
-                  transition={{ duration: 0.28, ease: [0.22, 1, 0.36, 1] }}
-                >
-                  <h3 className="text-balance text-[clamp(1.35rem,2.6vw,1.9rem)] font-bold leading-[1.15] tracking-[-0.03em]">
-                    <span className="tabular-nums">{step.number}</span>
-                    <span className="text-brand-dot">.</span>{" "}
-                    {step.label}
-                  </h3>
-                  <p className="mx-auto mt-3 max-w-sm text-pretty text-base leading-relaxed text-muted">
-                    {step.body}
-                  </p>
-                </motion.div>
-              </AnimatePresence>
-            </div>
-
-            <div className="flex pt-1">
-              <StepArrow
-                direction="next"
-                disabled={atEnd}
-                onClick={() => goTo(index + 1)}
-              />
-            </div>
+          <div className="w-full max-w-md text-center">
+            <AnimatePresence mode="wait">
+              <motion.div
+                key={`step-${step.number}`}
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -8 }}
+                transition={{ duration: 0.28, ease: [0.22, 1, 0.36, 1] }}
+              >
+                <h3 className="text-balance text-[clamp(1.35rem,2.6vw,1.9rem)] font-bold leading-[1.15] tracking-[-0.03em]">
+                  <span className="tabular-nums">{step.number}</span>
+                  <span className="text-brand-dot">.</span>{" "}
+                  {step.label}
+                </h3>
+                <p className="mx-auto mt-3 max-w-sm text-pretty text-base leading-relaxed text-muted">
+                  {step.body}
+                </p>
+              </motion.div>
+            </AnimatePresence>
           </div>
 
-          {/* Bezel stays mounted — only screen content + left/right step copy change. */}
-          <div className="mt-8 flex justify-center sm:mt-10">
+          <div className="mt-8 flex w-full items-center justify-center gap-3 sm:mt-10 sm:gap-5">
+            <StepControl
+              direction="prev"
+              disabled={atStart}
+              onClick={() => goTo(index - 1)}
+            />
             <ProductPhone
               screen={step.screen}
               className="w-[230px] sm:w-[260px] md:w-[270px] lg:w-[278px]"
+            />
+            <StepControl
+              direction="next"
+              disabled={atEnd}
+              onClick={() => goTo(index + 1)}
             />
           </div>
         </div>
