@@ -180,7 +180,7 @@ export function Hero() {
   }
 
   return (
-    <section className="relative overflow-hidden bg-background px-5 pb-16 pt-20 sm:px-6 sm:pb-20 sm:pt-24 md:pb-28 md:pt-28 lg:px-10 lg:pt-32 lg:pb-32">
+    <section className="relative overflow-hidden bg-background px-5 pb-16 pt-12 sm:px-6 sm:pb-20 sm:pt-16 md:pb-28 md:pt-20 lg:px-10 lg:pt-24 lg:pb-32">
       {/* Prefetch all carousel WebPs so the first crossfade never flashes. */}
       <div className="pointer-events-none absolute h-0 w-0 overflow-hidden opacity-0" aria-hidden>
         {SLIDES.map((s) => (

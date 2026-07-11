@@ -110,8 +110,8 @@
 html {
   color-scheme: light;
   background: var(--background);
-  /* Synced from the real toolbar height via --site-header-offset. */
-  scroll-padding-top: var(--site-header-offset, 5.5rem);
+  /* In-flow nav — no sticky offset for hash targets. */
+  scroll-padding-top: 0;
   scroll-behavior: smooth;
 }
 
