@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { AnimatePresence, motion } from "framer-motion";
 import { SfSymbol, type SfSymbolName } from "@/components/brand/sf-symbol";
 import { AppStoreBadge } from "./app-store-badge";
 import { CarouselProgress, useTimedCarousel } from "./carousel-progress";
@@ -17,6 +18,8 @@ type HeroBadge = {
   label: string;
   side: BadgeSide;
   edge: BadgeEdge;
+  /** Inner pill fill — icon disc stays black. */
+  tone: string;
 };
 
 type HeroSlide = {
@@ -26,7 +29,7 @@ type HeroSlide = {
 };
 
 /**
- * Six screens — slides 1–2 are the sales pitch; 3–6 for lingerers.
+ * Six screens — only the current slide’s two tags render.
  * Tags alternate sides/edges so consecutive slides don’t stack in the same spot.
  */
 const SLIDES: HeroSlide[] = [
@@ -34,12 +37,19 @@ const SLIDES: HeroSlide[] = [
     alt: "A populated week of breakfasts, lunches and dinners in the Foray planner",
     screen: "hero-plan",
     badges: [
-      { icon: "forkKnife", label: "Less to decide", side: "left", edge: "top" },
+      {
+        icon: "forkKnife",
+        label: "Less to decide",
+        side: "left",
+        edge: "top",
+        tone: "#FFE4C8",
+      },
       {
         icon: "cart",
         label: "Trolley builds itself",
         side: "right",
         edge: "bottom",
+        tone: "#D8F0E8",
       },
     ],
   },
@@ -52,12 +62,14 @@ const SLIDES: HeroSlide[] = [
         label: "Priced as you plan",
         side: "right",
         edge: "top",
+        tone: "#FFF0C2",
       },
       {
         icon: "cart",
         label: "One tap to Tesco",
         side: "left",
         edge: "bottom",
+        tone: "#D6ECFF",
       },
     ],
   },
@@ -70,12 +82,14 @@ const SLIDES: HeroSlide[] = [
         label: "Save your recipes",
         side: "left",
         edge: "top",
+        tone: "#FFDCE6",
       },
       {
         icon: "arrowRight",
         label: "Import from TikTok",
         side: "right",
         edge: "bottom",
+        tone: "#E2F4D8",
       },
     ],
   },
@@ -88,12 +102,14 @@ const SLIDES: HeroSlide[] = [
         label: "Snap your pantry",
         side: "right",
         edge: "top",
+        tone: "#E6F6F2",
       },
       {
         icon: "forkKnife",
         label: "Get creative with Chef AI",
         side: "left",
         edge: "bottom",
+        tone: "#FFE8D4",
       },
     ],
   },
@@ -106,12 +122,14 @@ const SLIDES: HeroSlide[] = [
         label: "Know what you're eating",
         side: "left",
         edge: "top",
+        tone: "#E8E0FF",
       },
       {
         icon: "checkmarkSealFill",
         label: "Allergy-safe picks",
         side: "right",
         edge: "bottom",
+        tone: "#DFF3FF",
       },
     ],
   },
@@ -119,57 +137,55 @@ const SLIDES: HeroSlide[] = [
     alt: "Cook mode with a live countdown timer and step tracking",
     screen: "hero-cook",
     badges: [
-      { icon: "clock", label: "Live timers", side: "right", edge: "top" },
+      {
+        icon: "clock",
+        label: "Live timers",
+        side: "right",
+        edge: "top",
+        tone: "#FFE6CC",
+      },
       {
         icon: "checkmark",
         label: "Steps on Lock Screen",
         side: "left",
         edge: "bottom",
+        tone: "#DCEFE6",
       },
     ],
   },
 ];
 
-function badgePositionClass(
-  side: BadgeSide,
-  edge: BadgeEdge,
-  mode: "mobile" | "desktop",
-) {
+function badgePositionClass(side: BadgeSide, edge: BadgeEdge) {
   const vertical =
     edge === "top"
-      ? "top-[14%] sm:top-[16%]"
-      : "bottom-[22%] sm:bottom-[24%]";
+      ? "top-[14%] sm:top-[16%] lg:top-[18%]"
+      : "bottom-[22%] sm:bottom-[24%] lg:bottom-[24%]";
 
-  if (mode === "mobile") {
-    // 16px from the bled stage / near the viewport edge
-    return cn(
-      "absolute z-20 max-w-[min(11.5rem,42vw)]",
-      side === "left" ? "left-4 right-auto" : "right-4 left-auto",
-      vertical,
-    );
-  }
-
-  // 16px clear of the phone bezel (positioned on the phone wrapper)
   return cn(
-    "absolute z-20 max-w-[12.5rem]",
-    side === "left" && "right-full mr-4 left-auto",
-    side === "right" && "left-full ml-4 right-auto",
-    edge === "top" ? "top-[18%]" : "bottom-[24%]",
+    "absolute z-20 max-w-[min(11.5rem,42vw)] lg:max-w-[12.5rem]",
+    // Mobile: 16px from stage edge. Desktop: 16px from phone bezel.
+    side === "left" &&
+      "left-4 right-auto lg:left-auto lg:right-full lg:mr-4",
+    side === "right" &&
+      "right-4 left-auto lg:right-auto lg:left-full lg:ml-4",
+    vertical,
   );
 }
 
 function GlassBadge({
   icon,
   label,
+  tone,
   className,
 }: {
   icon: SfSymbolName;
   label: string;
+  tone: string;
   className?: string;
 }) {
   return (
     <div className={cn("glass-badge pointer-events-none", className)}>
-      <div className="glass-badge-inner">
+      <div className="glass-badge-inner" style={{ background: tone }}>
         <span className="glass-badge-icon">
           <SfSymbol name={icon} size={14} className="text-white" />
         </span>
@@ -267,34 +283,28 @@ export function Hero() {
               className="mx-0 w-full"
             />
 
-            {/* Desktop: 16px from the phone bezel, same liquid-glass badge */}
-            {slide.badges.map((badge) => (
-              <GlassBadge
-                key={`desk-${slide.screen}-${badge.label}`}
-                icon={badge.icon}
-                label={badge.label}
-                className={cn(
-                  "hidden lg:flex",
-                  badgePositionClass(badge.side, badge.edge, "desktop"),
-                  "motion-safe:animate-rise",
-                )}
-              />
-            ))}
+            {/* Only this slide’s two tags — swap with the screen */}
+            <AnimatePresence mode="wait">
+              <motion.div
+                key={slide.screen}
+                className="pointer-events-none absolute inset-0"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.28, ease: [0.22, 1, 0.36, 1] }}
+              >
+                {slide.badges.map((badge) => (
+                  <GlassBadge
+                    key={badge.label}
+                    icon={badge.icon}
+                    label={badge.label}
+                    tone={badge.tone}
+                    className={badgePositionClass(badge.side, badge.edge)}
+                  />
+                ))}
+              </motion.div>
+            </AnimatePresence>
           </div>
-
-          {/* Mobile: 16px from the stage / screen edge */}
-          {slide.badges.map((badge) => (
-            <GlassBadge
-              key={`mob-${slide.screen}-${badge.label}`}
-              icon={badge.icon}
-              label={badge.label}
-              className={cn(
-                "flex lg:hidden",
-                badgePositionClass(badge.side, badge.edge, "mobile"),
-                "motion-safe:animate-rise",
-              )}
-            />
-          ))}
 
           <p className="sr-only">{slide.alt}</p>
 
