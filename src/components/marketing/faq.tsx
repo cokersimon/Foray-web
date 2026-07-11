@@ -12,7 +12,7 @@ const FAQS = [
   {
     question: "Where can I use Foray?",
     answer:
-      "Foray is UK-first. Online checkout works at Sainsbury's, Tesco and Waitrose, and the in-store list works anywhere you shop. Europe and the US are next on the roadmap — follow @forayapp to hear when we land.",
+      "Foray is UK-first. Online checkout works at Sainsbury's, Tesco and Waitrose, and the in-store list works anywhere you shop. Europe and the US are next on the roadmap. Follow @forayapp to hear when we land.",
   },
   {
     question: "What phone do I need?",
