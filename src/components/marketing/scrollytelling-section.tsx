@@ -72,37 +72,43 @@ export function ScrollytellingSection() {
   return (
     <section
       id="how-it-works"
-      className="bg-section-grey text-foreground"
+      className="scroll-mt-24 bg-section-grey text-foreground"
       onTouchStart={onTouchStart}
       onTouchEnd={onTouchEnd}
     >
-      <div className="mx-auto max-w-3xl px-5 pt-20 sm:px-6 md:pt-28 lg:pt-32">
-        <AnimatePresence mode="wait">
-          <motion.div
-            key={`copy-${step.number}`}
-            initial={{ opacity: 0, y: 12 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -8 }}
-            transition={{ duration: 0.32, ease: [0.22, 1, 0.36, 1] }}
-            className="text-center"
-          >
-            <h2 className="text-balance text-[clamp(2rem,5vw,3.25rem)] font-bold leading-[1.08] tracking-[-0.04em]">
-              <span className="tabular-nums">{step.number}</span>
-              <span className="text-brand-dot">.</span>{" "}
-              {step.label}
-            </h2>
-            <p className="mx-auto mt-4 max-w-lg text-pretty text-base leading-relaxed text-muted sm:text-lg">
-              {step.body}
-            </p>
-          </motion.div>
-        </AnimatePresence>
+      {/*
+        Sticky copy stays on-screen while browsing the taller Pro Max phone so
+        the step title/subtitle don’t scroll away above the fold.
+      */}
+      <div className="sticky top-16 z-20 bg-section-grey/95 px-5 pb-4 pt-16 backdrop-blur-md sm:px-6 sm:pt-20 md:top-20 md:pt-24 lg:pt-28">
+        <div className="mx-auto max-w-3xl">
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={`copy-${step.number}`}
+              initial={{ opacity: 0, y: 12 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -8 }}
+              transition={{ duration: 0.32, ease: [0.22, 1, 0.36, 1] }}
+              className="text-center"
+            >
+              <h2 className="text-balance text-[clamp(2rem,5vw,3.25rem)] font-bold leading-[1.08] tracking-[-0.04em]">
+                <span className="tabular-nums">{step.number}</span>
+                <span className="text-brand-dot">.</span>{" "}
+                {step.label}
+              </h2>
+              <p className="mx-auto mt-4 max-w-lg text-pretty text-base leading-relaxed text-muted sm:text-lg">
+                {step.body}
+              </p>
+            </motion.div>
+          </AnimatePresence>
+        </div>
       </div>
 
       {/*
         Bezel stays mounted across steps — only screen content + copy change.
         On lg+, glass controls sit mid-gutter via 1fr | phone | 1fr.
       */}
-      <div className="mx-auto w-full px-5 pb-20 pt-10 sm:px-6 md:pb-28 lg:px-0 lg:pb-32">
+      <div className="mx-auto w-full px-5 pb-20 pt-6 sm:px-6 md:pb-28 lg:px-0 lg:pb-32">
         <div
           className={cn(
             "flex w-full items-center justify-center gap-3 sm:gap-5",

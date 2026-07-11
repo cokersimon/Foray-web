@@ -13,6 +13,7 @@ export type ProductScreen =
   | "online"
   | "cook"
   | "hero-nutrition"
+  | "hero-allergies"
   | "hero-instore"
   | "hero-cook"
   | "step-import"
@@ -32,6 +33,7 @@ type MockScreen =
 /** Real simulator captures — drop PNGs in /public/screenshots/ (see README). */
 const SCREENSHOTS: Partial<Record<ProductScreen, string>> = {
   "hero-nutrition": "/screenshots/hero-nutrition.png",
+  "hero-allergies": "/screenshots/hero-allergies.png",
   "hero-instore": "/screenshots/hero-instore.png",
   "hero-cook": "/screenshots/hero-cook.png",
   "step-import": "/screenshots/step-import.png",
@@ -50,6 +52,7 @@ const SCREENSHOT_FALLBACK: Record<ProductScreen, MockScreen> = {
   online: "online",
   cook: "cook",
   "hero-nutrition": "recipes",
+  "hero-allergies": "recipes",
   "hero-instore": "instore",
   "hero-cook": "cook",
   "step-import": "recipes",
@@ -441,9 +444,16 @@ function PhoneScreen({
   const src = SCREENSHOTS[screen];
   const [useMock, setUseMock] = useState(!src);
 
+  // Remount / reset when the step or hero slide changes so a prior onError
+  // (or a stale Next/Image) cannot stick on the first screenshot.
+  useEffect(() => {
+    setUseMock(!src);
+  }, [screen, src]);
+
   if (!useMock && src) {
     return (
       <Image
+        key={src}
         src={src}
         alt=""
         fill
@@ -455,7 +465,11 @@ function PhoneScreen({
     );
   }
 
-  return <ScaledScreen>{screens[SCREENSHOT_FALLBACK[screen]]}</ScaledScreen>;
+  return (
+    <ScaledScreen key={`mock-${screen}`}>
+      {screens[SCREENSHOT_FALLBACK[screen]]}
+    </ScaledScreen>
+  );
 }
 
 export function ProductPhone({
@@ -501,7 +515,7 @@ export function ProductPhone({
           }}
         >
           <div className="relative h-full w-full">
-            <PhoneScreen screen={screen} priority={priority} />
+            <PhoneScreen key={screen} screen={screen} priority={priority} />
           </div>
         </div>
         {/* eslint-disable-next-line @next/next/no-img-element */}

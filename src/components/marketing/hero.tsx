@@ -46,6 +46,23 @@ const SLIDES: HeroSlide[] = [
     ],
   },
   {
+    image: "/brand/hero-flatlay.webp",
+    alt: "Dietary preferences and allergens you can set in Foray",
+    screen: "hero-allergies",
+    badges: [
+      {
+        icon: "checkmarkSealFill",
+        label: "Diet-safe picks",
+        className: "left-[4%] top-[12%] sm:left-[6%] sm:top-[14%]",
+      },
+      {
+        icon: "forkKnife",
+        label: "Eat healthier",
+        className: "right-[6%] top-[22%] sm:right-[10%] sm:top-[24%]",
+      },
+    ],
+  },
+  {
     image: "/brand/hero-shopping.webp",
     alt: "Shopping with a trolley in a grocery aisle",
     screen: "hero-instore",
