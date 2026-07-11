@@ -86,24 +86,6 @@ const SLIDES: HeroSlide[] = [
     ],
   },
   {
-    alt: "Add a Recipe hub with Chef AI, URL import, photo and pantry",
-    screen: "hero-create",
-    badges: [
-      {
-        icon: "checkmarkSealFill",
-        label: "Snap your pantry",
-        side: "right",
-        edge: "top",
-      },
-      {
-        icon: "forkKnife",
-        label: "Get creative with Chef AI",
-        side: "left",
-        edge: "bottom",
-      },
-    ],
-  },
-  {
     alt: "Meal nutrition facts and allergy-safe dietary picks",
     screen: "hero-nutrition",
     badges: [
@@ -117,6 +99,24 @@ const SLIDES: HeroSlide[] = [
         icon: "checkmarkSealFill",
         label: "Allergy-safe picks",
         side: "right",
+        edge: "bottom",
+      },
+    ],
+  },
+  {
+    alt: "Add a Recipe hub with Chef AI, URL import, photo and pantry",
+    screen: "hero-create",
+    badges: [
+      {
+        icon: "checkmarkSealFill",
+        label: "Snap your pantry",
+        side: "right",
+        edge: "top",
+      },
+      {
+        icon: "forkKnife",
+        label: "Get creative with Chef AI",
+        side: "left",
         edge: "bottom",
       },
     ],
@@ -144,8 +144,10 @@ const SLIDES: HeroSlide[] = [
 function badgePositionClass(side: BadgeSide, edge: BadgeEdge, order: number) {
   return cn(
     "absolute z-20 max-w-[min(11.5rem,42vw)] lg:max-w-[12.5rem]",
-    // Mobile: top-left + bottom-right, 16px from the phone bezel edge.
-    order === 0 ? "left-4 top-4" : "right-4 bottom-4",
+    // Mobile: top-left + bottom-right, 16px from the phone bezel (not the stage).
+    order === 0
+      ? "left-4 top-4 right-auto bottom-auto"
+      : "right-4 bottom-4 left-auto top-auto",
     // Desktop: keep per-slide side/edge beside the phone.
     "lg:left-auto lg:right-auto lg:top-auto lg:bottom-auto",
     side === "left" && "lg:right-full lg:mr-4",
@@ -262,28 +264,32 @@ export function Hero() {
               screen={slide.screen}
               priority
               className="mx-0 w-full"
-            />
-
-            {/* Only this slide’s two tags — swap with the screen */}
-            <AnimatePresence mode="wait">
-              <motion.div
-                key={slide.screen}
-                className="pointer-events-none absolute inset-0"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                transition={{ duration: 0.28, ease: [0.22, 1, 0.36, 1] }}
-              >
-                {slide.badges.map((badge, order) => (
-                  <GlassBadge
-                    key={badge.label}
-                    icon={badge.icon}
-                    label={badge.label}
-                    className={badgePositionClass(badge.side, badge.edge, order)}
-                  />
-                ))}
-              </motion.div>
-            </AnimatePresence>
+            >
+              {/* Tags sit on the phone box so 16px is from the bezel, not the stage */}
+              <AnimatePresence mode="wait">
+                <motion.div
+                  key={slide.screen}
+                  className="pointer-events-none absolute inset-0 z-20"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  transition={{ duration: 0.28, ease: [0.22, 1, 0.36, 1] }}
+                >
+                  {slide.badges.map((badge, order) => (
+                    <GlassBadge
+                      key={badge.label}
+                      icon={badge.icon}
+                      label={badge.label}
+                      className={badgePositionClass(
+                        badge.side,
+                        badge.edge,
+                        order,
+                      )}
+                    />
+                  ))}
+                </motion.div>
+              </AnimatePresence>
+            </ProductPhone>
           </div>
 
           <p className="sr-only">{slide.alt}</p>

@@ -488,59 +488,70 @@ export function ProductPhone({
   screen,
   className,
   priority = false,
+  children,
 }: {
   screen: ProductScreen;
   className?: string;
   priority?: boolean;
+  /** Overlay content positioned against the phone bezel box (not the stage). */
+  children?: ReactNode;
 }) {
   const { inset, width, height, maskSrc } = BEZEL;
 
   return (
-    <div
-      className={cn("relative mx-auto w-[250px]", className)}
-      style={{
-        filter: "drop-shadow(0 28px 48px rgba(0,0,0,0.22))",
-      }}
-    >
+    <div className={cn("relative mx-auto w-[250px]", className)}>
       <div
         className="relative w-full"
-        style={{
-          aspectRatio: `${width} / ${height}`,
-          WebkitMaskImage: `url(${maskSrc})`,
-          maskImage: `url(${maskSrc})`,
-          WebkitMaskSize: "100% 100%",
-          maskSize: "100% 100%",
-          WebkitMaskRepeat: "no-repeat",
-          maskRepeat: "no-repeat",
-          WebkitMaskPosition: "center",
-          maskPosition: "center",
-        }}
+        style={{ aspectRatio: `${width} / ${height}` }}
       >
+        {/* Filter outside the mask so the drop-shadow follows the silhouette */}
         <div
-          className="absolute overflow-hidden bg-[#f5f5f2]"
-          style={{
-            top: `${(inset.top / height) * 100}%`,
-            right: `${(inset.right / width) * 100}%`,
-            bottom: `${(inset.bottom / height) * 100}%`,
-            left: `${(inset.left / width) * 100}%`,
-            borderRadius: "16.4% / 7.55%",
-          }}
+          className="absolute inset-0"
+          style={{ filter: "drop-shadow(0 28px 48px rgba(0,0,0,0.22))" }}
         >
-          <div className="relative h-full w-full">
-            <PhoneScreen key={screen} screen={screen} priority={priority} />
+          <div
+            className="absolute inset-0"
+            style={{
+              WebkitMaskImage: `url(${maskSrc})`,
+              maskImage: `url(${maskSrc})`,
+              WebkitMaskSize: "100% 100%",
+              maskSize: "100% 100%",
+              WebkitMaskRepeat: "no-repeat",
+              maskRepeat: "no-repeat",
+              WebkitMaskPosition: "center",
+              maskPosition: "center",
+            }}
+          >
+            <div
+              className="absolute overflow-hidden bg-[#f5f5f2]"
+              style={{
+                top: `${(inset.top / height) * 100}%`,
+                right: `${(inset.right / width) * 100}%`,
+                bottom: `${(inset.bottom / height) * 100}%`,
+                left: `${(inset.left / width) * 100}%`,
+                borderRadius: "16.4% / 7.55%",
+              }}
+            >
+              <div className="relative h-full w-full">
+                <PhoneScreen key={screen} screen={screen} priority={priority} />
+              </div>
+            </div>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src={BEZEL.src}
+              alt=""
+              aria-hidden="true"
+              width={width}
+              height={height}
+              decoding="async"
+              {...(priority ? { fetchPriority: "high" as const } : {})}
+              className="pointer-events-none absolute inset-0 z-10 h-full w-full select-none object-contain"
+            />
           </div>
         </div>
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img
-          src={BEZEL.src}
-          alt=""
-          aria-hidden="true"
-          width={width}
-          height={height}
-          decoding="async"
-          {...(priority ? { fetchPriority: "high" as const } : {})}
-          className="pointer-events-none absolute inset-0 z-10 h-full w-full select-none object-contain"
-        />
+
+        {/* Outside mask + filter so tags can sit on/beside the bezel */}
+        {children}
       </div>
     </div>
   );
