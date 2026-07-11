@@ -50,24 +50,6 @@ const SLIDES: HeroSlide[] = [
     ],
   },
   {
-    alt: "Grocery list with prices and supermarket checkout options",
-    screen: "hero-groceries",
-    badges: [
-      {
-        icon: "banknote",
-        label: "Priced as you plan",
-        side: "right",
-        edge: "top",
-      },
-      {
-        icon: "cart",
-        label: "One tap to Tesco",
-        side: "left",
-        edge: "bottom",
-      },
-    ],
-  },
-  {
     alt: "My Recipes library with saved meals and social import sources",
     screen: "hero-recipes",
     badges: [
@@ -134,6 +116,24 @@ const SLIDES: HeroSlide[] = [
       {
         icon: "checkmark",
         label: "Steps on Lock Screen",
+        side: "left",
+        edge: "bottom",
+      },
+    ],
+  },
+  {
+    alt: "Grocery list with prices and supermarket checkout options",
+    screen: "hero-groceries",
+    badges: [
+      {
+        icon: "banknote",
+        label: "Priced as you plan",
+        side: "right",
+        edge: "top",
+      },
+      {
+        icon: "cart",
+        label: "One tap to Tesco",
         side: "left",
         edge: "bottom",
       },
