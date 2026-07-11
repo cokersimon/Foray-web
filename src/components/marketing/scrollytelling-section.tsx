@@ -121,16 +121,22 @@ export function ScrollytellingSection() {
   return (
     <section id="how-it-works" className="bg-section-grey text-foreground">
       <div className="mx-auto grid max-w-7xl gap-12 px-5 py-20 sm:px-6 md:py-28 lg:grid-cols-[minmax(0,0.95fr)_minmax(0,1.05fr)] lg:items-center lg:gap-16 lg:px-10 lg:py-32">
-        {/* Left — fixed context */}
+        {/* Left — fixed context. Mobile: title only. Desktop: eyebrow + title + subtitle. */}
         <div className="max-w-xl text-center lg:text-left">
-          <p className="text-[0.7rem] font-semibold uppercase tracking-[0.18em] text-brand-dot sm:text-xs">
+          <p className="hidden text-[0.7rem] font-semibold uppercase tracking-[0.18em] text-brand-dot sm:text-xs lg:block">
             The Foray experience
           </p>
-          <h2 className="mt-4 text-balance text-[clamp(2.25rem,5vw,3.75rem)] font-bold leading-[1.05] tracking-[-0.045em]">
-            Your week on autoplay
-            <span className="text-brand-dot">.</span>
+          <h2 className="text-balance text-[clamp(2.25rem,5vw,3.75rem)] font-bold leading-[1.05] tracking-[-0.045em] lg:mt-4">
+            <span className="lg:hidden">
+              The Foray experience
+              <span className="text-brand-dot">.</span>
+            </span>
+            <span className="hidden lg:inline">
+              Your week on autoplay
+              <span className="text-brand-dot">.</span>
+            </span>
           </h2>
-          <p className="mx-auto mt-5 max-w-md text-pretty text-base leading-relaxed text-muted sm:text-lg lg:mx-0">
+          <p className="mx-auto mt-5 hidden max-w-md text-pretty text-base leading-relaxed text-muted sm:text-lg lg:mx-0 lg:block">
             Five steps, one app. Here&apos;s how a week with Foray actually runs.
           </p>
         </div>

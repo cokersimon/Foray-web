@@ -18,8 +18,6 @@ type HeroBadge = {
   label: string;
   side: BadgeSide;
   edge: BadgeEdge;
-  /** Inner pill fill — icon disc stays black. */
-  tone: string;
 };
 
 type HeroSlide = {
@@ -42,14 +40,12 @@ const SLIDES: HeroSlide[] = [
         label: "Less to decide",
         side: "left",
         edge: "top",
-        tone: "#FFE4C8",
       },
       {
         icon: "cart",
         label: "Trolley builds itself",
         side: "right",
         edge: "bottom",
-        tone: "#D8F0E8",
       },
     ],
   },
@@ -62,14 +58,12 @@ const SLIDES: HeroSlide[] = [
         label: "Priced as you plan",
         side: "right",
         edge: "top",
-        tone: "#FFF0C2",
       },
       {
         icon: "cart",
         label: "One tap to Tesco",
         side: "left",
         edge: "bottom",
-        tone: "#D6ECFF",
       },
     ],
   },
@@ -82,14 +76,12 @@ const SLIDES: HeroSlide[] = [
         label: "Save your recipes",
         side: "left",
         edge: "top",
-        tone: "#FFDCE6",
       },
       {
         icon: "arrowRight",
         label: "Import from TikTok",
         side: "right",
         edge: "bottom",
-        tone: "#E2F4D8",
       },
     ],
   },
@@ -102,14 +94,12 @@ const SLIDES: HeroSlide[] = [
         label: "Snap your pantry",
         side: "right",
         edge: "top",
-        tone: "#E6F6F2",
       },
       {
         icon: "forkKnife",
         label: "Get creative with Chef AI",
         side: "left",
         edge: "bottom",
-        tone: "#FFE8D4",
       },
     ],
   },
@@ -122,14 +112,12 @@ const SLIDES: HeroSlide[] = [
         label: "Know what you're eating",
         side: "left",
         edge: "top",
-        tone: "#E8E0FF",
       },
       {
         icon: "checkmarkSealFill",
         label: "Allergy-safe picks",
         side: "right",
         edge: "bottom",
-        tone: "#DFF3FF",
       },
     ],
   },
@@ -142,52 +130,45 @@ const SLIDES: HeroSlide[] = [
         label: "Live timers",
         side: "right",
         edge: "top",
-        tone: "#FFE6CC",
       },
       {
         icon: "checkmark",
         label: "Steps on Lock Screen",
         side: "left",
         edge: "bottom",
-        tone: "#DCEFE6",
       },
     ],
   },
 ];
 
-function badgePositionClass(side: BadgeSide, edge: BadgeEdge) {
-  const vertical =
-    edge === "top"
-      ? "top-[14%] sm:top-[16%] lg:top-[18%]"
-      : "bottom-[22%] sm:bottom-[24%] lg:bottom-[24%]";
-
+function badgePositionClass(side: BadgeSide, edge: BadgeEdge, order: number) {
   return cn(
     "absolute z-20 max-w-[min(11.5rem,42vw)] lg:max-w-[12.5rem]",
-    // Mobile: 16px from stage edge. Desktop: 16px from phone bezel.
-    side === "left" &&
-      "left-4 right-auto lg:left-auto lg:right-full lg:mr-4",
-    side === "right" &&
-      "right-4 left-auto lg:right-auto lg:left-full lg:ml-4",
-    vertical,
+    // Mobile: top-left + bottom-right, 16px from the phone bezel edge.
+    order === 0 ? "left-4 top-4" : "right-4 bottom-4",
+    // Desktop: keep per-slide side/edge beside the phone.
+    "lg:left-auto lg:right-auto lg:top-auto lg:bottom-auto",
+    side === "left" && "lg:right-full lg:mr-4",
+    side === "right" && "lg:left-full lg:ml-4",
+    edge === "top" && "lg:top-[18%]",
+    edge === "bottom" && "lg:bottom-[24%]",
   );
 }
 
 function GlassBadge({
   icon,
   label,
-  tone,
   className,
 }: {
   icon: SfSymbolName;
   label: string;
-  tone: string;
   className?: string;
 }) {
   return (
     <div className={cn("glass-badge pointer-events-none", className)}>
-      <div className="glass-badge-inner" style={{ background: tone }}>
+      <div className="glass-badge-inner">
         <span className="glass-badge-icon">
-          <SfSymbol name={icon} size={14} className="text-white" />
+          <SfSymbol name={icon} size={14} />
         </span>
         <span className="glass-badge-label">{label}</span>
       </div>
@@ -293,13 +274,12 @@ export function Hero() {
                 exit={{ opacity: 0 }}
                 transition={{ duration: 0.28, ease: [0.22, 1, 0.36, 1] }}
               >
-                {slide.badges.map((badge) => (
+                {slide.badges.map((badge, order) => (
                   <GlassBadge
                     key={badge.label}
                     icon={badge.icon}
                     label={badge.label}
-                    tone={badge.tone}
-                    className={badgePositionClass(badge.side, badge.edge)}
+                    className={badgePositionClass(badge.side, badge.edge, order)}
                   />
                 ))}
               </motion.div>
