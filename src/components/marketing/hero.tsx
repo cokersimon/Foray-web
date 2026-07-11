@@ -7,7 +7,7 @@ import { CarouselProgress, useTimedCarousel } from "./carousel-progress";
 import { ProductPhone, type ProductScreen } from "./product-phone";
 import { cn } from "@/lib/cn";
 
-const HERO_DURATION_MS = 4000;
+const HERO_DURATION_MS = 6000;
 
 type BadgeSide = "left" | "right";
 type BadgeEdge = "top" | "bottom";
