@@ -130,17 +130,31 @@ const SLIDES: HeroSlide[] = [
   },
 ];
 
-function badgePositionClass(side: BadgeSide, edge: BadgeEdge) {
-  // Mobile: 16px from the bled stage edge so tags cover as little phone as possible.
-  // Desktop: park fully beside the phone (clear of the bezel) using the centred phone half-width.
+function badgePositionClass(
+  side: BadgeSide,
+  edge: BadgeEdge,
+  mode: "mobile" | "desktop",
+) {
+  const vertical =
+    edge === "top"
+      ? "top-[14%] sm:top-[16%]"
+      : "bottom-[22%] sm:bottom-[24%]";
+
+  if (mode === "mobile") {
+    // 16px from the bled stage / near the viewport edge
+    return cn(
+      "absolute z-20 max-w-[min(11.5rem,42vw)]",
+      side === "left" ? "left-4 right-auto" : "right-4 left-auto",
+      vertical,
+    );
+  }
+
+  // 16px clear of the phone bezel (positioned on the phone wrapper)
   return cn(
-    "absolute z-20 max-w-[min(11.5rem,42vw)] lg:max-w-[12.5rem]",
-    side === "left" &&
-      "left-4 right-auto lg:left-auto lg:right-[calc(50%+min(29%,10rem)+0.75rem)]",
-    side === "right" &&
-      "right-4 left-auto lg:right-auto lg:left-[calc(50%+min(29%,10rem)+0.75rem)]",
-    edge === "top" && "top-[14%] sm:top-[16%] lg:top-[20%]",
-    edge === "bottom" && "bottom-[22%] sm:bottom-[24%] lg:bottom-[26%]",
+    "absolute z-20 max-w-[12.5rem]",
+    side === "left" && "right-full mr-4 left-auto",
+    side === "right" && "left-full ml-4 right-auto",
+    edge === "top" ? "top-[18%]" : "bottom-[24%]",
   );
 }
 
@@ -205,7 +219,7 @@ export function Hero() {
   }
 
   return (
-    <section className="relative overflow-hidden bg-background px-5 pb-16 pt-12 sm:px-6 sm:pb-20 sm:pt-16 md:pb-28 md:pt-20 lg:px-10 lg:pt-24 lg:pb-32">
+    <section className="relative overflow-x-clip bg-background px-5 pb-16 pt-12 sm:px-6 sm:pb-20 sm:pt-16 md:pb-28 md:pt-20 lg:overflow-visible lg:px-10 lg:pt-24 lg:pb-32">
       <div className="mx-auto grid max-w-7xl items-center gap-10 sm:gap-12 lg:grid-cols-[0.85fr_1.15fr] lg:gap-6">
         <div className="relative z-10 text-center lg:text-left">
           <h1
@@ -246,26 +260,37 @@ export function Hero() {
           onTouchStart={onTouchStart}
           onTouchEnd={onTouchEnd}
         >
-          {/*
-            Phone stays centred. Tags are positioned on the stage:
-            mobile → 16px from stage edge (bleeds to near viewport);
-            lg+ → in the side gutters, clear of the bezel.
-          */}
           <div className="relative mx-auto w-[min(72%,17.5rem)] sm:w-[min(70%,19rem)] lg:w-[min(58%,20rem)]">
             <ProductPhone
               screen={slide.screen}
               priority
               className="mx-0 w-full"
             />
+
+            {/* Desktop: 16px from the phone bezel, same liquid-glass badge */}
+            {slide.badges.map((badge) => (
+              <GlassBadge
+                key={`desk-${slide.screen}-${badge.label}`}
+                icon={badge.icon}
+                label={badge.label}
+                className={cn(
+                  "hidden lg:flex",
+                  badgePositionClass(badge.side, badge.edge, "desktop"),
+                  "motion-safe:animate-rise",
+                )}
+              />
+            ))}
           </div>
 
+          {/* Mobile: 16px from the stage / screen edge */}
           {slide.badges.map((badge) => (
             <GlassBadge
-              key={`${slide.screen}-${badge.label}`}
+              key={`mob-${slide.screen}-${badge.label}`}
               icon={badge.icon}
               label={badge.label}
               className={cn(
-                badgePositionClass(badge.side, badge.edge),
+                "flex lg:hidden",
+                badgePositionClass(badge.side, badge.edge, "mobile"),
                 "motion-safe:animate-rise",
               )}
             />
