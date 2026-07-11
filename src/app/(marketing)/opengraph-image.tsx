@@ -1,6 +1,6 @@
 import { ImageResponse } from "next/og";
 
-export const alt = "Foray: Swipe to fork";
+export const alt = "Foray: Swipe, Shop, Cook";
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 
@@ -54,7 +54,7 @@ export default function OpengraphImage() {
             letterSpacing: "-0.01em",
           }}
         >
-          The recipes you save. Finally for dinner.
+          Swipe. Shop. Cook
         </div>
       </div>
     ),

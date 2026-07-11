@@ -20,7 +20,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: "Foray: Swipe, Shop, Cook",
     description:
-      "The recipes you save, finally for dinner. Choose, shop and cook in one calm place.",
+      "Swipe through recipes, tap to add, and your trolley builds itself. Shop and cook in one calm place.",
     url: SITE_URL,
     siteName: "Foray",
     locale: "en_GB",
@@ -30,7 +30,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "Foray: Swipe, Shop, Cook",
     description:
-      "The recipes you save, finally for dinner. Choose, shop and cook in one calm place.",
+      "Swipe through recipes, tap to add, and your trolley builds itself. Shop and cook in one calm place.",
   },
 };
 
