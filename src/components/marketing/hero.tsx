@@ -9,10 +9,14 @@ import { cn } from "@/lib/cn";
 
 const HERO_DURATION_MS = 4000;
 
+type BadgeSide = "left" | "right";
+type BadgeEdge = "top" | "bottom";
+
 type HeroBadge = {
   icon: SfSymbolName;
   label: string;
-  className: string;
+  side: BadgeSide;
+  edge: BadgeEdge;
 };
 
 type HeroSlide = {
@@ -23,22 +27,19 @@ type HeroSlide = {
 
 /**
  * Six screens — slides 1–2 are the sales pitch; 3–6 for lingerers.
- * Tags alternate corners so consecutive slides don’t stack in the same spot.
+ * Tags alternate sides/edges so consecutive slides don’t stack in the same spot.
  */
 const SLIDES: HeroSlide[] = [
   {
     alt: "A populated week of breakfasts, lunches and dinners in the Foray planner",
     screen: "hero-plan",
     badges: [
-      {
-        icon: "forkKnife",
-        label: "Less to decide",
-        className: "-left-[18%] top-[18%] sm:-left-[14%] sm:top-[16%]",
-      },
+      { icon: "forkKnife", label: "Less to decide", side: "left", edge: "top" },
       {
         icon: "cart",
         label: "Trolley builds itself",
-        className: "-right-[22%] bottom-[28%] sm:-right-[18%] sm:bottom-[26%]",
+        side: "right",
+        edge: "bottom",
       },
     ],
   },
@@ -49,12 +50,14 @@ const SLIDES: HeroSlide[] = [
       {
         icon: "banknote",
         label: "Priced as you plan",
-        className: "-right-[18%] top-[16%] sm:-right-[14%] sm:top-[14%]",
+        side: "right",
+        edge: "top",
       },
       {
         icon: "cart",
         label: "One tap to Tesco",
-        className: "-left-[20%] bottom-[30%] sm:-left-[16%] sm:bottom-[28%]",
+        side: "left",
+        edge: "bottom",
       },
     ],
   },
@@ -65,12 +68,14 @@ const SLIDES: HeroSlide[] = [
       {
         icon: "heartFill",
         label: "Save your recipes",
-        className: "-left-[18%] top-[20%] sm:-left-[14%] sm:top-[18%]",
+        side: "left",
+        edge: "top",
       },
       {
         icon: "arrowRight",
         label: "Import from TikTok",
-        className: "-right-[20%] bottom-[26%] sm:-right-[16%] sm:bottom-[24%]",
+        side: "right",
+        edge: "bottom",
       },
     ],
   },
@@ -81,12 +86,14 @@ const SLIDES: HeroSlide[] = [
       {
         icon: "checkmarkSealFill",
         label: "Snap your pantry",
-        className: "-right-[18%] top-[18%] sm:-right-[14%] sm:top-[16%]",
+        side: "right",
+        edge: "top",
       },
       {
         icon: "forkKnife",
         label: "Get creative with Chef AI",
-        className: "-left-[24%] bottom-[28%] sm:-left-[20%] sm:bottom-[26%]",
+        side: "left",
+        edge: "bottom",
       },
     ],
   },
@@ -97,12 +104,14 @@ const SLIDES: HeroSlide[] = [
       {
         icon: "chartPieFill",
         label: "Know what you're eating",
-        className: "-left-[22%] top-[16%] sm:-left-[18%] sm:top-[14%]",
+        side: "left",
+        edge: "top",
       },
       {
         icon: "checkmarkSealFill",
         label: "Allergy-safe picks",
-        className: "-right-[18%] bottom-[30%] sm:-right-[14%] sm:bottom-[28%]",
+        side: "right",
+        edge: "bottom",
       },
     ],
   },
@@ -110,19 +119,30 @@ const SLIDES: HeroSlide[] = [
     alt: "Cook mode with a live countdown timer and step tracking",
     screen: "hero-cook",
     badges: [
-      {
-        icon: "clock",
-        label: "Live timers",
-        className: "-right-[14%] top-[18%] sm:-right-[12%] sm:top-[16%]",
-      },
+      { icon: "clock", label: "Live timers", side: "right", edge: "top" },
       {
         icon: "checkmark",
         label: "Steps on Lock Screen",
-        className: "-left-[22%] bottom-[26%] sm:-left-[18%] sm:bottom-[24%]",
+        side: "left",
+        edge: "bottom",
       },
     ],
   },
 ];
+
+function badgePositionClass(side: BadgeSide, edge: BadgeEdge) {
+  // Mobile: 16px from the bled stage edge so tags cover as little phone as possible.
+  // Desktop: park fully beside the phone (clear of the bezel) using the centred phone half-width.
+  return cn(
+    "absolute z-20 max-w-[min(11.5rem,42vw)] lg:max-w-[12.5rem]",
+    side === "left" &&
+      "left-4 right-auto lg:left-auto lg:right-[calc(50%+min(29%,10rem)+0.75rem)]",
+    side === "right" &&
+      "right-4 left-auto lg:right-auto lg:left-[calc(50%+min(29%,10rem)+0.75rem)]",
+    edge === "top" && "top-[14%] sm:top-[16%] lg:top-[20%]",
+    edge === "bottom" && "bottom-[22%] sm:bottom-[24%] lg:bottom-[26%]",
+  );
+}
 
 function GlassBadge({
   icon,
@@ -134,7 +154,7 @@ function GlassBadge({
   className?: string;
 }) {
   return (
-    <div className={cn("glass-badge pointer-events-none absolute z-20", className)}>
+    <div className={cn("glass-badge pointer-events-none", className)}>
       <div className="glass-badge-inner">
         <span className="glass-badge-icon">
           <SfSymbol name={icon} size={14} className="text-white" />
@@ -186,7 +206,7 @@ export function Hero() {
 
   return (
     <section className="relative overflow-hidden bg-background px-5 pb-16 pt-12 sm:px-6 sm:pb-20 sm:pt-16 md:pb-28 md:pt-20 lg:px-10 lg:pt-24 lg:pb-32">
-      <div className="mx-auto grid max-w-7xl items-center gap-10 sm:gap-12 lg:grid-cols-[0.9fr_1.1fr] lg:gap-8">
+      <div className="mx-auto grid max-w-7xl items-center gap-10 sm:gap-12 lg:grid-cols-[0.85fr_1.15fr] lg:gap-6">
         <div className="relative z-10 text-center lg:text-left">
           <h1
             className="motion-safe:animate-rise text-balance text-[clamp(2.6rem,7.2vw,5.75rem)] font-bold leading-[1.02] tracking-[-0.045em] text-foreground"
@@ -213,7 +233,7 @@ export function Hero() {
 
         <div
           ref={stageRef}
-          className="motion-safe:animate-rise relative mx-auto w-full max-w-[280px] touch-pan-y sm:max-w-[320px] md:max-w-[360px] lg:max-w-[400px]"
+          className="motion-safe:animate-rise relative -mx-5 w-[calc(100%+2.5rem)] touch-pan-y sm:-mx-6 sm:w-[calc(100%+3rem)] lg:mx-0 lg:w-full lg:max-w-none"
           style={{ animationDelay: "0.18s" }}
           onMouseEnter={() => setPaused(true)}
           onMouseLeave={() => setPaused(false)}
@@ -226,22 +246,30 @@ export function Hero() {
           onTouchStart={onTouchStart}
           onTouchEnd={onTouchEnd}
         >
-          {/* Phone is the hero object; tags sit half-on / half-off the bezel. */}
-          <div className="relative mx-auto w-[78%] sm:w-[80%]">
+          {/*
+            Phone stays centred. Tags are positioned on the stage:
+            mobile → 16px from stage edge (bleeds to near viewport);
+            lg+ → in the side gutters, clear of the bezel.
+          */}
+          <div className="relative mx-auto w-[min(72%,17.5rem)] sm:w-[min(70%,19rem)] lg:w-[min(58%,20rem)]">
             <ProductPhone
               screen={slide.screen}
               priority
               className="mx-0 w-full"
             />
-            {slide.badges.map((badge) => (
-              <GlassBadge
-                key={`${slide.screen}-${badge.label}`}
-                icon={badge.icon}
-                label={badge.label}
-                className={cn(badge.className, "motion-safe:animate-rise")}
-              />
-            ))}
           </div>
+
+          {slide.badges.map((badge) => (
+            <GlassBadge
+              key={`${slide.screen}-${badge.label}`}
+              icon={badge.icon}
+              label={badge.label}
+              className={cn(
+                badgePositionClass(badge.side, badge.edge),
+                "motion-safe:animate-rise",
+              )}
+            />
+          ))}
 
           <p className="sr-only">{slide.alt}</p>
 
