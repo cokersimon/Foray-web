@@ -110,8 +110,9 @@ export function ValueProps() {
               <span className="text-brand-dot">.</span>
             </h2>
             <p className="mt-5 max-w-xl text-pretty text-lg leading-relaxed text-muted">
-              Beyond the plan–shop–cook loop. Household servings, pantry snaps,
-              your own recipes, and Chef AI with Siri.
+              Because real life doesn’t follow a rigid recipe. From scaling
+              dinner for a chaotic full house to turning random fridge leftovers
+              into gourmet meals, Foray handles all the messy details.
             </p>
           </div>
         </div>
