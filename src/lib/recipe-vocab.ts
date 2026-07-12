@@ -20,6 +20,7 @@ export const MEAL_TYPE_VOCAB = [
   "soup-stew",
   "appetiser",
   "cocktail",
+  "mocktail",
   "one-pot",
   "traybake",
   "air-fryer",
