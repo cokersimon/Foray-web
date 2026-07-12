@@ -40,12 +40,15 @@ const statusTabs: { label: string; value: RecipeStatus }[] = [
   { label: "Published", value: "published" },
 ];
 
+export type RecipeStatusCounts = Record<RecipeStatus, number>;
+
 interface RecipeListProps {
   recipes: StagingRecipeSummary[] | undefined;
   selectedId: string | null;
   onSelect: (id: string) => void;
   statusFilter: RecipeStatus;
   onStatusChange: (status: RecipeStatus) => void;
+  statusCounts?: Partial<RecipeStatusCounts> | null;
   onDeleteStagingRecipe: (id: string) => void | Promise<void>;
   deletingStagingId?: string | null;
   ingestJobs?: IngestJobCard[];
@@ -60,6 +63,7 @@ export function RecipeList({
   onSelect,
   statusFilter,
   onStatusChange,
+  statusCounts = null,
   onDeleteStagingRecipe,
   deletingStagingId = null,
   ingestJobs = [],
@@ -103,20 +107,25 @@ export function RecipeList({
     <div className="flex h-full min-h-0 flex-1 flex-col">
       {/* Status tabs */}
       <div className="flex gap-1 border-b border-neutral-200 px-4 pt-4">
-        {statusTabs.map((tab) => (
-          <button
-            key={tab.value}
-            onClick={() => onStatusChange(tab.value)}
-            className={cn(
-              "rounded-t-lg px-4 py-2 text-sm font-medium transition-colors",
-              statusFilter === tab.value
-                ? "bg-neutral-100 text-neutral-900"
-                : "text-neutral-700 hover:text-neutral-900",
-            )}
-          >
-            {tab.label}
-          </button>
-        ))}
+        {statusTabs.map((tab) => {
+          const count = statusCounts?.[tab.value];
+          const label =
+            typeof count === "number" ? `${tab.label} (${count})` : tab.label;
+          return (
+            <button
+              key={tab.value}
+              onClick={() => onStatusChange(tab.value)}
+              className={cn(
+                "rounded-t-lg px-4 py-2 text-sm font-medium transition-colors",
+                statusFilter === tab.value
+                  ? "bg-neutral-100 text-neutral-900"
+                  : "text-neutral-700 hover:text-neutral-900",
+              )}
+            >
+              {label}
+            </button>
+          );
+        })}
       </div>
 
       {/* Search */}

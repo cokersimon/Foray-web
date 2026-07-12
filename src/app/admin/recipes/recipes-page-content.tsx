@@ -15,6 +15,7 @@ import {
 import {
   RecipeList,
   type IngestJobCard,
+  type RecipeStatusCounts,
 } from "@/components/admin/recipe-list";
 import { RecipeEditor } from "@/components/admin/recipe-editor";
 import { RecipePreview } from "@/components/admin/recipe-preview";
@@ -94,6 +95,9 @@ function RecipesPageInner() {
     useState<RecipeStatus>("ready_for_review");
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [recipes, setRecipes] = useState<LegacyStagingSummary[] | undefined>(undefined);
+  const [statusCounts, setStatusCounts] = useState<RecipeStatusCounts | null>(
+    null,
+  );
   const [selectedRecipe, setSelectedRecipe] = useState<
     LegacyStagingDetail | null | undefined
   >(undefined);
@@ -151,11 +155,20 @@ function RecipesPageInner() {
     let cancelled = false;
     const load = async () => {
       try {
-        const { recipes: rows } = await chefAdmin<{ recipes: ChefStagingRecipe[] }>(
-          "staging.list",
-          { status: statusFilter },
-        );
-        if (!cancelled) setRecipes(rows.map(toLegacySummary));
+        const { recipes: rows, counts } = await chefAdmin<{
+          recipes: ChefStagingRecipe[];
+          counts?: RecipeStatusCounts;
+        }>("staging.list", { status: statusFilter });
+        if (!cancelled) {
+          setRecipes(rows.map(toLegacySummary));
+          if (counts) {
+            setStatusCounts({
+              ready_for_review: counts.ready_for_review ?? 0,
+              approved: counts.approved ?? 0,
+              published: counts.published ?? 0,
+            });
+          }
+        }
       } catch (e) {
         console.warn("staging.list failed", e);
       }
@@ -619,6 +632,7 @@ function RecipesPageInner() {
                 setDeleteError(null);
                 setRecipes(undefined);
               }}
+              statusCounts={statusCounts}
               onDeleteStagingRecipe={handleDeleteStagingRecipe}
               deletingStagingId={deletingStagingId}
               ingestJobs={ingestJobs}
