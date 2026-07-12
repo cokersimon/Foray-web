@@ -24,9 +24,10 @@ interface RecipeData {
     quantity?: number;
     unit?: string;
     displayString?: string;
-    /** Per-quantity kcal (Orizon / FatSecret). */
+    /** Per-quantity kcal from lineMacros / legacy kcal fields. */
     kcal?: number;
     calories?: number;
+    lineMacros?: { kcal?: number };
   }>;
   /** Step-by-step procedure (backend key). */
   cookingGuide?: Array<{
@@ -62,10 +63,8 @@ interface StagingRecipe {
   tagsCuisine?: string[];
   tagsMealType?: string[];
   tagsDietary?: string[];
-  /** FatSecret-aggregated recipe-level allergens (dietary filter triggers). */
+  /** Recipe-level allergens (dietary filter triggers). */
   computedAllergens?: string[];
-  /** FatSecret-aggregated ingredient categories (e.g. Poultry, Seafood). */
-  computedCategories?: string[];
 }
 
 interface RecipePreviewProps {
@@ -127,9 +126,7 @@ export function RecipePreview({
 
   const resolvedTags = resolveStagingRecipeTags(recipe);
   const computedAllergens = stringBadgeList(resolvedTags.computedAllergens);
-  const computedCategories = stringBadgeList(recipe.computedCategories);
-  const hasAutoFoodTags =
-    computedAllergens.length > 0 || computedCategories.length > 0;
+  const hasAutoFoodTags = computedAllergens.length > 0;
 
   const discoveryTags = [
     ...resolvedTags.tagsCuisine,
@@ -291,7 +288,7 @@ export function RecipePreview({
               Allergies &amp; food tags (auto-detected)
             </h3>
             <p className="mt-0.5 text-[10px] leading-snug text-neutral-500">
-              From FatSecret aggregation — what dietary filters will match.
+              Derived from ingredient enrichment — what dietary filters will match.
             </p>
             {computedAllergens.length > 0 && (
               <div className="mt-2.5">
@@ -303,23 +300,6 @@ export function RecipePreview({
                     <span
                       key={`allergen-${tag}`}
                       className="rounded-full border border-orange-500/55 bg-orange-950/50 px-2 py-0.5 text-[10px] font-medium text-orange-100 shadow-sm shadow-orange-900/20"
-                    >
-                      {tag}
-                    </span>
-                  ))}
-                </div>
-              </div>
-            )}
-            {computedCategories.length > 0 && (
-              <div className="mt-2.5">
-                <p className="mb-1 text-[9px] font-medium uppercase tracking-wide text-sky-300/80">
-                  Categories
-                </p>
-                <div className="flex flex-wrap gap-1">
-                  {computedCategories.map((tag) => (
-                    <span
-                      key={`cat-${tag}`}
-                      className="rounded-full border border-sky-500/45 bg-sky-950/20 px-2 py-0.5 text-[10px] text-sky-100/90"
                     >
                       {tag}
                     </span>

@@ -200,7 +200,6 @@ function legacyIngredients(lines: ChefIngredientLine[]): Array<Record<string, un
   return lines.map((line) => ({
     name: line.displayName,
     displayString: line.displayName,
-    searchName: line.displayName,
     quantity: line.quantity?.value,
     unit: line.quantity?.unit,
     rawText: line.rawText,

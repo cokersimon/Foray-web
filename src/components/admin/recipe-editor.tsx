@@ -7,7 +7,6 @@ import {
   Loader2,
   Wand2,
   RefreshCw,
-  AlertCircle,
   Trash2,
 } from "lucide-react";
 import { cn } from "@/lib/cn";
@@ -383,10 +382,6 @@ interface StagingRecipeDetail {
   computedCarbs?: number;
   computedFat?: number;
   nutritionReady?: boolean;
-  /** Legacy alias for unknown quantity units — 0g assumed in computed totals. */
-  nutritionConversionFailedIngredients?: string[];
-  /** Unknown quantity units — 0g assumed in computed totals. */
-  unitConversionFailedIngredients?: string[];
   batchId?: string;
   reviewNotes?: string;
   createdAt: number;
@@ -709,8 +704,6 @@ export function RecipeEditor({
     string | null
   >(null);
   const [isRequestingGen, setIsRequestingGen] = useState(false);
-  const [ingredientDiagnosticView, setIngredientDiagnosticView] =
-    useState(false);
   const [approvedIngredientDrafts, setApprovedIngredientDrafts] = useState<
     Record<number, IngredientEditPatch>
   >({});
@@ -732,7 +725,6 @@ export function RecipeEditor({
 
   useEffect(() => {
     setGenerateMutationError(null);
-    setIngredientDiagnosticView(false);
     setApprovedIngredientDrafts({});
     setApprovedIngredientEditError(null);
     setPendingIngredientDelete(null);
@@ -920,26 +912,10 @@ export function RecipeEditor({
   };
 
   const macroRows = [
-    {
-      macro: "Calories",
-      expected: recipe.expectedCalories,
-      actual: recipe.computedCalories,
-    },
-    {
-      macro: "Protein (g)",
-      expected: recipe.expectedProtein,
-      actual: recipe.computedProtein,
-    },
-    {
-      macro: "Carbs (g)",
-      expected: recipe.expectedCarbs,
-      actual: recipe.computedCarbs,
-    },
-    {
-      macro: "Fat (g)",
-      expected: recipe.expectedFat,
-      actual: recipe.computedFat,
-    },
+    { macro: "Calories", actual: recipe.computedCalories },
+    { macro: "Protein (g)", actual: recipe.computedProtein },
+    { macro: "Carbs (g)", actual: recipe.computedCarbs },
+    { macro: "Fat (g)", actual: recipe.computedFat },
   ] as const;
 
   const hasHero = hasHeroImageUrl(recipe);
@@ -1009,13 +985,6 @@ export function RecipeEditor({
 
   const recipeBlockedByImage = !hasHero;
 
-  const conversionFailedIngredients = (
-    recipe.unitConversionFailedIngredients ??
-    recipe.nutritionConversionFailedIngredients ??
-    []
-  ).filter((name) => name.trim().length > 0);
-  const hasConversionErrors = conversionFailedIngredients.length > 0;
-
   const normalizedStatus = String(recipe.status ?? "")
     .trim()
     .toLowerCase();
@@ -1047,9 +1016,6 @@ export function RecipeEditor({
           ? qtyStr
           : `${qtyStr} ${unitStr}`;
     const kcal = pickIngredientLineKcal(ing);
-    const diagnosticFlags = normalizeDiagnosticFlags(row.diagnosticFlags);
-    const flagTooltip =
-      diagnosticFlags.length > 0 ? diagnosticFlags.join(" • ") : null;
     const aisle = typeof row.aisle === "string" ? row.aisle.trim() : "";
     return {
       label: String(label),
@@ -1059,11 +1025,7 @@ export function RecipeEditor({
       unitStr,
       quantityDisplay,
       kcal,
-      proteinStr: formatIngredientMacro(row.computedProtein),
-      carbsStr: formatIngredientMacro(row.computedCarbs),
-      fatStr: formatIngredientMacro(row.computedFat),
       aisle,
-      flagTooltip,
     };
   });
 
@@ -1249,17 +1211,8 @@ export function RecipeEditor({
 
         <div>
           <h3 className="mb-3 text-xs font-semibold uppercase tracking-wider text-neutral-800">
-            Nutrition (Source Reported vs System Calculated)
+            Nutrition
           </h3>
-          {hasConversionErrors && (
-            <div
-              className="mb-3 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm font-medium text-red-800 shadow-sm"
-              role="alert"
-            >
-              ⚠️ Nutrition unresolved (excluded from totals):{" "}
-              {conversionFailedIngredients.join(", ")}
-            </div>
-          )}
           <div className="grid grid-cols-2 gap-2 rounded-xl border border-neutral-200 bg-white p-2 shadow-sm sm:grid-cols-4">
             {macroRows.map((row) => (
               <div
@@ -1272,10 +1225,6 @@ export function RecipeEditor({
                 <div className="mt-1 text-lg font-bold tabular-nums text-neutral-950">
                   {row.actual != null ? Math.round(row.actual) : "—"}
                 </div>
-                <div className="mt-0.5 text-[11px] font-medium text-neutral-500">
-                  Source {row.expected != null ? Math.round(row.expected) : "—"} ·{" "}
-                  {formatMacroPctDiff(row.expected, row.actual)}
-                </div>
               </div>
             ))}
           </div>
@@ -1287,31 +1236,10 @@ export function RecipeEditor({
               <h3 className="text-xs font-semibold uppercase tracking-wider text-neutral-800">
                 Ingredients
               </h3>
-              <label className="flex cursor-pointer select-none items-center gap-2 rounded-lg border border-neutral-200 bg-neutral-50 px-2.5 py-1.5 text-xs font-medium text-neutral-800 shadow-sm transition-colors hover:bg-neutral-100">
-                <input
-                  type="checkbox"
-                  className="h-3.5 w-3.5 rounded border-neutral-300 text-neutral-900 focus:ring-neutral-400"
-                  checked={ingredientDiagnosticView}
-                  onChange={(e) =>
-                    setIngredientDiagnosticView(e.target.checked)
-                  }
-                />
-                Diagnostic view
-              </label>
             </div>
             <p className="mb-2 text-xs text-neutral-600">
-              Columns: ingredient · quantity · kcal. Per-line kcal from{" "}
-              <span className="font-mono text-[11px]">kcal</span> /{" "}
-              <span className="font-mono text-[11px]">calories</span>. Red (!)
-              lists diagnostic flags in one tooltip.
-              {ingredientDiagnosticView && (
-                <>
-                  {" "}
-                  <span className="font-medium text-neutral-800">
-                    Extra columns: per-line macros and grocery aisle.
-                  </span>
-                </>
-              )}
+              Columns: ingredient · quantity · kcal · aisle. Per-line kcal from{" "}
+              <span className="font-mono text-[11px]">lineMacros</span>.
             </p>
             {approvedIngredientEditError ? (
               <div
@@ -1327,59 +1255,25 @@ export function RecipeEditor({
                   <option key={unit} value={unit} />
                 ))}
               </datalist>
-              <table
-                className={cn(
-                  "w-full border-collapse text-sm",
-                  ingredientDiagnosticView ? "min-w-[62rem]" : "min-w-[26rem]",
-                )}
-              >
+              <table className="w-full min-w-[36rem] border-collapse text-sm">
                 <thead>
                   <tr className="border-b border-neutral-200 bg-neutral-50 text-left text-[10px] font-semibold uppercase tracking-wider text-neutral-800">
-                    {ingredientDiagnosticView && (
-                      <th className="whitespace-nowrap px-3 py-3 font-semibold tabular-nums">
-                        #
-                      </th>
-                    )}
                     <th className="min-w-[10rem] px-4 py-3 font-semibold">
                       Ingredient
                     </th>
-                    {ingredientDiagnosticView ? (
-                      <>
-                        <th className="whitespace-nowrap px-3 py-3 text-right font-semibold tabular-nums">
-                          Qty
-                        </th>
-                        <th className="whitespace-nowrap px-3 py-3 font-semibold">
-                          Unit
-                        </th>
-                      </>
-                    ) : (
-                      <th className="whitespace-nowrap px-4 py-3 text-right font-semibold tabular-nums">
-                        Quantity
-                      </th>
-                    )}
                     <th className="whitespace-nowrap px-4 py-3 text-right font-semibold tabular-nums">
-                      Computed Kcals
+                      Quantity
+                    </th>
+                    <th className="whitespace-nowrap px-4 py-3 text-right font-semibold tabular-nums">
+                      Kcal
+                    </th>
+                    <th className="min-w-[8rem] px-3 py-3 font-semibold">
+                      Aisle
                     </th>
                     {onDeleteIngredient && (
                       <th className="w-28 whitespace-nowrap px-3 py-3 text-center font-semibold">
                         Delete
                       </th>
-                    )}
-                    {ingredientDiagnosticView && (
-                      <>
-                        <th className="whitespace-nowrap px-3 py-3 text-right font-semibold tabular-nums">
-                          Protein (g)
-                        </th>
-                        <th className="whitespace-nowrap px-3 py-3 text-right font-semibold tabular-nums">
-                          Carbs (g)
-                        </th>
-                        <th className="whitespace-nowrap px-3 py-3 text-right font-semibold tabular-nums">
-                          Fat (g)
-                        </th>
-                        <th className="min-w-[10rem] px-3 py-3 font-semibold">
-                          Aisle
-                        </th>
-                      </>
                     )}
                   </tr>
                 </thead>
@@ -1400,38 +1294,62 @@ export function RecipeEditor({
                       key={`ing-${i}`}
                       className="border-b border-neutral-100 last:border-b-0"
                     >
-                      {ingredientDiagnosticView && (
-                        <td className="whitespace-nowrap px-3 py-2.5 tabular-nums text-neutral-500">
-                          {i + 1}
-                        </td>
-                      )}
                       <td className="max-w-[16rem] px-4 py-2.5 font-medium text-neutral-900">
-                        <div className="flex items-start gap-1.5">
-                          {row.flagTooltip ? (
-                            <span
-                              className="shrink-0 pt-0.5 text-red-600"
-                              title={row.flagTooltip}
-                              role="img"
-                              aria-label={`Diagnostic flags: ${row.flagTooltip}`}
-                            >
-                              <AlertCircle
-                                className="h-3.5 w-3.5"
-                                strokeWidth={2.5}
-                                aria-hidden
-                              />
-                            </span>
-                          ) : null}
-                          {canEditIngredientRows ? (
+                        {canEditIngredientRows ? (
+                          <input
+                            type="text"
+                            value={editableName}
+                            disabled={
+                              !onUpdateApprovedIngredient ||
+                              isSavingApprovedIngredients
+                            }
+                            onChange={(event) =>
+                              updateApprovedIngredientDraft(i, {
+                                name: event.target.value,
+                              })
+                            }
+                            onKeyDown={(event) => {
+                              if (event.key === "Enter") {
+                                event.preventDefault();
+                              }
+                              if (event.key === "Escape") {
+                                setApprovedIngredientDrafts((current) => {
+                                  const next = { ...current };
+                                  delete next[i];
+                                  return next;
+                                });
+                              }
+                            }}
+                            className="min-w-0 w-full rounded-md border border-neutral-200 bg-white px-2 py-1 text-sm font-medium text-neutral-900 shadow-sm transition-colors focus:border-neutral-500 focus:outline-none focus:ring-2 focus:ring-neutral-200 disabled:bg-neutral-50 disabled:text-neutral-500"
+                            aria-label={`Edit ingredient ${i + 1} name`}
+                          />
+                        ) : (
+                          <span
+                            className="line-clamp-2"
+                            title={row.label}
+                          >
+                            {row.label}
+                          </span>
+                        )}
+                      </td>
+                      <td className="whitespace-nowrap px-4 py-2.5 text-right tabular-nums text-neutral-900">
+                        {canEditIngredientRows ? (
+                          <div className="flex items-center justify-end gap-2">
                             <input
-                              type="text"
-                              value={editableName}
+                              type="number"
+                              min="0"
+                              step="any"
+                              value={editableQuantity}
                               disabled={
                                 !onUpdateApprovedIngredient ||
                                 isSavingApprovedIngredients
                               }
                               onChange={(event) =>
                                 updateApprovedIngredientDraft(i, {
-                                  name: event.target.value,
+                                  quantity:
+                                    event.target.value === ""
+                                      ? undefined
+                                      : Number(event.target.value),
                                 })
                               }
                               onKeyDown={(event) => {
@@ -1446,138 +1364,38 @@ export function RecipeEditor({
                                   });
                                 }
                               }}
-                              className="min-w-0 flex-1 rounded-md border border-neutral-200 bg-white px-2 py-1 text-sm font-medium text-neutral-900 shadow-sm transition-colors focus:border-neutral-500 focus:outline-none focus:ring-2 focus:ring-neutral-200 disabled:bg-neutral-50 disabled:text-neutral-500"
-                              aria-label={`Edit ingredient ${i + 1} name`}
+                              className="w-28 rounded-md border border-neutral-200 bg-white px-2 py-1 text-right text-sm tabular-nums text-neutral-900 shadow-sm transition-colors focus:border-neutral-500 focus:outline-none focus:ring-2 focus:ring-neutral-200 disabled:bg-neutral-50 disabled:text-neutral-500"
+                              aria-label={`Edit ingredient ${i + 1} quantity`}
                             />
-                          ) : (
-                            <span
-                              className="min-w-0 flex-1 line-clamp-2"
-                              title={row.label}
-                            >
-                              {row.label}
-                            </span>
-                          )}
-                        </div>
+                            <IngredientUnitField
+                              value={editableUnit}
+                              disabled={
+                                !onUpdateApprovedIngredient ||
+                                isSavingApprovedIngredients
+                              }
+                              onChange={(unit) =>
+                                updateApprovedIngredientDraft(i, { unit })
+                              }
+                              ariaLabel={`Edit ingredient ${i + 1} unit`}
+                            />
+                            {isSavingApprovedIngredient ? (
+                              <Loader2
+                                className="h-3.5 w-3.5 animate-spin text-neutral-500"
+                                aria-hidden
+                              />
+                            ) : null}
+                          </div>
+                        ) : (
+                          row.quantityDisplay
+                        )}
                       </td>
-                      {ingredientDiagnosticView ? (
-                        <>
-                          <td className="whitespace-nowrap px-3 py-2.5 text-right tabular-nums text-neutral-900">
-                            {canEditIngredientRows ? (
-                              <input
-                                type="number"
-                                min="0"
-                                step="any"
-                                value={editableQuantity}
-                                disabled={
-                                  !onUpdateApprovedIngredient ||
-                                  isSavingApprovedIngredients
-                                }
-                                onChange={(event) =>
-                                  updateApprovedIngredientDraft(i, {
-                                    quantity:
-                                      event.target.value === ""
-                                        ? undefined
-                                        : Number(event.target.value),
-                                  })
-                                }
-                                onKeyDown={(event) => {
-                                  if (event.key === "Enter") {
-                                    event.preventDefault();
-                                  }
-                                  if (event.key === "Escape") {
-                                    setApprovedIngredientDrafts((current) => {
-                                      const next = { ...current };
-                                      delete next[i];
-                                      return next;
-                                    });
-                                  }
-                                }}
-                                className="w-28 rounded-md border border-neutral-200 bg-white px-2 py-1 text-right text-sm tabular-nums text-neutral-900 shadow-sm transition-colors focus:border-neutral-500 focus:outline-none focus:ring-2 focus:ring-neutral-200 disabled:bg-neutral-50 disabled:text-neutral-500"
-                                aria-label={`Edit ingredient ${i + 1} quantity`}
-                              />
-                            ) : (
-                              row.qtyStr
-                            )}
-                          </td>
-                          <td className="whitespace-nowrap px-3 py-2.5 text-neutral-800">
-                            {canEditIngredientRows ? (
-                              <IngredientUnitField
-                                value={editableUnit}
-                                disabled={
-                                  !onUpdateApprovedIngredient ||
-                                  isSavingApprovedIngredients
-                                }
-                                onChange={(unit) =>
-                                  updateApprovedIngredientDraft(i, { unit })
-                                }
-                                ariaLabel={`Edit ingredient ${i + 1} unit`}
-                              />
-                            ) : (
-                              row.unitStr
-                            )}
-                          </td>
-                        </>
-                      ) : (
-                        <td className="whitespace-nowrap px-4 py-2.5 text-right tabular-nums text-neutral-900">
-                          {canEditIngredientRows ? (
-                            <div className="flex items-center justify-end gap-2">
-                              <input
-                                type="number"
-                                min="0"
-                                step="any"
-                                value={editableQuantity}
-                                disabled={
-                                  !onUpdateApprovedIngredient ||
-                                  isSavingApprovedIngredients
-                                }
-                                onChange={(event) =>
-                                  updateApprovedIngredientDraft(i, {
-                                    quantity:
-                                      event.target.value === ""
-                                        ? undefined
-                                        : Number(event.target.value),
-                                  })
-                                }
-                                onKeyDown={(event) => {
-                                  if (event.key === "Enter") {
-                                    event.preventDefault();
-                                  }
-                                  if (event.key === "Escape") {
-                                    setApprovedIngredientDrafts((current) => {
-                                      const next = { ...current };
-                                      delete next[i];
-                                      return next;
-                                    });
-                                  }
-                                }}
-                                className="w-28 rounded-md border border-neutral-200 bg-white px-2 py-1 text-right text-sm tabular-nums text-neutral-900 shadow-sm transition-colors focus:border-neutral-500 focus:outline-none focus:ring-2 focus:ring-neutral-200 disabled:bg-neutral-50 disabled:text-neutral-500"
-                                aria-label={`Edit ingredient ${i + 1} quantity`}
-                              />
-                              <IngredientUnitField
-                                value={editableUnit}
-                                disabled={
-                                  !onUpdateApprovedIngredient ||
-                                  isSavingApprovedIngredients
-                                }
-                                onChange={(unit) =>
-                                  updateApprovedIngredientDraft(i, { unit })
-                                }
-                                ariaLabel={`Edit ingredient ${i + 1} unit`}
-                              />
-                              {isSavingApprovedIngredient ? (
-                                <Loader2
-                                  className="h-3.5 w-3.5 animate-spin text-neutral-500"
-                                  aria-hidden
-                                />
-                              ) : null}
-                            </div>
-                          ) : (
-                            row.quantityDisplay
-                          )}
-                        </td>
-                      )}
                       <td className="whitespace-nowrap px-4 py-2.5 text-right tabular-nums font-medium text-neutral-900">
                         {row.kcal != null ? formatIngredientKcal(row.kcal) : "—"}
+                      </td>
+                      <td className="max-w-[12rem] px-3 py-2.5 text-xs leading-snug text-neutral-800">
+                        <span className="line-clamp-2 break-words" title={row.aisle || undefined}>
+                          {row.aisle || "—"}
+                        </span>
                       </td>
                       {onDeleteIngredient && (
                         <td className="whitespace-nowrap px-3 py-2.5 text-center">
@@ -1625,24 +1443,6 @@ export function RecipeEditor({
                             </button>
                           )}
                         </td>
-                      )}
-                      {ingredientDiagnosticView && (
-                        <>
-                          <td className="whitespace-nowrap px-3 py-2.5 text-right tabular-nums text-neutral-900">
-                            {row.proteinStr}
-                          </td>
-                          <td className="whitespace-nowrap px-3 py-2.5 text-right tabular-nums text-neutral-900">
-                            {row.carbsStr}
-                          </td>
-                          <td className="whitespace-nowrap px-3 py-2.5 text-right tabular-nums text-neutral-900">
-                            {row.fatStr}
-                          </td>
-                          <td className="max-w-[12rem] px-3 py-2.5 text-xs leading-snug text-neutral-800">
-                            <span className="line-clamp-2 break-words" title={row.aisle || undefined}>
-                              {row.aisle || "—"}
-                            </span>
-                          </td>
-                        </>
                       )}
                     </tr>
                     );
@@ -2310,42 +2110,4 @@ function MetaField({ label, value }: { label: string; value: string }) {
       <div className="mt-1 text-sm font-semibold text-neutral-900">{value}</div>
     </div>
   );
-}
-
-function formatMacroPctDiff(
-  expected: number | undefined,
-  actual: number | undefined,
-): string {
-  if (expected == null || actual == null) return "—";
-  if (expected === 0) return actual === 0 ? "0%" : "—";
-  const pct = ((actual - expected) / expected) * 100;
-  const sign = pct > 0 ? "+" : "";
-  return `${sign}${pct.toFixed(1)}%`;
-}
-
-function formatIngredientMacro(value: unknown): string {
-  if (typeof value !== "number" || !Number.isFinite(value)) return "—";
-  const rounded = Math.round(value * 10) / 10;
-  return Number.isInteger(rounded) ? String(rounded) : rounded.toFixed(1);
-}
-
-function normalizeDiagnosticFlags(raw: unknown): string[] {
-  if (!Array.isArray(raw)) return [];
-  const out: string[] = [];
-  for (const item of raw) {
-    if (typeof item === "string" && item.trim()) {
-      out.push(item.trim());
-      continue;
-    }
-    if (item != null && typeof item === "object") {
-      const o = item as Record<string, unknown>;
-      const msg =
-        (typeof o.message === "string" && o.message.trim()) ||
-        (typeof o.label === "string" && o.label.trim()) ||
-        (typeof o.reason === "string" && o.reason.trim()) ||
-        (typeof o.code === "string" && o.code.trim());
-      if (msg) out.push(msg);
-    }
-  }
-  return out;
 }

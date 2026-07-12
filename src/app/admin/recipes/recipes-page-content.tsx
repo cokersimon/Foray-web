@@ -12,13 +12,25 @@ import {
   type LegacyStagingDetail,
   type LegacyStagingSummary,
 } from "@/lib/chef-api";
-import { RecipeList } from "@/components/admin/recipe-list";
+import {
+  RecipeList,
+  type IngestJobCard,
+} from "@/components/admin/recipe-list";
 import { RecipeEditor } from "@/components/admin/recipe-editor";
 import { RecipePreview } from "@/components/admin/recipe-preview";
 import { IPhoneMockup } from "@/components/admin/iphone-mockup";
 import { RecipeCopilotSidebar } from "@/components/admin/recipe-copilot-sidebar";
 
 type RecipeStatus = "ready_for_review" | "approved" | "published";
+
+type ChefJobListRow = {
+  id: string;
+  kind: string;
+  status: string;
+  stage: string | null;
+  error: string | null;
+  createdAt: number;
+};
 type IngredientEditPatch = {
   name?: string;
   quantity?: number;
@@ -109,9 +121,15 @@ function RecipesPageInner() {
   const [isSavingTags, setIsSavingTags] = useState(false);
   const [regeneratingCookingStepIndex, setRegeneratingCookingStepIndex] =
     useState<number | null>(null);
+  const [ingestJobs, setIngestJobs] = useState<IngestJobCard[]>([]);
+  const [ingestJobActionId, setIngestJobActionId] = useState<string | null>(
+    null,
+  );
+  const [jobsVersion, setJobsVersion] = useState(0);
 
   const refreshList = useCallback(() => setListVersion((v) => v + 1), []);
   const refreshDetail = useCallback(() => setDetailVersion((v) => v + 1), []);
+  const refreshJobs = useCallback(() => setJobsVersion((v) => v + 1), []);
 
   useEffect(() => {
     setPublishError(null);
@@ -149,6 +167,47 @@ function RecipesPageInner() {
       clearInterval(timer);
     };
   }, [isAuthenticated, statusFilter, listVersion]);
+
+  // Ingest jobs: only relevant on Review (progress + error cards).
+  useEffect(() => {
+    if (!isAuthenticated || statusFilter !== "ready_for_review") {
+      setIngestJobs([]);
+      return;
+    }
+    let cancelled = false;
+    const load = async () => {
+      try {
+        const { jobs } = await chefAdmin<{ jobs: ChefJobListRow[] }>("jobs.list", {
+          limit: 50,
+        });
+        if (cancelled) return;
+        const cards: IngestJobCard[] = jobs
+          .filter(
+            (j) =>
+              j.kind === "ingest" &&
+              (j.status === "queued" ||
+                j.status === "running" ||
+                j.status === "error"),
+          )
+          .map((j) => ({
+            id: j.id,
+            status: j.status as IngestJobCard["status"],
+            stage: j.stage,
+            error: j.error,
+            createdAt: j.createdAt,
+          }));
+        setIngestJobs(cards);
+      } catch (e) {
+        console.warn("jobs.list failed", e);
+      }
+    };
+    void load();
+    const timer = setInterval(load, LIST_POLL_MS);
+    return () => {
+      cancelled = true;
+      clearInterval(timer);
+    };
+  }, [isAuthenticated, statusFilter, jobsVersion]);
 
   // Detail: fetch on selection / explicit refresh.
   useEffect(() => {
@@ -415,6 +474,43 @@ function RecipesPageInner() {
     [refreshDetail, refreshList],
   );
 
+  const handleRetryIngestJob = useCallback(
+    async (jobId: string) => {
+      setIngestJobActionId(jobId);
+      try {
+        await chefAdmin("jobs.retry", { jobId });
+        refreshJobs();
+      } catch (e) {
+        console.error("jobs.retry failed", e);
+        window.alert(
+          e instanceof Error ? e.message : "Could not retry ingest job.",
+        );
+      } finally {
+        setIngestJobActionId(null);
+      }
+    },
+    [refreshJobs],
+  );
+
+  const handleDismissIngestJob = useCallback(
+    async (jobId: string) => {
+      setIngestJobActionId(jobId);
+      try {
+        await chefAdmin("jobs.dismiss", { jobId });
+        setIngestJobs((prev) => prev.filter((j) => j.id !== jobId));
+        refreshJobs();
+      } catch (e) {
+        console.error("jobs.dismiss failed", e);
+        window.alert(
+          e instanceof Error ? e.message : "Could not dismiss ingest job.",
+        );
+      } finally {
+        setIngestJobActionId(null);
+      }
+    },
+    [refreshJobs],
+  );
+
   const handleDeleteStagingRecipe = useCallback(
     async (id: string) => {
       if (!window.confirm("Are you sure you want to delete this recipe?")) {
@@ -525,6 +621,10 @@ function RecipesPageInner() {
               }}
               onDeleteStagingRecipe={handleDeleteStagingRecipe}
               deletingStagingId={deletingStagingId}
+              ingestJobs={ingestJobs}
+              onRetryIngestJob={handleRetryIngestJob}
+              onDismissIngestJob={handleDismissIngestJob}
+              ingestJobActionId={ingestJobActionId}
             />
           </div>
         )}

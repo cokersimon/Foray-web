@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { AlertTriangle, RefreshCw, ShieldAlert } from "lucide-react";
 import { chefAdmin } from "@/lib/chef-api";
 import { useChefQuery } from "@/lib/use-chef-query";
@@ -16,6 +17,7 @@ type Report = {
   note: string | null;
   status: string;
   recipeTitle: string | null;
+  stagingId: string | null;
 };
 
 type ReportsResponse = { reports: Report[] };
@@ -196,7 +198,17 @@ export default function ReportsPage() {
 
                 {report.recipeTitle ? (
                   <p className="mt-2 text-sm text-neutral-700">
-                    Recipe: <span className="font-medium">{report.recipeTitle}</span>
+                    Recipe:{" "}
+                    {report.stagingId ? (
+                      <Link
+                        href={`/admin/recipes?stagingId=${encodeURIComponent(report.stagingId)}`}
+                        className="font-medium text-neutral-900 underline decoration-neutral-300 underline-offset-2 hover:decoration-neutral-700"
+                      >
+                        {report.recipeTitle}
+                      </Link>
+                    ) : (
+                      <span className="font-medium">{report.recipeTitle}</span>
+                    )}
                   </p>
                 ) : null}
                 {report.note ? (

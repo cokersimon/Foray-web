@@ -2,11 +2,10 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { Check, Loader2, ArrowLeft, Save } from "lucide-react";
 import { cn } from "@/lib/cn";
 import { useSupabaseSession } from "@/components/providers";
-import { chefAdmin, chefIngest, pollJob } from "@/lib/chef-api";
+import { chefAdmin, chefIngest } from "@/lib/chef-api";
 
 /** Fallback while `chef.ingestion_defaults` has not loaded yet. */
 const FALLBACK_PARSING_PROMPT =
@@ -16,10 +15,6 @@ const FALLBACK_IMAGE_INSTRUCTION =
   "Photorealistic food photography, 45-degree angle, bright natural kitchen lighting, highly appetising.";
 
 type SaveFlash = "parsing" | "image" | null;
-type IngestMode = "source" | "generate";
-
-const GENERATION_PROMPT_PLACEHOLDER =
-  "e.g., Generate 5 quick-cook, high-protein Mediterranean dinners.";
 
 type IngestionDefaults = {
   parsingPrompt?: string | null;
@@ -27,15 +22,12 @@ type IngestionDefaults = {
 } | null;
 
 export default function RecipeIngestPage() {
-  const router = useRouter();
   const { isAuthenticated, isLoading: authLoading } = useSupabaseSession();
 
   const [defaults, setDefaults] = useState<IngestionDefaults | undefined>(
     undefined,
   );
   const [rawText, setRawText] = useState("");
-  const [generationPrompt, setGenerationPrompt] = useState("");
-  const [mode, setMode] = useState<IngestMode>("source");
   const [parsingPrompt, setParsingPrompt] = useState(FALLBACK_PARSING_PROMPT);
   const [imageInstructionPrompt, setImageInstructionPrompt] = useState(
     FALLBACK_IMAGE_INSTRUCTION,
@@ -71,8 +63,10 @@ export default function RecipeIngestPage() {
   const [isSavingParsing, setIsSavingParsing] = useState(false);
   const [isSavingImage, setIsSavingImage] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [queuedFlash, setQueuedFlash] = useState(false);
   const [saveFlash, setSaveFlash] = useState<SaveFlash>(null);
   const flashTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const queuedTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const showSaveFlash = useCallback((which: SaveFlash) => {
     if (flashTimerRef.current) clearTimeout(flashTimerRef.current);
@@ -83,9 +77,19 @@ export default function RecipeIngestPage() {
     }, 2500);
   }, []);
 
+  const showQueuedFlash = useCallback(() => {
+    if (queuedTimerRef.current) clearTimeout(queuedTimerRef.current);
+    setQueuedFlash(true);
+    queuedTimerRef.current = setTimeout(() => {
+      setQueuedFlash(false);
+      queuedTimerRef.current = null;
+    }, 4000);
+  }, []);
+
   useEffect(() => {
     return () => {
       if (flashTimerRef.current) clearTimeout(flashTimerRef.current);
+      if (queuedTimerRef.current) clearTimeout(queuedTimerRef.current);
     };
   }, []);
 
@@ -131,37 +135,21 @@ export default function RecipeIngestPage() {
 
   const handleSubmit = useCallback(async () => {
     setError(null);
-    const activeText = mode === "generate" ? generationPrompt : rawText;
-    const trimmed = activeText.trim();
+    const trimmed = rawText.trim();
     if (!trimmed) {
-      setError(
-        mode === "generate"
-          ? "Please enter a generation prompt before processing."
-          : "Please paste raw recipe text before processing.",
-      );
+      setError("Please paste raw recipe text before processing.");
       return;
     }
     setIsSubmitting(true);
     try {
-      const { jobId } = await chefIngest({
+      await chefIngest({
         rawText: trimmed,
         parsingPrompt: parsingPrompt.trim() || FALLBACK_PARSING_PROMPT,
         imageInstructionPrompt:
           imageInstructionPrompt.trim() || FALLBACK_IMAGE_INSTRUCTION,
       });
-      const job = await pollJob(jobId);
-      if (job.status === "error") {
-        setError(job.error ?? "The chef job failed — check the jobs list.");
-        return;
-      }
-      const ids = Array.isArray(job.result?.stagingIds)
-        ? (job.result.stagingIds as string[]).filter(Boolean)
-        : [];
-      if (ids.length > 1 || ids.length === 0) {
-        router.push("/admin/recipes");
-        return;
-      }
-      router.push(`/admin/recipes?stagingId=${encodeURIComponent(ids[0])}`);
+      setRawText("");
+      showQueuedFlash();
     } catch (e: unknown) {
       const msg =
         e instanceof Error ? e.message : "Something went wrong. Please try again.";
@@ -169,17 +157,9 @@ export default function RecipeIngestPage() {
     } finally {
       setIsSubmitting(false);
     }
-  }, [
-    rawText,
-    generationPrompt,
-    mode,
-    parsingPrompt,
-    imageInstructionPrompt,
-    router,
-  ]);
+  }, [rawText, parsingPrompt, imageInstructionPrompt, showQueuedFlash]);
 
   const defaultsLoading = authLoading || !isAuthenticated || defaults === undefined;
-  const isGenerateMode = mode === "generate";
 
   return (
     <div className="flex h-full min-h-0 flex-col overflow-y-auto bg-[#fafafa]">
@@ -195,42 +175,12 @@ export default function RecipeIngestPage() {
           AI recipe ingest
         </h1>
         <p className="mt-1 text-sm text-neutral-600">
-          {isGenerateMode
-            ? "Prompt Gemini to generate pantry-aware recipe batches for review."
-            : "Paste unstructured recipe text. We'll parse it with Gemini and open it in the review queue."}
+          Paste unstructured recipe text and queue it for Gemini. Progress and
+          errors show under Review — you can submit another recipe immediately.
         </p>
       </div>
 
       <div className="mx-auto w-full max-w-6xl flex-1 p-6">
-        <div className="mb-6 inline-flex rounded-xl border border-neutral-200 bg-white p-1 shadow-sm">
-          <button
-            type="button"
-            onClick={() => setMode("source")}
-            disabled={isSubmitting}
-            className={cn(
-              "rounded-lg px-4 py-2 text-sm font-semibold transition-colors disabled:cursor-not-allowed disabled:opacity-50",
-              mode === "source"
-                ? "bg-neutral-900 text-white shadow-sm"
-                : "text-neutral-700 hover:bg-neutral-50",
-            )}
-          >
-            Ingest Source
-          </button>
-          <button
-            type="button"
-            onClick={() => setMode("generate")}
-            disabled={isSubmitting}
-            className={cn(
-              "rounded-lg px-4 py-2 text-sm font-semibold transition-colors disabled:cursor-not-allowed disabled:opacity-50",
-              mode === "generate"
-                ? "bg-neutral-900 text-white shadow-sm"
-                : "text-neutral-700 hover:bg-neutral-50",
-            )}
-          >
-            Generate Batch
-          </button>
-        </div>
-
         {error ? (
           <div
             className="mb-6 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm font-medium text-red-800"
@@ -240,28 +190,29 @@ export default function RecipeIngestPage() {
           </div>
         ) : null}
 
+        {queuedFlash ? (
+          <div
+            className="mb-6 rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm font-medium text-emerald-800"
+            role="status"
+          >
+            Queued — processing under Review. You can paste the next recipe now.
+          </div>
+        ) : null}
+
         <div className="grid grid-cols-1 gap-8 lg:grid-cols-2 lg:gap-10">
           <div className="flex flex-col gap-2">
             <label
               htmlFor="raw-recipe-text"
               className="text-xs font-semibold uppercase tracking-wider text-neutral-800"
             >
-              {isGenerateMode ? "Generation prompt" : "Raw recipe text"}
+              Raw recipe text
             </label>
             <textarea
               id="raw-recipe-text"
-              value={isGenerateMode ? generationPrompt : rawText}
-              onChange={(e) =>
-                isGenerateMode
-                  ? setGenerationPrompt(e.target.value)
-                  : setRawText(e.target.value)
-              }
+              value={rawText}
+              onChange={(e) => setRawText(e.target.value)}
               rows={20}
-              placeholder={
-                isGenerateMode
-                  ? GENERATION_PROMPT_PLACEHOLDER
-                  : "Paste the full recipe here (title, ingredients, cooking guide, notes)…"
-              }
+              placeholder="Paste the full recipe here (title, ingredients, cooking guide, notes)…"
               className="min-h-[320px] w-full resize-y rounded-xl border border-neutral-300 bg-white px-4 py-3 text-sm text-neutral-900 shadow-sm placeholder:text-neutral-400 focus:border-neutral-500 focus:outline-none focus:ring-2 focus:ring-neutral-200"
               disabled={isSubmitting}
             />
@@ -369,10 +320,10 @@ export default function RecipeIngestPage() {
               {isSubmitting ? (
                 <>
                   <Loader2 className="h-4 w-4 shrink-0 animate-spin" />
-                  {isGenerateMode ? "Generating…" : "Processing…"}
+                  Queuing…
                 </>
               ) : (
-                isGenerateMode ? "Generate Recipes" : "Process with AI"
+                "Process with AI"
               )}
             </button>
           </div>

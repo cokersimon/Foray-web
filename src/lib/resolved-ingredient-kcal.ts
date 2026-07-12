@@ -2,12 +2,17 @@ const n = (x: unknown): number | null =>
   typeof x === "number" && Number.isFinite(x) ? x : null;
 
 /**
- * Calories stored on the ingredient row (`recipeData.ingredients[]`).
- * Orizon: prefer `kcal`, then `calories`.
+ * Calories on an ingredient line: prefer ADR-040 `lineMacros.kcal`, then flat
+ * legacy `kcal` / `calories`.
  */
 function pickKcalFromIngredientObject(ingredient: unknown): number | null {
   if (ingredient == null || typeof ingredient !== "object") return null;
   const o = ingredient as Record<string, unknown>;
+  const lineMacros = o.lineMacros;
+  if (lineMacros != null && typeof lineMacros === "object") {
+    const fromLine = n((lineMacros as Record<string, unknown>).kcal);
+    if (fromLine != null) return fromLine;
+  }
   return n(o.kcal) ?? n(o.calories) ?? null;
 }
 
