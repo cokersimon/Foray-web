@@ -12,7 +12,7 @@ const FALLBACK_PARSING_PROMPT =
   "You are an expert nutritionist and culinary editor. Extract this recipe into strict JSON. Normalise to exactly one serving when the text states a yield. Use minimal ingredient search names (e.g. 'chicken breast'). Never invent nutrition numbers not present in the source.";
 
 const FALLBACK_IMAGE_INSTRUCTION =
-  "Photorealistic food photography, 45-degree angle, bright natural kitchen lighting, highly appetising.";
+  "Professional photorealistic food photography, fully cooked and beautifully plated on a clean kitchen surface with soft natural light. Appetising restrained plating. Keep the plate and surrounding surface completely bare and clean. Do not scatter loose ingredients, herbs, or raw garnishes anywhere in the frame. All ingredients must be strictly contained within the food itself. 3D isometric framing, professional studio lighting, clean matte textures, centered composition.";
 
 type SaveFlash = "parsing" | "image" | null;
 
