@@ -20,7 +20,6 @@ import {
 import { RecipeEditor } from "@/components/admin/recipe-editor";
 import { RecipePreview } from "@/components/admin/recipe-preview";
 import { IPhoneMockup } from "@/components/admin/iphone-mockup";
-import { RecipeCopilotSidebar } from "@/components/admin/recipe-copilot-sidebar";
 
 type RecipeStatus = "ready_for_review" | "approved" | "published";
 
@@ -107,6 +106,7 @@ function RecipesPageInner() {
   const [isApproving, setIsApproving] = useState(false);
   const [isRejecting, setIsRejecting] = useState(false);
   const [isRefreshingNutrition, setIsRefreshingNutrition] = useState(false);
+  const [isRevising, setIsRevising] = useState(false);
   const [optimisticDeletedStagingIds, setOptimisticDeletedStagingIds] =
     useState<Set<string>>(() => new Set());
   const [deletingStagingId, setDeletingStagingId] = useState<string | null>(null);
@@ -300,6 +300,36 @@ function RecipesPageInner() {
       }
     },
     [refreshDetail],
+  );
+
+  // "Fix with AI" (replaces the Recipe Copilot): free-text feedback → staging.revise job →
+  // poll to completion. On success the corrected recipe is back in 'ready_for_review', so the
+  // detail is re-fetched SILENTLY (no unmount — the modal stays open to show its success state)
+  // and the list follows to the Review tab. Throws on job error so the modal can show it.
+  const handleRevise = useCallback(
+    async (id: string, feedback: string) => {
+      setIsRevising(true);
+      try {
+        const { jobId } = await chefAdmin<{ jobId: string }>("staging.revise", {
+          stagingId: id,
+          feedback,
+        });
+        const job = await pollJob(jobId);
+        if (job.status === "error") {
+          throw new Error(job.error ?? "Fix with AI failed — check the chef job logs");
+        }
+        const { recipe } = await chefAdmin<{ recipe: ChefStagingRecipe }>(
+          "staging.get",
+          { stagingId: id },
+        );
+        setSelectedRecipe(toLegacyDetail(recipe));
+        setStatusFilter("ready_for_review");
+        refreshList();
+      } finally {
+        setIsRevising(false);
+      }
+    },
+    [refreshList],
   );
 
   const handleUpdateApprovedIngredient = useCallback(
@@ -590,6 +620,8 @@ function RecipesPageInner() {
                 deletingStagingId={deletingStagingId}
                 deleteError={deleteError}
                 onRefreshNutrition={handleRefreshNutrition}
+                onRevise={handleRevise}
+                isRevising={isRevising}
                 onRequestHeroImageGeneration={handleRequestHeroImageGeneration}
                 isApproving={isApproving}
                 isRejecting={isRejecting}
@@ -663,7 +695,6 @@ function RecipesPageInner() {
             </IPhoneMockup>
           </div>
         </div>
-        <RecipeCopilotSidebar stagingId={selectedId} />
       </div>
     </div>
   );

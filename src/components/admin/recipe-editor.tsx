@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import {
   Check,
   X,
@@ -413,6 +413,10 @@ interface RecipeEditorProps {
   /** Shown when delete mutation failed (detail view). */
   deleteError?: string | null;
   onRefreshNutrition: (id: string) => void | Promise<void>;
+  /** "Fix with AI" (replaces the Recipe Copilot): free-text feedback → staging.revise job.
+   * Resolves when the corrected recipe is saved (back in Review); rejects with the job error. */
+  onRevise?: (id: string, feedback: string) => Promise<void>;
+  isRevising?: boolean;
   onRequestHeroImageGeneration: (id: string) => Promise<void>;
   isApproving: boolean;
   isRejecting: boolean;
@@ -683,6 +687,8 @@ export function RecipeEditor({
   deletingStagingId = null,
   deleteError = null,
   onRefreshNutrition,
+  onRevise,
+  isRevising = false,
   onRequestHeroImageGeneration,
   isApproving,
   isRejecting,
@@ -720,6 +726,12 @@ export function RecipeEditor({
   const [cookingGuideEditError, setCookingGuideEditError] = useState<
     string | null
   >(null);
+  // "Fix with AI" modal. Feedback is kept in editor state so it survives a failed run (one-click
+  // retry) and a modal close/reopen.
+  const [isFixModalOpen, setIsFixModalOpen] = useState(false);
+  const [fixFeedback, setFixFeedback] = useState("");
+  const [fixError, setFixError] = useState<string | null>(null);
+  const [fixSucceeded, setFixSucceeded] = useState(false);
   const recipeId = recipe?._id;
   const recipeImageGenStatus = recipe?.imageGenStatus;
 
@@ -731,6 +743,10 @@ export function RecipeEditor({
     setIsEditingCookingGuide(false);
     setCookingGuideDrafts([]);
     setCookingGuideEditError(null);
+    setIsFixModalOpen(false);
+    setFixFeedback("");
+    setFixError(null);
+    setFixSucceeded(false);
   }, [recipeId]);
 
   useEffect(() => {
@@ -753,6 +769,32 @@ export function RecipeEditor({
       setIsRequestingGen(false);
     }
   }, [recipe, onRequestHeroImageGeneration]);
+
+  const openFixModal = useCallback(() => {
+    setFixError(null);
+    setFixSucceeded(false);
+    setIsFixModalOpen(true);
+  }, []);
+
+  const handleFixSubmit = useCallback(async () => {
+    if (!recipe || !onRevise) return;
+    const trimmed = fixFeedback.trim();
+    if (!trimmed) {
+      setFixError("Describe what is wrong before submitting.");
+      return;
+    }
+    setFixError(null);
+    try {
+      await onRevise(String(recipe._id), trimmed);
+      setFixSucceeded(true);
+      setFixFeedback("");
+    } catch (e: unknown) {
+      // Feedback is retained for a one-click retry.
+      setFixError(
+        e instanceof Error ? e.message : "Fix with AI failed — please try again.",
+      );
+    }
+  }, [recipe, onRevise, fixFeedback]);
 
   if (recipe === undefined) {
     return (
@@ -1210,9 +1252,27 @@ export function RecipeEditor({
         </details>
 
         <div>
-          <h3 className="mb-3 text-xs font-semibold uppercase tracking-wider text-neutral-800">
-            Nutrition
-          </h3>
+          <div className="mb-3 flex items-center justify-between gap-3">
+            <h3 className="text-xs font-semibold uppercase tracking-wider text-neutral-800">
+              Nutrition
+            </h3>
+            {/* Deterministic recompute from the ingredient lines — useful after manual line
+                edits. Whole-recipe repair lives under "Fix with AI". */}
+            <button
+              type="button"
+              onClick={() => void onRefreshNutrition(recipe._id)}
+              disabled={isRefreshingNutrition || isRevising}
+              aria-busy={isRefreshingNutrition}
+              className="inline-flex items-center gap-1.5 rounded-lg border border-neutral-300 bg-white px-2.5 py-1 text-xs font-semibold text-neutral-800 transition-colors hover:bg-neutral-50 disabled:cursor-not-allowed disabled:opacity-60"
+            >
+              {isRefreshingNutrition ? (
+                <Loader2 className="h-3.5 w-3.5 animate-spin" aria-hidden />
+              ) : (
+                <RefreshCw className="h-3.5 w-3.5" strokeWidth={2.5} aria-hidden />
+              )}
+              Refresh nutrition
+            </button>
+          </div>
           <div className="grid grid-cols-2 gap-2 rounded-xl border border-neutral-200 bg-white p-2 shadow-sm sm:grid-cols-4">
             {macroRows.map((row) => (
               <div
@@ -1871,7 +1931,7 @@ export function RecipeEditor({
               >
                 <button
                   onClick={() => onApprove(recipe._id)}
-                  disabled={recipeBlockedByImage || isApproving}
+                  disabled={recipeBlockedByImage || isApproving || isRevising}
                   type="button"
                   className={cn(
                     "flex w-full items-center justify-center gap-2 rounded-xl bg-emerald-800 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-emerald-900 disabled:opacity-50 [&_svg]:text-white",
@@ -1897,7 +1957,7 @@ export function RecipeEditor({
               >
                 <button
                   onClick={() => onReject(recipe._id)}
-                  disabled={recipeBlockedByImage || isRejecting}
+                  disabled={recipeBlockedByImage || isRejecting || isRevising}
                   type="button"
                   className={cn(
                     "flex w-full items-center justify-center gap-2 rounded-xl bg-red-800 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-red-900 disabled:opacity-50 [&_svg]:text-white",
@@ -1913,23 +1973,25 @@ export function RecipeEditor({
                 </button>
               </div>
 
-              <div className="pointer-events-auto shrink-0">
-                <button
-                  onClick={() => void onRefreshNutrition(recipe._id)}
-                  disabled={isRefreshingNutrition}
-                  type="button"
-                  title="Refresh Nutrition"
-                  aria-busy={isRefreshingNutrition}
-                  aria-label="Refresh Nutrition"
-                  className="flex h-[42px] w-[42px] items-center justify-center rounded-full border border-neutral-300 bg-neutral-100 text-neutral-900 transition-colors hover:bg-neutral-200 disabled:cursor-not-allowed disabled:opacity-60"
-                >
-                  {isRefreshingNutrition ? (
-                    <Loader2 className="h-4 w-4 animate-spin" aria-hidden />
-                  ) : (
-                    <RefreshCw className="h-4 w-4" strokeWidth={2.5} aria-hidden />
-                  )}
-                </button>
-              </div>
+              {onRevise ? (
+                <div className="pointer-events-auto shrink-0">
+                  <button
+                    onClick={openFixModal}
+                    disabled={isRevising}
+                    type="button"
+                    title="Fix with AI"
+                    aria-busy={isRevising}
+                    aria-label="Fix with AI"
+                    className="flex h-[42px] w-[42px] items-center justify-center rounded-full border border-violet-300 bg-violet-50 text-violet-800 transition-colors hover:bg-violet-100 disabled:cursor-not-allowed disabled:opacity-60"
+                  >
+                    {isRevising ? (
+                      <Loader2 className="h-4 w-4 animate-spin" aria-hidden />
+                    ) : (
+                      <Wand2 className="h-4 w-4" strokeWidth={2.5} aria-hidden />
+                    )}
+                  </button>
+                </div>
+              ) : null}
             </div>
 
             {!hasHero && (
@@ -2009,19 +2071,38 @@ export function RecipeEditor({
 
       {normalizedStatus === "approved" && onPublish && (
         <div className="shrink-0 border-t border-neutral-200 bg-neutral-50/80 p-4 backdrop-blur-sm">
-          <button
-            type="button"
-            onClick={() => void onPublish(String(recipe._id))}
-            disabled={isPublishing}
-            className="flex w-full items-center justify-center gap-2 rounded-xl bg-sky-700 px-4 py-3 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-sky-800 disabled:cursor-not-allowed disabled:opacity-60"
-          >
-            {isPublishing ? (
-              <Loader2 className="h-4 w-4 shrink-0 animate-spin text-white" />
-            ) : (
-              <span aria-hidden>🚀</span>
-            )}
-            Publish Recipe
-          </button>
+          <div className="flex gap-2">
+            <button
+              type="button"
+              onClick={() => void onPublish(String(recipe._id))}
+              disabled={isPublishing || isRevising}
+              className="flex min-w-0 flex-1 items-center justify-center gap-2 rounded-xl bg-sky-700 px-4 py-3 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-sky-800 disabled:cursor-not-allowed disabled:opacity-60"
+            >
+              {isPublishing ? (
+                <Loader2 className="h-4 w-4 shrink-0 animate-spin text-white" />
+              ) : (
+                <span aria-hidden>🚀</span>
+              )}
+              Publish Recipe
+            </button>
+            {onRevise ? (
+              <button
+                type="button"
+                onClick={openFixModal}
+                disabled={isRevising || isPublishing}
+                title="Fix with AI (returns the recipe to Review)"
+                aria-busy={isRevising}
+                className="flex shrink-0 items-center justify-center gap-2 rounded-xl border border-violet-300 bg-violet-50 px-4 py-3 text-sm font-semibold text-violet-800 transition-colors hover:bg-violet-100 disabled:cursor-not-allowed disabled:opacity-60"
+              >
+                {isRevising ? (
+                  <Loader2 className="h-4 w-4 shrink-0 animate-spin" aria-hidden />
+                ) : (
+                  <Wand2 className="h-4 w-4 shrink-0" strokeWidth={2.5} aria-hidden />
+                )}
+                Fix with AI
+              </button>
+            ) : null}
+          </div>
           {publishError ? (
             <p className="mt-2 text-center text-sm font-medium text-red-700" role="alert">
               {publishError}
@@ -2060,6 +2141,197 @@ export function RecipeEditor({
           )}
         </div>
       )}
+
+      {onRevise ? (
+        <FixWithAiModal
+          open={isFixModalOpen}
+          recipeName={recipe.name}
+          fromApproved={normalizedStatus === "approved"}
+          feedback={fixFeedback}
+          onFeedbackChange={(value) => {
+            setFixFeedback(value);
+            if (fixError) setFixError(null);
+          }}
+          onClose={() => setIsFixModalOpen(false)}
+          onSubmit={() => void handleFixSubmit()}
+          isSubmitting={isRevising}
+          error={fixError}
+          succeeded={fixSucceeded}
+        />
+      ) : null}
+    </div>
+  );
+}
+
+/** "Fix with AI" dialog: required free-text feedback → `staging.revise`. The AI may change
+ * ingredients, quantities, steps, times, tags, labels, allergens, and nutrition — never the title
+ * or the image — and the corrected recipe returns to Review for human sign-off. */
+function FixWithAiModal({
+  open,
+  recipeName,
+  fromApproved,
+  feedback,
+  onFeedbackChange,
+  onClose,
+  onSubmit,
+  isSubmitting,
+  error,
+  succeeded,
+}: {
+  open: boolean;
+  recipeName: string;
+  fromApproved: boolean;
+  feedback: string;
+  onFeedbackChange: (value: string) => void;
+  onClose: () => void;
+  onSubmit: () => void;
+  isSubmitting: boolean;
+  error: string | null;
+  succeeded: boolean;
+}) {
+  const textareaRef = useRef<HTMLTextAreaElement | null>(null);
+
+  useEffect(() => {
+    if (open && !succeeded) textareaRef.current?.focus();
+  }, [open, succeeded]);
+
+  useEffect(() => {
+    if (!open) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape" && !isSubmitting) onClose();
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [open, isSubmitting, onClose]);
+
+  if (!open) return null;
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+      <div
+        className="absolute inset-0 bg-neutral-950/40"
+        onClick={() => {
+          if (!isSubmitting) onClose();
+        }}
+        aria-hidden
+      />
+      <div
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="fix-with-ai-title"
+        className="relative flex w-full max-w-lg flex-col gap-4 rounded-2xl bg-white p-6 shadow-2xl"
+      >
+        <div className="flex items-start justify-between gap-3">
+          <div>
+            <h2
+              id="fix-with-ai-title"
+              className="flex items-center gap-2 text-base font-bold text-neutral-900"
+            >
+              <Wand2 className="h-4 w-4 text-violet-700" strokeWidth={2.5} aria-hidden />
+              Fix with AI
+            </h2>
+            <p className="mt-0.5 text-sm text-neutral-600">{recipeName}</p>
+          </div>
+          <button
+            type="button"
+            onClick={onClose}
+            disabled={isSubmitting}
+            aria-label="Close"
+            className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-neutral-500 transition-colors hover:bg-neutral-100 hover:text-neutral-800 disabled:cursor-not-allowed disabled:opacity-50"
+          >
+            <X className="h-4 w-4" strokeWidth={2.5} aria-hidden />
+          </button>
+        </div>
+
+        {succeeded ? (
+          <>
+            <div
+              className="rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm font-medium text-emerald-900"
+              role="status"
+            >
+              Recipe corrected. It is back under Review for human sign-off — check the changes
+              and approve it again.
+            </div>
+            <div className="flex justify-end">
+              <button
+                type="button"
+                onClick={onClose}
+                className="rounded-xl bg-neutral-900 px-4 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-neutral-800"
+              >
+                Done
+              </button>
+            </div>
+          </>
+        ) : (
+          <>
+            <div>
+              <label
+                htmlFor="fix-with-ai-feedback"
+                className="mb-1.5 block text-sm font-semibold text-neutral-900"
+              >
+                Describe exactly what is wrong or what should change
+              </label>
+              <textarea
+                id="fix-with-ai-feedback"
+                ref={textareaRef}
+                value={feedback}
+                onChange={(e) => onFeedbackChange(e.target.value)}
+                disabled={isSubmitting}
+                rows={4}
+                maxLength={4000}
+                placeholder="e.g. The carrot must be peeled and julienned, and it should be used in steps 3 and 7."
+                className="w-full resize-y rounded-xl border border-neutral-300 bg-white px-3 py-2 text-sm text-neutral-900 placeholder:text-neutral-400 focus:border-violet-500 focus:outline-none focus:ring-2 focus:ring-violet-200 disabled:bg-neutral-50 disabled:text-neutral-500"
+              />
+            </div>
+
+            <p className="text-xs leading-relaxed text-neutral-600">
+              The AI can change ingredients, quantities, cooking instructions and times,
+              tags/cuisine/meal type, dietary labels, allergens, and nutrition. The image is never
+              regenerated{fromApproved ? ", and the corrected recipe returns to Review for approval" : ""}.
+            </p>
+
+            {error ? (
+              <div
+                className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm font-medium text-red-800"
+                role="alert"
+              >
+                {error}
+              </div>
+            ) : null}
+
+            {isSubmitting ? (
+              <div className="flex items-center gap-2 rounded-xl border border-violet-200 bg-violet-50 px-4 py-3 text-sm font-medium text-violet-900">
+                <Loader2 className="h-4 w-4 shrink-0 animate-spin" aria-hidden />
+                Fixing and re-reviewing the recipe — this can take a couple of minutes.
+              </div>
+            ) : null}
+
+            <div className="flex justify-end gap-2">
+              <button
+                type="button"
+                onClick={onClose}
+                disabled={isSubmitting}
+                className="rounded-xl border border-neutral-300 bg-white px-4 py-2.5 text-sm font-semibold text-neutral-800 transition-colors hover:bg-neutral-50 disabled:cursor-not-allowed disabled:opacity-50"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={onSubmit}
+                disabled={isSubmitting || !feedback.trim()}
+                className="flex items-center gap-2 rounded-xl bg-violet-700 px-4 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-violet-800 disabled:cursor-not-allowed disabled:opacity-50"
+              >
+                {isSubmitting ? (
+                  <Loader2 className="h-4 w-4 shrink-0 animate-spin text-white" aria-hidden />
+                ) : (
+                  <Wand2 className="h-4 w-4 shrink-0" strokeWidth={2.5} aria-hidden />
+                )}
+                Fix and review recipe
+              </button>
+            </div>
+          </>
+        )}
+      </div>
     </div>
   );
 }

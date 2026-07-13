@@ -132,7 +132,7 @@ export type ChefStagingRecipe = {
 
 export type ChefJob = {
   id: string;
-  kind: "ingest" | "tokenize" | "hero_image" | "publish_assets";
+  kind: "ingest" | "tokenize" | "hero_image" | "publish_assets" | "recohere" | "revise";
   status: "queued" | "running" | "done" | "error";
   stage: string | null;
   result: Record<string, unknown> | null;
