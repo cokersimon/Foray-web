@@ -12,13 +12,13 @@ export function About() {
             Why I built Foray<span className="text-brand-dot">.</span>
           </h2>
 
-          <figure className="relative order-2 mx-auto aspect-[3/4] w-full max-w-sm overflow-hidden rounded-[28px] sm:max-w-md lg:order-none lg:col-start-1 lg:row-span-2 lg:row-start-1 lg:mx-0 lg:aspect-auto lg:h-full lg:max-w-none lg:min-h-0">
+          <figure className="relative order-2 mx-auto aspect-[3/4] w-full max-w-sm isolate overflow-hidden rounded-[28px] sm:max-w-md lg:order-none lg:col-start-1 lg:row-span-2 lg:row-start-1 lg:mx-0 lg:aspect-auto lg:h-full lg:max-w-none lg:min-h-0">
             <Image
               src="/brand/simon-founder.jpg"
               alt="Simon, founder of Foray"
               fill
               sizes="(max-width: 1024px) 28rem, 22rem"
-              className="object-cover object-[center_18%]"
+              className="origin-top scale-[1.04] object-cover object-top"
             />
           </figure>
 
