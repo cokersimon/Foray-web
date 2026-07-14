@@ -6,6 +6,7 @@ import { trackFooterClick, trackSocialClick } from "@/lib/analytics";
 import { SOCIAL_LINKS } from "@/lib/site";
 
 const FOOTER_LINKS = [
+  { label: "About", href: "/#about" },
   { label: "Privacy", href: "/privacy" },
   { label: "Terms", href: "/terms" },
   { label: "Contact", href: `mailto:${LEGAL_ENTITY.supportEmail}` },

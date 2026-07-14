@@ -25,9 +25,14 @@ const FAQS = [
       "Browse hundreds of Foray recipes, or import your own from social media and cookbooks with a screenshot or photo. Foray turns it into ingredients and steps for you to check. Chef AI can also create one from whatever you fancy.",
   },
   {
-    question: "Is Foray free to try?",
+    question: "Is Foray free?",
     answer:
-      "Yes. Your first seven days include everything. After that, Foray Pro is £4.99 a month or £54.99 a year, billed through the App Store and cancellable at any time.",
+      "Yes. Foray Free is free for as long as you like, and every new account starts with seven days of Foray Pro included. After the trial you stay on Foray Free unless you choose to subscribe.",
+  },
+  {
+    question: "What happens after my free trial?",
+    answer:
+      "You move to Foray Free automatically and nothing is charged unless you chose to subscribe. You keep browse recipes, plan meals, grocery lists, in-store shopping and cook mode. Upgrade to Pro whenever you like, from inside the app.",
   },
   {
     question: "How do I cancel?",
