@@ -36,13 +36,13 @@ const SLIDES: HeroSlide[] = [
     screen: "hero-plan",
     badges: [
       {
-        icon: "brainHeadProfile",
+        icon: "brainHeadProfileFill",
         label: "Less to decide",
         side: "left",
         edge: "top",
       },
       {
-        icon: "cart",
+        icon: "cartFill",
         label: "Trolley builds itself",
         side: "right",
         edge: "bottom",
@@ -60,7 +60,7 @@ const SLIDES: HeroSlide[] = [
         edge: "top",
       },
       {
-        icon: "squareAndArrowDown",
+        icon: "squareAndArrowDownFill",
         label: "Import from TikTok",
         side: "right",
         edge: "bottom",
@@ -78,7 +78,7 @@ const SLIDES: HeroSlide[] = [
         edge: "top",
       },
       {
-        icon: "allergens",
+        icon: "allergensFill",
         label: "Allergy-safe picks",
         side: "right",
         edge: "bottom",
@@ -90,7 +90,7 @@ const SLIDES: HeroSlide[] = [
     screen: "hero-create",
     badges: [
       {
-        icon: "camera",
+        icon: "cameraFill",
         label: "Snap your pantry",
         side: "right",
         edge: "top",
@@ -108,7 +108,7 @@ const SLIDES: HeroSlide[] = [
     screen: "hero-cook",
     badges: [
       {
-        icon: "clock",
+        icon: "timerCircleFill",
         label: "Live timers",
         side: "right",
         edge: "top",
@@ -126,7 +126,7 @@ const SLIDES: HeroSlide[] = [
     screen: "hero-groceries",
     badges: [
       {
-        icon: "banknote",
+        icon: "banknoteFill",
         label: "Priced as you plan",
         side: "right",
         edge: "top",
