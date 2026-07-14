@@ -36,7 +36,7 @@ const SLIDES: HeroSlide[] = [
     screen: "hero-plan",
     badges: [
       {
-        icon: "forkKnife",
+        icon: "brainHeadProfile",
         label: "Less to decide",
         side: "left",
         edge: "top",
@@ -60,7 +60,7 @@ const SLIDES: HeroSlide[] = [
         edge: "top",
       },
       {
-        icon: "arrowRight",
+        icon: "squareAndArrowDown",
         label: "Import from TikTok",
         side: "right",
         edge: "bottom",
@@ -78,7 +78,7 @@ const SLIDES: HeroSlide[] = [
         edge: "top",
       },
       {
-        icon: "checkmarkSealFill",
+        icon: "allergens",
         label: "Allergy-safe picks",
         side: "right",
         edge: "bottom",
@@ -90,13 +90,13 @@ const SLIDES: HeroSlide[] = [
     screen: "hero-create",
     badges: [
       {
-        icon: "checkmarkSealFill",
+        icon: "camera",
         label: "Snap your pantry",
         side: "right",
         edge: "top",
       },
       {
-        icon: "forkKnife",
+        icon: "wandAndSparklesInverse",
         label: "Get creative with Chef AI",
         side: "left",
         edge: "bottom",
@@ -114,7 +114,7 @@ const SLIDES: HeroSlide[] = [
         edge: "top",
       },
       {
-        icon: "checkmark",
+        icon: "playFill",
         label: "Steps on Lock Screen",
         side: "left",
         edge: "bottom",
@@ -132,8 +132,8 @@ const SLIDES: HeroSlide[] = [
         edge: "top",
       },
       {
-        icon: "cart",
-        label: "One tap to Tesco",
+        icon: "handTapFill",
+        label: "One tap to Supermarket",
         side: "left",
         edge: "bottom",
       },
