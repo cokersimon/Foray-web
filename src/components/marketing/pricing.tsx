@@ -35,7 +35,7 @@ const FEATURES: { label: string; note?: boolean; free: Cell; pro: Cell }[] = [
     free: "check",
     pro: "check",
   },
-  { label: "In-store check-off", free: "check", pro: "check" },
+  { label: "In-store shopping", free: "check", pro: "check" },
   {
     label: "Online checkout at Sainsbury's, Tesco and Waitrose",
     note: true,
