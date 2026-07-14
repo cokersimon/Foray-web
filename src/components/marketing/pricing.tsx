@@ -96,7 +96,9 @@ export function Pricing() {
               <thead>
                 <tr className="border-b border-black/15">
                   <th scope="col" className="pb-5 pr-3 text-left align-bottom">
-                    <span className="sr-only">Feature</span>
+                    <span className="block text-sm font-semibold tracking-tight text-black sm:text-base">
+                      Features
+                    </span>
                   </th>
                   <th
                     scope="col"
