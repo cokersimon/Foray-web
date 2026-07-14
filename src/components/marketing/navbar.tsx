@@ -1,7 +1,8 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
+import { usePathname, useRouter } from "next/navigation";
 import { Wordmark } from "@/components/brand/wordmark";
 import { SfSymbol } from "@/components/brand/sf-symbol";
 import { trackDownloadApp, trackNavClick } from "@/lib/analytics";
@@ -12,6 +13,7 @@ const NAV_LINKS = [
   { label: "How it works", href: "/#how-it-works" },
   { label: "Pricing", href: "/#pricing" },
   { label: "FAQ", href: "/#faq" },
+  { label: "About", href: "/#about" },
 ];
 
 function prefersReducedMotion() {
@@ -26,7 +28,8 @@ function sectionTopY(el: HTMLElement) {
 
 export function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false);
-  const didHashScroll = useRef(false);
+  const pathname = usePathname();
+  const router = useRouter();
 
   useEffect(() => {
     if (!menuOpen) return;
@@ -54,30 +57,66 @@ export function Navbar() {
     });
   }
 
-  // Land correctly on deep links like /#pricing (once).
+  // Land on /#pricing (etc.) after a full load or a client nav from Privacy/Terms.
   useEffect(() => {
-    if (didHashScroll.current) return;
+    if (pathname !== "/") return;
     const hash = window.location.hash.replace(/^#/, "");
     if (!hash) return;
-    const el = document.getElementById(hash);
-    if (!el) return;
 
-    const id = window.setTimeout(() => {
-      didHashScroll.current = true;
-      scrollToSectionTop(el);
-    }, 80);
+    let cancelled = false;
+    let attempts = 0;
+    const run = () => {
+      if (cancelled) return;
+      const el = document.getElementById(hash);
+      if (el) {
+        scrollToSectionTop(el);
+        return;
+      }
+      if (attempts++ < 40) {
+        window.setTimeout(run, 50);
+      }
+    };
+    const id = window.setTimeout(run, 80);
+    return () => {
+      cancelled = true;
+      window.clearTimeout(id);
+    };
+  }, [pathname]);
 
-    return () => window.clearTimeout(id);
-  }, []);
-
-  function onNavLinkClick(href: string) {
+  function onNavLinkClick(
+    e: React.MouseEvent<HTMLAnchorElement>,
+    href: string,
+  ) {
     const id = href.includes("#") ? href.split("#")[1] : null;
     if (!id) return;
-    const el = document.getElementById(id);
-    if (!el) return;
     trackNavClick(id);
-    scrollToSectionTop(el);
-    window.history.pushState(null, "", href);
+    e.preventDefault();
+
+    const el = document.getElementById(id);
+    if (el) {
+      scrollToSectionTop(el);
+      window.history.pushState(null, "", href);
+      return;
+    }
+
+    // Privacy/Terms (etc.): App Router can drop the hash on client nav, so go
+    // home first, restore the hash, then scroll once the section mounts.
+    setMenuOpen(false);
+    document.body.style.overflow = "";
+    router.push("/");
+    const started = performance.now();
+    const poll = () => {
+      const target = document.getElementById(id);
+      if (target) {
+        window.history.replaceState(null, "", href);
+        scrollToSectionTop(target);
+        return;
+      }
+      if (performance.now() - started < 3000) {
+        window.requestAnimationFrame(poll);
+      }
+    };
+    window.requestAnimationFrame(poll);
   }
 
   return (
@@ -107,10 +146,7 @@ export function Navbar() {
                 <a
                   key={link.label}
                   href={link.href}
-                  onClick={(e) => {
-                    e.preventDefault();
-                    onNavLinkClick(link.href);
-                  }}
+                  onClick={(e) => onNavLinkClick(e, link.href)}
                   className="rounded-full px-4 py-2.5 text-sm font-semibold text-white/70 transition-colors hover:bg-white/[0.08] hover:text-white focus-visible:outline-2 focus-visible:outline-white"
                 >
                   {link.label}
@@ -170,7 +206,7 @@ export function Navbar() {
             className={cn(
               "overflow-hidden transition-[max-height,opacity] duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] md:hidden",
               menuOpen
-                ? "max-h-[28rem] opacity-100"
+                ? "max-h-[32rem] opacity-100"
                 : "pointer-events-none max-h-0 opacity-0",
             )}
           >
@@ -182,10 +218,7 @@ export function Navbar() {
                 <a
                   key={link.label}
                   href={link.href}
-                  onClick={(e) => {
-                    e.preventDefault();
-                    onNavLinkClick(link.href);
-                  }}
+                  onClick={(e) => onNavLinkClick(e, link.href)}
                   className="rounded-2xl px-3 py-3.5 text-left text-[1.65rem] font-semibold leading-none tracking-tight text-white transition-colors hover:bg-white/10"
                 >
                   {link.label}
