@@ -171,7 +171,7 @@ function GlassBadge({
     <div className={cn("glass-badge pointer-events-none", className)}>
       <div className="glass-badge-inner">
         <span className="glass-badge-icon">
-          <SfSymbol name={icon} size={14} />
+          <SfSymbol name={icon} size="small" />
         </span>
         <span className="glass-badge-label">{label}</span>
       </div>
