@@ -100,29 +100,18 @@ export function Pricing() {
                   </th>
                   <th
                     scope="col"
-                    className="w-[4.75rem] px-1 pb-5 text-center align-bottom sm:w-24"
+                    className="w-16 px-1 pb-5 text-center align-bottom sm:w-20"
                   >
-                    <span className="block text-xs font-semibold tracking-tight text-black sm:text-sm">
-                      Foray Free
-                    </span>
-                    <span className="mt-1 block text-lg font-bold tracking-[-0.03em] text-black sm:text-xl">
-                      £0
+                    <span className="block text-sm font-semibold tracking-tight text-black sm:text-base">
+                      Free
                     </span>
                   </th>
                   <th
                     scope="col"
-                    className="w-[5.5rem] px-1 pb-5 text-center align-bottom sm:w-28"
+                    className="w-16 px-1 pb-5 text-center align-bottom sm:w-20"
                   >
-                    <span className="block text-xs font-semibold tracking-tight text-black sm:text-sm">
-                      Foray Pro
-                    </span>
-                    <span className="mt-1 block text-lg font-bold tracking-[-0.03em] text-black sm:text-xl">
-                      £4.99
-                    </span>
-                    <span className="mt-0.5 block text-[10px] leading-snug text-black/55 sm:text-xs">
-                      /month
-                      <br />
-                      or £54.99/year
+                    <span className="block text-sm font-semibold tracking-tight text-black sm:text-base">
+                      Pro
                     </span>
                   </th>
                 </tr>
@@ -160,18 +149,19 @@ export function Pricing() {
             </table>
           </div>
 
-          <p className="mt-4 text-xs leading-relaxed text-black/55">
-            * Online checkout incurs a £{CHECKOUT_FEE_GBP} convenience fee per
-            order.
-          </p>
-
           <div className="mt-6 flex items-center gap-5 border-t border-black/15 pt-6 sm:gap-6">
-            <p className="min-w-0 flex-1 text-left text-xs leading-relaxed text-black/55">
-              Foray Pro is £4.99 a month or £54.99 a year after your trial,
-              billed through the App Store. Online checkout adds a £
-              {CHECKOUT_FEE_GBP} convenience fee per order on both plans. Taking
-              your list in-store is always free.
-            </p>
+            <div className="min-w-0 flex-1 space-y-2 text-left text-xs leading-relaxed text-black/55">
+              <p>
+                Foray Pro is £4.99 a month or £54.99 a year after your trial,
+                billed through the App Store. Online checkout adds a £
+                {CHECKOUT_FEE_GBP} convenience fee per order on both plans.
+                Taking your list in-store is always free.
+              </p>
+              <p>
+                * Online checkout incurs a £{CHECKOUT_FEE_GBP} convenience fee
+                per order.
+              </p>
+            </div>
             <ApplePayMark />
           </div>
         </div>
