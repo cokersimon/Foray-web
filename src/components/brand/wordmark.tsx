@@ -1,9 +1,9 @@
 import { cn } from "@/lib/cn";
 
 /**
- * Foray wordmark — "Foray" in the primary label colour with a full stop in the
- * brand orange dot (systemOrange), the mark's sole flourish (ADR-013 / branding-logo.md).
- * `abbreviated` renders the boot/app-icon "F." mark.
+ * Foray wordmark — Caveat 700 script letterforms with a trailing period in the
+ * brand orange dot (ADR-013 / branding-logo.md). `abbreviated` renders the
+ * boot/app-icon "F." mark.
  */
 export function Wordmark({
   abbreviated = false,
@@ -13,14 +13,9 @@ export function Wordmark({
   className?: string;
 }) {
   return (
-    <span
-      className={cn(
-        "font-bold leading-none tracking-tight text-foreground",
-        className,
-      )}
-    >
+    <span className={cn("font-wordmark leading-none text-foreground", className)}>
       {abbreviated ? "F" : "Foray"}
-      <span className="text-brand-dot">.</span>
+      <span className="font-wordmark-dot text-brand-dot">.</span>
     </span>
   );
 }

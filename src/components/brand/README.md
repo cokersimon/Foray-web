@@ -14,6 +14,10 @@ Defined as CSS variables in `src/app/globals.css`:
 Use Tailwind token classes: `bg-background`, `text-foreground`,
 `text-muted`, `bg-section-grey`, `bg-ink`, `text-brand-dot`, etc.
 
+Wordmark: Caveat 700 via `next/font` (`--font-caveat` / `.font-wordmark`).
+Trailing period uses `.font-wordmark-dot` (~72% size, baseline-aligned) and
+`text-brand-dot`.
+
 ## Icons
 
 Apple SF Symbols geometry via `SfSymbol` in

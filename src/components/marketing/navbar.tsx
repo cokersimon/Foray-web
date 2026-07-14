@@ -138,7 +138,7 @@ export function Navbar() {
               className="shrink-0 rounded-sm text-white transition-opacity hover:opacity-75 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white"
               onClick={() => setMenuOpen(false)}
             >
-              <Wordmark className="text-2xl tracking-tighter text-white" />
+              <Wordmark className="text-2xl text-white" />
             </Link>
 
             <div className="hidden items-center gap-1 md:flex">

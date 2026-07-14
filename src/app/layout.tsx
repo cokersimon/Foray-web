@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { Inter } from "next/font/google";
+import { Caveat, Inter } from "next/font/google";
 import { Providers } from "@/components/providers";
 import { SITE_URL } from "@/lib/site";
 import "./globals.css";
@@ -10,6 +10,14 @@ const inter = Inter({
   subsets: ["latin"],
   display: "swap",
   variable: "--font-inter",
+});
+
+/** Wordmark script (Caveat 700) — Google Fonts via next/font. */
+const caveat = Caveat({
+  weight: "700",
+  subsets: ["latin"],
+  display: "swap",
+  variable: "--font-caveat",
 });
 
 export const metadata: Metadata = {
@@ -47,7 +55,10 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en-GB" className={`h-full antialiased ${inter.variable}`}>
+    <html
+      lang="en-GB"
+      className={`h-full antialiased ${inter.variable} ${caveat.variable}`}
+    >
       <body className="min-h-full bg-background text-foreground">
         <Providers>{children}</Providers>
       </body>

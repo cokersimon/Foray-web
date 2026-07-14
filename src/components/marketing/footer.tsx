@@ -145,10 +145,10 @@ export function Footer() {
 
       <div
         aria-hidden="true"
-        className="pointer-events-none -mb-[0.28em] mt-8 select-none text-center font-bold leading-none tracking-tighter text-white/[0.12]"
+        className="font-wordmark pointer-events-none -mb-[0.28em] mt-8 select-none text-center leading-none text-white/[0.12]"
         style={{ fontSize: "clamp(5rem, 22vw, 22rem)" }}
       >
-        Foray<span className="text-brand-dot">.</span>
+        Foray<span className="font-wordmark-dot text-brand-dot">.</span>
       </div>
     </footer>
   );

@@ -76,6 +76,8 @@
      metrics to SF Pro, so tight-tracked headlines look intentional everywhere. */
   --font-sans: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display",
     var(--font-inter, "Inter"), "Helvetica Neue", system-ui, sans-serif;
+  /* Wordmark script — Caveat 700 (next/font → --font-caveat). */
+  --font-wordmark: var(--font-caveat), "Caveat", cursive;
   /* Foray radius scale (8 / 12 / 20). */
   --radius-sm: 8px;
   --radius-md: 12px;
@@ -121,6 +123,19 @@ body {
   font-family: var(--font-sans);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+/* Logo / wordmark — Caveat 700; period stays brand-dot orange at ~72% size. */
+.font-wordmark {
+  font-family: var(--font-wordmark);
+  font-weight: 700;
+  font-style: normal;
+  letter-spacing: normal;
+}
+
+.font-wordmark-dot {
+  font-size: 0.72em;
+  vertical-align: baseline;
 }
 
 button,
