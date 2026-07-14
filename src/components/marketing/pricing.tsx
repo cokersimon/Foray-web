@@ -150,18 +150,13 @@ export function Pricing() {
           </div>
 
           <div className="mt-6 flex items-center gap-5 border-t border-black/15 pt-6 sm:gap-6">
-            <div className="min-w-0 flex-1 space-y-2 text-left text-xs leading-relaxed text-black/55">
-              <p>
-                Foray Pro is £4.99 a month or £54.99 a year after your trial,
-                billed through the App Store. Online checkout adds a £
-                {CHECKOUT_FEE_GBP} convenience fee per order on both plans.
-                Taking your list in-store is always free.
-              </p>
-              <p>
-                * Online checkout incurs a £{CHECKOUT_FEE_GBP} convenience fee
-                per order.
-              </p>
-            </div>
+            <p className="min-w-0 flex-1 text-left text-xs leading-relaxed text-black/55">
+              Foray Pro is £4.99 a month or £54.99 a year after your trial,
+              billed through the App Store. Online checkout adds a £
+              {CHECKOUT_FEE_GBP} convenience fee per order on both plans.
+              Taking your list in-store is always free. * Online checkout
+              incurs a £{CHECKOUT_FEE_GBP} convenience fee per order.
+            </p>
             <ApplePayMark />
           </div>
         </div>

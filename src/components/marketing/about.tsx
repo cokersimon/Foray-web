@@ -1,3 +1,5 @@
+import Image from "next/image";
+
 export function About() {
   return (
     <section
@@ -5,11 +7,22 @@ export function About() {
       className="bg-section-grey px-5 py-20 sm:px-6 md:py-28 lg:px-10 lg:py-32"
     >
       <div className="mx-auto max-w-7xl">
-        <div className="max-w-3xl">
-          <h2 className="text-balance text-[clamp(2.4rem,5vw,4.25rem)] font-bold leading-[1.02] tracking-[-0.045em] text-foreground">
+        <div className="grid gap-8 lg:grid-cols-[minmax(16rem,22rem)_minmax(0,1fr)] lg:items-stretch lg:gap-x-12 lg:gap-y-8 xl:gap-x-16">
+          <h2 className="order-1 text-balance text-[clamp(2.4rem,5vw,4.25rem)] font-bold leading-[1.02] tracking-[-0.045em] text-foreground lg:col-start-2 lg:row-start-1">
             Why I built Foray<span className="text-brand-dot">.</span>
           </h2>
-          <div className="mt-8 space-y-5 text-pretty text-base leading-relaxed text-muted sm:text-lg">
+
+          <figure className="relative order-2 mx-auto aspect-[3/4] w-full max-w-sm overflow-hidden rounded-[28px] sm:max-w-md lg:order-none lg:col-start-1 lg:row-span-2 lg:row-start-1 lg:mx-0 lg:aspect-auto lg:h-full lg:max-w-none lg:min-h-0">
+            <Image
+              src="/brand/simon-founder.jpg"
+              alt="Simon, founder of Foray"
+              fill
+              sizes="(max-width: 1024px) 28rem, 22rem"
+              className="object-cover object-[center_18%]"
+            />
+          </figure>
+
+          <div className="order-3 space-y-5 text-pretty text-base leading-relaxed text-muted sm:text-lg lg:col-start-2 lg:row-start-2 lg:self-start">
             <p>
               Foray started in my own kitchen. I struggled to find time to cook
               interesting meals and stick to good habits, so I kept falling back
