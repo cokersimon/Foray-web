@@ -44,25 +44,29 @@ export function About() {
               <span className="font-semibold text-foreground">
                 Your data isn&apos;t the product.
               </span>{" "}
-              Analytics are off by default, your location is never tracked, and
-              there are no ads.
+              We keep analytics off by default, and there are absolutely no ads.
             </p>
             <p>
               <span className="font-semibold text-foreground">
                 Calm by design.
               </span>{" "}
-              Foray is built to be finished — plan, shop, cook, and get on with
-              your evening.
+              Foray is designed to help you get in and get out: plan, shop, cook,
+              and get on with your evening.
             </p>
             <p>
               <span className="font-semibold text-foreground">
-                Prices on the label.
+                No hidden prices.
               </span>{" "}
               Every fee is shown before you pay, and cancelling takes a minute in
               the App Store.
             </p>
-            <p className="pt-2 font-semibold text-foreground">
-              Simon, founder of Foray
+            <p className="pt-4">
+              <span className="font-wordmark block text-[1.85rem] leading-none text-foreground sm:text-[2.1rem]">
+                Simon
+              </span>
+              <span className="mt-1.5 block text-base font-semibold text-foreground sm:text-lg">
+                founder of Foray
+              </span>
             </p>
           </div>
         </div>
