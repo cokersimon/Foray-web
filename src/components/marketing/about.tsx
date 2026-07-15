@@ -51,7 +51,7 @@ export function About() {
                 Calm by design.
               </span>{" "}
               Foray is designed to help you get in and get out: plan, shop, cook,
-              and get on with your evening.
+              and get on with your day.
             </p>
             <p>
               <span className="font-semibold text-foreground">
