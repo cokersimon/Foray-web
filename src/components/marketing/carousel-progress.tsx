@@ -94,25 +94,29 @@ export function CarouselProgress({
             aria-selected={active}
             aria-label={`Go to slide ${i + 1}`}
             onClick={() => onSelect(i)}
-            className={cn(
-              "relative overflow-hidden rounded-full transition-[width,background-color] duration-500 ease-out",
-              active
-                ? "h-1.5 w-8 bg-foreground/15"
-                : "h-1.5 w-1.5 bg-foreground/25 hover:bg-foreground/40",
-            )}
+            className="-my-1 flex h-6 min-w-6 items-center justify-center"
           >
-            {active && autoplay && (
-              <span
-                key={`fill-${progressKey}-on`}
-                className="absolute inset-y-0 left-0 rounded-full bg-foreground"
-                style={{
-                  animation: `carousel-progress ${durationMs}ms cubic-bezier(0.4, 0, 0.2, 1) forwards`,
-                }}
-              />
-            )}
-            {active && !autoplay && (
-              <span className="absolute inset-0 rounded-full bg-foreground" />
-            )}
+            <span
+              className={cn(
+                "relative overflow-hidden rounded-full transition-[width,background-color] duration-500 ease-out",
+                active
+                  ? "h-1.5 w-8 bg-foreground/15"
+                  : "h-1.5 w-1.5 bg-foreground/25 hover:bg-foreground/40",
+              )}
+            >
+              {active && autoplay && (
+                <span
+                  key={`fill-${progressKey}-on`}
+                  className="absolute inset-y-0 left-0 rounded-full bg-foreground"
+                  style={{
+                    animation: `carousel-progress ${durationMs}ms cubic-bezier(0.4, 0, 0.2, 1) forwards`,
+                  }}
+                />
+              )}
+              {active && !autoplay && (
+                <span className="absolute inset-0 rounded-full bg-foreground" />
+              )}
+            </span>
           </button>
         );
       })}

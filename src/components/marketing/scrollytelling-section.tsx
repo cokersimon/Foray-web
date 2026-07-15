@@ -68,7 +68,7 @@ function StepControl({
         disabled={disabled}
         aria-label={label}
         className={cn(
-          "flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-foreground/55 lg:hidden",
+          "flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-foreground/55 desk:hidden",
           disabled
             ? "cursor-default opacity-30"
             : "hover:bg-black/[0.06] hover:text-foreground",
@@ -83,7 +83,7 @@ function StepControl({
         disabled={disabled}
         aria-label={label}
         className={cn(
-          "glass-chip-clear relative hidden h-10 w-10 shrink-0 cursor-pointer items-center justify-center lg:flex",
+          "glass-chip-clear relative hidden h-10 w-10 shrink-0 cursor-pointer items-center justify-center desk:flex",
           disabled && "pointer-events-none cursor-default opacity-35",
         )}
       >
@@ -120,14 +120,14 @@ export function ScrollytellingSection() {
 
   return (
     <section id="how-it-works" className="bg-section-grey text-foreground">
-      <div className="mx-auto grid max-w-7xl gap-12 px-5 py-20 sm:px-6 md:py-28 lg:grid-cols-[minmax(0,0.95fr)_minmax(0,1.05fr)] lg:items-center lg:gap-16 lg:px-10 lg:py-32">
-        {/* Left — fixed context. Title on all sizes; subtitle desktop-only. */}
-        <div className="max-w-xl text-center lg:text-left">
+      <div className="mx-auto grid max-w-7xl gap-y-12 px-(--gutter) py-[clamp(5rem,2.9375rem+8.5vw,8rem)] motion-safe:transition-[column-gap] motion-safe:duration-200 motion-safe:ease-out desk:grid-cols-[minmax(0,0.95fr)_minmax(0,1.05fr)] desk:items-center desk:gap-x-16">
+        {/* Left — fixed context. Title on all sizes; subtitle tablet+. */}
+        <div className="max-w-xl text-center desk:text-left">
           <h2 className="text-balance text-[clamp(2.25rem,5vw,3.75rem)] font-bold leading-[1.05] tracking-[-0.045em]">
             The Foray experience
             <span className="text-brand-dot">.</span>
           </h2>
-          <p className="mx-auto mt-5 hidden max-w-md text-pretty text-base leading-relaxed text-muted sm:text-lg lg:mx-0 lg:block">
+          <p className="mx-auto mt-5 hidden max-w-md text-pretty text-base leading-relaxed text-muted sm:text-lg md:block desk:mx-0 desk:text-left">
             Five steps, one app. Here&apos;s how a week with Foray actually runs.
           </p>
         </div>
@@ -139,24 +139,36 @@ export function ScrollytellingSection() {
           onTouchEnd={onTouchEnd}
         >
           <div className="w-full max-w-md text-center">
-            <AnimatePresence mode="wait">
-              <motion.div
-                key={`step-${step.number}`}
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -8 }}
-                transition={{ duration: 0.28, ease: [0.22, 1, 0.36, 1] }}
-              >
-                <h3 className="text-balance text-[clamp(1.35rem,2.6vw,1.9rem)] font-bold leading-[1.15] tracking-[-0.03em]">
-                  <span className="tabular-nums">{step.number}</span>
-                  <span className="text-brand-dot">.</span>{" "}
-                  {step.label}
-                </h3>
-                <p className="mx-auto mt-3 max-w-sm text-pretty text-base leading-relaxed text-muted">
-                  {step.body}
-                </p>
-              </motion.div>
-            </AnimatePresence>
+            <ol className="sr-only">
+              {STEPS.map((s) => (
+                <li key={s.number}>
+                  {s.number}. {s.label}. {s.body}
+                </li>
+              ))}
+            </ol>
+            <p className="sr-only" aria-live="polite" aria-atomic="true">
+              Step {index + 1} of {STEPS.length}: {step.label}
+            </p>
+            <div aria-hidden="true">
+              <AnimatePresence mode="wait" initial={false}>
+                <motion.div
+                  key={`step-${step.number}`}
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -8 }}
+                  transition={{ duration: 0.28, ease: [0.22, 1, 0.36, 1] }}
+                >
+                  <h3 className="text-balance text-[clamp(1.35rem,2.6vw,1.9rem)] font-bold leading-[1.15] tracking-[-0.03em]">
+                    <span className="tabular-nums">{step.number}</span>
+                    <span className="text-brand-dot">.</span>{" "}
+                    {step.label}
+                  </h3>
+                  <p className="mx-auto mt-3 max-w-sm text-pretty text-base leading-relaxed text-muted">
+                    {step.body}
+                  </p>
+                </motion.div>
+              </AnimatePresence>
+            </div>
           </div>
 
           <div className="mt-8 flex w-full items-center justify-center gap-3 sm:mt-10 sm:gap-5">
@@ -167,7 +179,7 @@ export function ScrollytellingSection() {
             />
             <ProductPhone
               screen={step.screen}
-              className="w-[230px] sm:w-[260px] md:w-[270px] lg:w-[278px]"
+              className="w-[clamp(14.375rem,11.45rem+12vw,17.375rem)]"
             />
             <StepControl
               direction="next"

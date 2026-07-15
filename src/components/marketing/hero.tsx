@@ -143,18 +143,18 @@ const SLIDES: HeroSlide[] = [
 
 function badgePositionClass(side: BadgeSide, edge: BadgeEdge) {
   return cn(
-    "absolute z-20 max-w-[min(11.5rem,42vw)] lg:max-w-[12.5rem]",
+    "absolute z-20 max-w-[min(11.5rem,42vw)] desk:max-w-[12.5rem]",
     // Mobile: 16px from the device/stage edge (not the mockup bezel).
     side === "left" && "left-4 right-auto",
     side === "right" && "right-4 left-auto",
     edge === "top" && "top-4 bottom-auto",
     edge === "bottom" && "bottom-4 top-auto",
     // Desktop: beside the phone bezel.
-    "lg:left-auto lg:right-auto lg:top-auto lg:bottom-auto",
-    side === "left" && "lg:right-full lg:mr-4",
-    side === "right" && "lg:left-full lg:ml-4",
-    edge === "top" && "lg:top-[18%]",
-    edge === "bottom" && "lg:bottom-[24%]",
+    "desk:left-auto desk:right-auto desk:top-auto desk:bottom-auto",
+    side === "left" && "desk:right-full desk:mr-4",
+    side === "right" && "desk:left-full desk:ml-4",
+    edge === "top" && "desk:top-[18%]",
+    edge === "bottom" && "desk:bottom-[24%]",
   );
 }
 
@@ -219,9 +219,9 @@ export function Hero() {
   }
 
   return (
-    <section className="relative overflow-x-clip bg-background px-5 pb-16 pt-12 sm:px-6 sm:pb-20 sm:pt-16 md:pb-28 md:pt-20 lg:overflow-visible lg:px-10 lg:pt-24 lg:pb-32">
-      <div className="mx-auto grid max-w-7xl items-center gap-10 sm:gap-12 lg:grid-cols-[0.85fr_1.15fr] lg:gap-6">
-        <div className="relative z-10 text-center lg:text-left">
+    <section className="relative overflow-x-clip bg-background px-(--gutter) pt-[clamp(3rem,0.937rem+8.466vw,6rem)] pb-[clamp(4rem,0.905rem+12.7vw,8rem)] desk:overflow-visible">
+      <div className="mx-auto grid max-w-7xl items-center gap-y-[clamp(2.5rem,1.72rem+3.2vw,3rem)] desk:grid-cols-[0.85fr_1.15fr] desk:gap-x-6">
+        <div className="relative z-10 text-center desk:text-left">
           <h1
             className="motion-safe:animate-rise text-balance text-[clamp(2.6rem,7.2vw,5.75rem)] font-bold leading-[1.02] tracking-[-0.045em] text-foreground"
             style={{ animationDelay: "0s" }}
@@ -230,7 +230,7 @@ export function Hero() {
             <span className="text-brand-dot">.</span>
           </h1>
           <p
-            className="motion-safe:animate-rise mx-auto mt-5 max-w-md text-pretty text-base leading-relaxed text-muted sm:mt-6 sm:text-lg lg:mx-0"
+            className="motion-safe:animate-rise mx-auto mt-5 max-w-md text-pretty text-base leading-relaxed text-muted sm:mt-6 sm:text-lg desk:mx-0"
             style={{ animationDelay: "0.16s" }}
           >
             Swipe through recipes, tap to add, and your trolley builds itself.
@@ -238,7 +238,7 @@ export function Hero() {
           </p>
 
           <div
-            className="motion-safe:animate-rise mt-7 flex justify-center sm:mt-8 lg:justify-start"
+            className="motion-safe:animate-rise mt-7 flex justify-center sm:mt-8 desk:justify-start"
             style={{ animationDelay: "0.24s" }}
           >
             <AppStoreBadge location="hero" />
@@ -247,7 +247,7 @@ export function Hero() {
 
         <div
           ref={stageRef}
-          className="motion-safe:animate-rise relative -mx-5 w-[calc(100%+2.5rem)] touch-pan-y sm:-mx-6 sm:w-[calc(100%+3rem)] lg:mx-0 lg:w-full lg:max-w-none"
+          className="motion-safe:animate-rise relative -mx-(--gutter) w-[calc(100%+2*var(--gutter))] touch-pan-y desk:mx-0 desk:w-full desk:max-w-none"
           style={{ animationDelay: "0.18s" }}
           onMouseEnter={() => setPaused(true)}
           onMouseLeave={() => setPaused(false)}
@@ -260,17 +260,17 @@ export function Hero() {
           onTouchStart={onTouchStart}
           onTouchEnd={onTouchEnd}
         >
-          <div className="relative mx-auto w-[min(72%,17.5rem)] sm:w-[min(70%,19rem)] lg:w-[min(58%,20rem)]">
+          <div className="relative mx-auto w-[min(72%,clamp(17.5rem,15.16rem+0.6vw,19rem))] sm:w-[min(70%,clamp(17.5rem,15.16rem+0.6vw,19rem))] desk:w-[min(58%,20rem)]">
             <ProductPhone
               screen={slide.screen}
               priority
               className="mx-0 w-full"
             >
               {/* Desktop: tags beside the phone bezel */}
-              <AnimatePresence mode="wait">
+              <AnimatePresence mode="wait" initial={false}>
                 <motion.div
                   key={`desk-${slide.screen}`}
-                  className="pointer-events-none absolute inset-0 z-20 hidden lg:block"
+                  className="pointer-events-none absolute inset-0 z-20 hidden desk:block"
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   exit={{ opacity: 0 }}
@@ -290,10 +290,10 @@ export function Hero() {
           </div>
 
           {/* Mobile: 16px from the device edge, overlapping the mockup */}
-          <AnimatePresence mode="wait">
+          <AnimatePresence mode="wait" initial={false}>
             <motion.div
               key={`mob-${slide.screen}`}
-              className="pointer-events-none absolute inset-x-0 top-0 bottom-14 z-20 lg:hidden"
+              className="pointer-events-none absolute inset-x-0 top-0 bottom-14 z-20 desk:hidden"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}

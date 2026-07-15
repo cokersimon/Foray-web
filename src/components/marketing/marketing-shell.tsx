@@ -20,6 +20,14 @@ export function MarketingShell({ children }: { children: React.ReactNode }) {
       <a
         href="#main-content"
         className="fixed left-4 top-4 z-[120] -translate-y-24 rounded-full bg-foreground px-5 py-3 text-sm font-semibold text-background shadow-lg transition-transform focus:translate-y-0"
+        onClick={() => {
+          // Lenis may own hash scrolling; ensure focus still lands in main.
+          requestAnimationFrame(() => {
+            document
+              .getElementById("main-content")
+              ?.focus({ preventScroll: true });
+          });
+        }}
       >
         Skip to content
       </a>

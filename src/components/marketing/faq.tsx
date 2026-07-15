@@ -32,7 +32,7 @@ const FAQS = [
   {
     question: "What happens after my free trial?",
     answer:
-      "You move to Foray Free automatically and nothing is charged unless you chose to subscribe. You keep browse recipes, plan meals, grocery lists, in-store shopping and cook mode. Upgrade to Pro whenever you like, from inside the app.",
+      "You move to Foray Free automatically and nothing is charged unless you choose to subscribe. You keep recipe browsing, meal planning, grocery lists, in-store shopping and cook mode. Upgrade to Pro whenever you like, from inside the app.",
   },
   {
     question: "How do I cancel?",

@@ -85,6 +85,8 @@ ASSETS: dict[str, str] = {
     # Silhouette-as-container cards: large themed outline with icons inside,
     # monochrome stroke, white field. Household=orange fruit, pantry=camera,
     # create=notepad, chef=apple.
+    # Note: legacy keys feature-pantry / feature-create were superseded by
+    # feature-pantry-camera / feature-create-notepad (do not regenerate orphans).
     "feature-household": (
         "Minimalist monochrome line-art illustration on pure white. Single "
         "stroke colour vivid orange #ff9500 only. A LARGE ORANGE (citrus fruit) "
@@ -95,7 +97,7 @@ ASSETS: dict[str, str] = {
         "Uniform thick outline, rounded caps, light stipple texture allowed, "
         "no photoreal, no text, no logos, square composition."
     ),
-    "feature-pantry": (
+    "feature-pantry-camera": (
         "Minimalist monochrome line-art illustration on pure white. Single "
         "stroke colour soft teal #30b0c7 only. A LARGE VINTAGE CAMERA "
         "silhouette is the outer container — classic rangefinder / old-style "
@@ -106,7 +108,7 @@ ASSETS: dict[str, str] = {
         "rounded caps, light stipple texture allowed, no photoreal, no text, "
         "no logos, square composition."
     ),
-    "feature-create": (
+    "feature-create-notepad": (
         "Minimalist monochrome line-art illustration on pure white. Single "
         "stroke colour indigo #5856d6 only. A LARGE SPIRAL-BOUND NOTEPAD "
         "silhouette is the outer container — ring binders / spiral coils "

@@ -1,8 +1,9 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
+import { useLenis } from "lenis/react";
 import { Wordmark } from "@/components/brand/wordmark";
 import { SfSymbol } from "@/components/brand/sf-symbol";
 import { trackDownloadApp, trackNavClick } from "@/lib/analytics";
@@ -20,6 +21,10 @@ function prefersReducedMotion() {
   return window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 }
 
+function hasFinePointer() {
+  return window.matchMedia("(hover: hover) and (pointer: fine)").matches;
+}
+
 /** Absolute document Y of an element's top edge. */
 function sectionTopY(el: HTMLElement) {
   const current = window.scrollY || document.documentElement.scrollTop;
@@ -30,6 +35,7 @@ export function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false);
   const pathname = usePathname();
   const router = useRouter();
+  const lenis = useLenis();
 
   useEffect(() => {
     if (!menuOpen) return;
@@ -48,14 +54,22 @@ export function Navbar() {
     return () => window.removeEventListener("keydown", onKey);
   }, []);
 
-  function scrollToSectionTop(el: HTMLElement) {
-    document.body.style.overflow = "";
-    setMenuOpen(false);
-    window.scrollTo({
-      top: sectionTopY(el),
-      behavior: prefersReducedMotion() ? "auto" : "smooth",
-    });
-  }
+  const scrollToSectionTop = useCallback(
+    (el: HTMLElement) => {
+      document.body.style.overflow = "";
+      setMenuOpen(false);
+      const y = sectionTopY(el);
+      if (lenis && hasFinePointer() && !prefersReducedMotion()) {
+        lenis.scrollTo(y, { offset: 0, duration: 1.15 });
+      } else {
+        window.scrollTo({
+          top: y,
+          behavior: prefersReducedMotion() ? "auto" : "smooth",
+        });
+      }
+    },
+    [lenis],
+  );
 
   // Land on /#pricing (etc.) after a full load or a client nav from Privacy/Terms.
   useEffect(() => {
@@ -81,7 +95,7 @@ export function Navbar() {
       cancelled = true;
       window.clearTimeout(id);
     };
-  }, [pathname]);
+  }, [pathname, scrollToSectionTop]);
 
   function onNavLinkClick(
     e: React.MouseEvent<HTMLAnchorElement>,

@@ -4,25 +4,25 @@ export function About() {
   return (
     <section
       id="about"
-      className="bg-section-grey px-5 py-20 sm:px-6 md:py-28 lg:px-10 lg:py-32"
+      className="bg-section-grey px-(--gutter) py-[clamp(5rem,2.9375rem+8.5vw,8rem)]"
     >
       <div className="mx-auto max-w-7xl">
-        <div className="grid gap-8 lg:grid-cols-[minmax(16rem,22rem)_minmax(0,1fr)] lg:items-stretch lg:gap-x-12 lg:gap-y-8 xl:gap-x-16">
-          <h2 className="order-1 text-balance text-[clamp(2.4rem,5vw,4.25rem)] font-bold leading-[1.02] tracking-[-0.045em] text-foreground lg:col-start-2 lg:row-start-1">
+        <div className="grid gap-y-8 motion-safe:transition-[column-gap] motion-safe:duration-200 motion-safe:ease-out desk:grid-cols-[minmax(16rem,22rem)_minmax(0,1fr)] desk:items-stretch desk:gap-x-12 desk:gap-y-8 xl:gap-x-16">
+          <h2 className="order-1 text-balance text-[clamp(2.4rem,5vw,4.25rem)] font-bold leading-[1.02] tracking-[-0.045em] text-foreground desk:col-start-2 desk:row-start-1">
             Why I built Foray<span className="text-brand-dot">.</span>
           </h2>
 
-          <figure className="relative order-2 mx-auto aspect-[3/4] w-full max-w-sm isolate overflow-hidden rounded-[28px] sm:max-w-md lg:order-none lg:col-start-1 lg:row-span-2 lg:row-start-1 lg:mx-0 lg:aspect-auto lg:h-full lg:max-w-none lg:min-h-0">
+          <figure className="relative order-2 mx-auto aspect-[3/4] w-full max-w-[clamp(24rem,17.76rem+25.6vw,28rem)] isolate overflow-hidden rounded-[28px] desk:order-none desk:col-start-1 desk:row-span-2 desk:row-start-1 desk:mx-0 desk:aspect-auto desk:h-full desk:max-w-none desk:min-h-0">
             <Image
               src="/brand/simon-founder.jpg"
               alt="Simon, founder of Foray"
               fill
-              sizes="(max-width: 1024px) 28rem, 22rem"
+              sizes="(max-width: 70rem) 28rem, 22rem"
               className="origin-top scale-[1.04] object-cover object-top"
             />
           </figure>
 
-          <div className="order-3 space-y-5 text-pretty text-base leading-relaxed text-muted sm:text-lg lg:col-start-2 lg:row-start-2 lg:self-start">
+          <div className="order-3 space-y-5 text-pretty text-base leading-relaxed text-muted sm:text-lg desk:col-start-2 desk:row-start-2 desk:self-start">
             <p>
               Foray started in my own kitchen. I struggled to find time to cook
               interesting meals and stick to good habits, so I kept falling back
@@ -38,6 +38,28 @@ export function About() {
               online or pick things up in person. It exists to hand you back your
               time for family, hobbies and trying something new, while helping
               you eat better and spend less.
+            </p>
+            <p>And a few things Foray will always stand for:</p>
+            <p>
+              <span className="font-semibold text-foreground">
+                Your data isn&apos;t the product.
+              </span>{" "}
+              Analytics are off by default, your location is never tracked, and
+              there are no ads.
+            </p>
+            <p>
+              <span className="font-semibold text-foreground">
+                Calm by design.
+              </span>{" "}
+              Foray is built to be finished — plan, shop, cook, and get on with
+              your evening.
+            </p>
+            <p>
+              <span className="font-semibold text-foreground">
+                Prices on the label.
+              </span>{" "}
+              Every fee is shown before you pay, and cancelling takes a minute in
+              the App Store.
             </p>
             <p className="pt-2 font-semibold text-foreground">
               Simon, founder of Foray

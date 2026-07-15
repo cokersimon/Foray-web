@@ -15,8 +15,16 @@
   --accent: #1d1d1f;
   --border-glass: rgba(0, 0, 0, 0.08);
   --border-glass-dark: rgba(255, 255, 255, 0.1);
-  /* Foray brand dot — Apple systemOrange, the sole brand flourish (ADR-013). */
+  /*
+   * Brand orange (Apple systemOrange). Wordmark/period flourish, and permitted
+   * as a full-surface brand moment on marketing (pricing card, feature-card
+   * colour bands). Elsewhere remain restrained. Supersedes ADR-013 “sole
+   * flourish” wording for marketing surfaces.
+   */
   --brand-dot: #ff9500;
+
+  /* Horizontal section gutter — poles 20px @390 → 40px @1440. */
+  --gutter: clamp(1.25rem, 0.786rem + 1.905vw, 2.5rem);
 
   /* Liquid glass (HIG Regular approximation for web). */
   --glass-blur: blur(20px) saturate(180%);
@@ -57,6 +65,9 @@
 }
 
 @theme inline {
+  /* Stack ↔ two-column flip for marketing sections (1120px). */
+  --breakpoint-desk: 70rem;
+
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --color-muted: var(--muted);
@@ -115,6 +126,12 @@ html {
   /* In-flow nav — no sticky offset for hash targets. */
   scroll-padding-top: 0;
   scroll-behavior: smooth;
+}
+
+/* Lenis owns wheel smoothing; native smooth would double-animate. */
+html.lenis,
+html.lenis-smooth {
+  scroll-behavior: auto !important;
 }
 
 body {

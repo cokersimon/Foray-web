@@ -71,21 +71,21 @@ export function Pricing() {
   return (
     <section
       id="pricing"
-      className="bg-section-grey px-5 py-20 sm:px-6 md:py-28 lg:px-10 lg:py-32"
+      className="bg-section-grey px-(--gutter) py-[clamp(5rem,2.9375rem+8.5vw,8rem)]"
     >
-      <div className="mx-auto grid max-w-7xl items-center gap-12 lg:grid-cols-[0.85fr_1.15fr] lg:gap-20">
+      <div className="mx-auto grid max-w-7xl items-center gap-y-12 motion-safe:transition-[column-gap] motion-safe:duration-200 motion-safe:ease-out desk:grid-cols-[0.85fr_1.15fr] desk:gap-x-20">
         {/* Left: copy + App Store CTA, vertically centred against the orange card. */}
-        <div>
+        <div className="text-center desk:text-left">
           <h2 className="text-balance text-[clamp(2.4rem,5vw,4.25rem)] font-bold leading-[1.02] tracking-[-0.045em] text-foreground">
             Foray Pro, free for your first week
             <span className="text-brand-dot">.</span>
           </h2>
-          <p className="mt-5 max-w-xl text-pretty text-lg leading-relaxed text-muted">
+          <p className="mx-auto mt-5 max-w-xl text-pretty text-lg leading-relaxed text-muted desk:mx-0">
             Seven days with everything unlocked, no trimmed down trial. After
             that you keep Foray Free for as long as you like, or continue with
             Pro for £4.99 a month.
           </p>
-          <div className="mt-8 flex justify-center lg:justify-start">
+          <div className="mt-8 flex justify-center desk:justify-start">
             <AppStoreBadge location="pricing" />
           </div>
         </div>

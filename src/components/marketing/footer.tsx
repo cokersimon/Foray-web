@@ -89,7 +89,7 @@ export function Footer() {
                 target="_blank"
                 rel="noopener noreferrer"
                 aria-label={`Foray on ${social.label}`}
-                className="text-white/55 transition-colors hover:text-white"
+                className="-m-2 p-2 text-white/55 transition-colors hover:text-white"
                 onClick={() => trackSocialClick(social.label)}
               >
                 {social.icon}

@@ -97,12 +97,15 @@ export function ValueProps() {
   }
 
   return (
-    <section ref={sectionRef} className="bg-background py-20 md:py-28 lg:py-32">
+    <section
+      ref={sectionRef}
+      className="bg-background py-[clamp(5rem,2.9375rem+8.5vw,8rem)]"
+    >
       {/*
         Match Pricing inset exactly: horizontal padding on a wrapper around
         a bare max-w-7xl (not padding inside the max-width box).
       */}
-      <div className="px-5 sm:px-6 lg:px-10">
+      <div className="px-(--gutter)">
         <div className="mx-auto max-w-7xl">
           <div className="max-w-3xl">
             <h2 className="text-balance text-[clamp(2.4rem,5vw,4.25rem)] font-bold leading-[1.02] tracking-[-0.045em] text-foreground">
@@ -120,8 +123,8 @@ export function ValueProps() {
 
       {/*
         Full-width scroller (no section padding) so cards can peek to the
-        viewport edge. Padding uses the same inset as Pricing titles:
-        max(page-gutter, (sectionWidth - 80rem) / 2).
+        viewport edge. Padding uses the same --gutter as section titles:
+        max(gutter, (sectionWidth - 80rem) / 2).
         No scroll-smooth here — native snap feels better for swipe; dots still
         use smooth scrollTo.
       */}
@@ -130,16 +133,14 @@ export function ValueProps() {
         onScroll={onScroll}
         className={cn(
           "scrollbar-hide mt-12 flex w-full snap-x snap-mandatory gap-5 overflow-x-auto pb-10 pt-4",
-          "pl-[max(1.25rem,calc((100%-80rem)/2))] pr-[max(1.25rem,calc((100%-80rem)/2))]",
-          "sm:pl-[max(1.5rem,calc((100%-80rem)/2))] sm:pr-[max(1.5rem,calc((100%-80rem)/2))]",
-          "lg:pl-[max(2.5rem,calc((100%-80rem)/2))] lg:pr-[max(2.5rem,calc((100%-80rem)/2))]",
+          "pl-[max(var(--gutter),calc((100%-80rem)/2))] pr-[max(var(--gutter),calc((100%-80rem)/2))]",
         )}
       >
         {PROPS.map((prop) => (
           <article
             key={prop.title}
             data-outcome-card
-            className="relative w-[min(86vw,340px)] shrink-0 snap-center rounded-[28px] shadow-[0_12px_40px_rgba(0,0,0,0.08)] sm:w-[380px] lg:w-[400px]"
+            className="relative w-[min(86vw,clamp(21.25rem,21.667rem+5.208vw,25rem))] shrink-0 snap-center rounded-[28px] shadow-[0_12px_40px_rgba(0,0,0,0.08)]"
           >
             {/* Rounded face clips content; shadow lives on the article so it isn't cut off. */}
             <div className="flex h-full flex-col overflow-hidden rounded-[28px] bg-white">
@@ -173,7 +174,7 @@ export function ValueProps() {
         ))}
       </div>
 
-      <div className="px-5 sm:px-6 lg:px-10">
+      <div className="px-(--gutter)">
         <div className="mx-auto max-w-7xl">
           <CarouselProgress
             count={PROPS.length}
