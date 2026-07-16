@@ -190,7 +190,7 @@ export default function PrivacyPage() {
             </strong>{" "}
             Your allergies and dietary preferences are included in a Chef AI
             request only if you turn on{" "}
-            <em>Personalise Chef AI with my dietary preferences</em> in Settings
+            <em>Personalise with Chef AI</em> in Settings → AI Privacy
             &rarr; AI Privacy &amp; Usage. You can turn it off at any time.
             Filtering of catalogue recipes by your allergies works on your
             device and does not depend on this setting.
