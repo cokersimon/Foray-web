@@ -72,12 +72,25 @@ export default function TermsPage() {
 
         <LegalSection title="4. Subscriptions, trial & billing">
           <p>
-            The core funnel is free. New users may start a 7-day free trial of
-            Foray Pro via Apple StoreKit; you are not charged until the trial
-            ends, after which it auto-renews at £4.99/month unless cancelled at
-            least 24 hours before. Foray Pro is also available at £54.99/year.
-            AI creation features are subject to fair-use daily allowances
-            (currently 5 uses per feature per day).{" "}
+            The core funnel is free. Foray Pro is a yearly subscription
+            (£54.99/year) with two ways to pay:{" "}
+            <strong className="text-foreground">
+              monthly at £4.59/month for 12 months (£55.08 total, a 12-month
+              commitment)
+            </strong>{" "}
+            or one up-front payment of £54.99/year. New users may start a 7-day
+            free trial on the monthly plan via Apple StoreKit; you are not
+            charged until the trial ends. Cancelling during the free trial ends
+            the subscription with nothing owed.{" "}
+            <strong className="text-foreground">
+              Cancelling a monthly plan after the trial converts does not stop
+              the remaining monthly payments
+            </strong>
+            &nbsp;&mdash; billing continues through all 12 payments and
+            cancellation stops the plan renewing into another 12-month term.
+            The up-front yearly plan renews annually unless cancelled at least
+            24 hours before renewal. AI creation features are subject to
+            fair-use allowances.{" "}
             <strong className="text-foreground">
               Subscriptions are sold and billed by Apple
             </strong>{" "}

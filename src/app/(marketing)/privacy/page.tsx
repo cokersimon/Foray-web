@@ -170,16 +170,30 @@ export default function PrivacyPage() {
           </p>
         </LegalSection>
 
-        <LegalSection title="4. AI recipe creation and imported social content">
+        <LegalSection id="chef-ai" title="4. AI recipe creation and imported social content">
           <p>
             Foray offers four ways to create a recipe, all processed by our AI
-            pipeline (&ldquo;the Chef&rdquo;): import from a link; generate from a
-            prompt (including via Siri); photo of a dish or written recipe; pantry
-            photo of ingredients you have (you confirm before generating; we do
-            not build a kitchen inventory). Content you provide is sent to our AI
-            provider to produce a structured recipe. We store the result privately
-            on your account; for social imports we keep a link back to the original
-            and do not republish your imports to other users.
+            pipeline (&ldquo;Chef AI&rdquo;, &ldquo;the Chef&rdquo;): import from
+            a link; generate from a prompt (including via Siri); photo of a dish
+            or written recipe; pantry photo of ingredients you have (you confirm
+            before generating; we do not build a kitchen inventory). Content you
+            provide is sent to our AI provider,{" "}
+            <strong className="text-foreground">Google (Gemini API)</strong>, to
+            produce a structured recipe (see the subprocessors table below). We
+            store the result privately on your account; for social imports we
+            keep a link back to the original and do not republish your imports
+            to other users.
+          </p>
+          <p>
+            <strong className="text-foreground">
+              Dietary personalisation is off by default.
+            </strong>{" "}
+            Your allergies and dietary preferences are included in a Chef AI
+            request only if you turn on{" "}
+            <em>Personalise Chef AI with my dietary preferences</em> in Settings
+            &rarr; AI Privacy &amp; Usage. You can turn it off at any time.
+            Filtering of catalogue recipes by your allergies works on your
+            device and does not depend on this setting.
           </p>
           <p>
             AI output may be inaccurate. Always verify ingredients, and never

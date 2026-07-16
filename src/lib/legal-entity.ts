@@ -26,7 +26,9 @@ export const LEGAL_ENTITY = {
     country: "United Kingdom",
   },
   effectiveDate: "7 July 2026",
-  lastUpdated: "10 July 2026",
+  // 16 Jul 2026: yearly dual billing (£4.59 × 12 commitment / £54.99 up front, one trial on
+  // the monthly plan) + Chef AI dietary-personalisation disclosure (#chef-ai anchor).
+  lastUpdated: "16 July 2026",
   privacyEmail: "privacy@forayapp.co.uk",
   legalEmail: "legal@forayapp.co.uk",
   supportEmail: "support@forayapp.co.uk",

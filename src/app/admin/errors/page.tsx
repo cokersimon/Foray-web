@@ -1,11 +1,12 @@
 "use client";
 
 import { Fragment, useState } from "react";
-import { ChevronDown, ChevronRight, RefreshCw } from "lucide-react";
+import { Activity, ChevronDown, ChevronRight, ExternalLink, RefreshCw } from "lucide-react";
+import { chefAdmin } from "@/lib/chef-api";
 import { useChefQuery } from "@/lib/use-chef-query";
 import { cn } from "@/lib/cn";
 
-type ErrorRow = {
+type ErrorSample = {
   source: string;
   id: string;
   message: string;
@@ -23,7 +24,41 @@ type ErrorRow = {
   stage: string | null;
 };
 
-type ErrorsResponse = { errors: ErrorRow[] };
+type ErrorGroup = {
+  fingerprint: string;
+  source: string;
+  severity: string | null;
+  domain: string | null;
+  count: number;
+  userCount: number;
+  firstAt: number;
+  lastAt: number;
+  status: "open" | "resolved" | "muted";
+  sample: ErrorSample;
+};
+
+type ErrorsResponse = { groups: ErrorGroup[]; occurrences: number };
+
+type OpsAlert = {
+  id: string;
+  createdAt: number;
+  kind: string;
+  severity: string;
+  title: string;
+  detail: Record<string, unknown> | null;
+  notified: boolean;
+};
+
+type CronRow = {
+  jobname: string;
+  schedule: string;
+  active: boolean;
+  lastStatus: string | null;
+  lastRunAt: number | null;
+  lastMessage: string | null;
+};
+
+type OpsResponse = { alerts: OpsAlert[]; crons: CronRow[] };
 
 type ImportBreakdown = {
   failuresByCode: { code: string; d1: number; d7: number }[];
@@ -48,6 +83,12 @@ type ImportBreakdown = {
   };
 };
 
+/** Crash/non-fatal deep dive for iOS client errors lives in Sentry (EU org). */
+const SENTRY_ISSUES_URL = "https://foray.sentry.io/issues/";
+
+/** Stable clock reference for the "last 24h" alert split (render must stay pure). */
+const pageLoadedAt = Date.now();
+
 /** Plain-English explanations for import failure codes (esp. 429, which is non-obvious). */
 const CODE_EXPLAINER: Record<string, string> = {
   RATE_LIMITED_429:
@@ -70,6 +111,9 @@ const SOURCE_LABEL: Record<string, string> = {
   client: "iOS client",
 };
 
+const TRIAGE_FILTERS = ["open", "resolved", "muted", "all"] as const;
+type TriageFilter = (typeof TRIAGE_FILTERS)[number];
+
 function fmtDate(ms: number): string {
   return new Date(ms).toLocaleString("en-GB", {
     day: "2-digit",
@@ -78,6 +122,15 @@ function fmtDate(ms: number): string {
     hour: "2-digit",
     minute: "2-digit",
     second: "2-digit",
+  });
+}
+
+function fmtDateShort(ms: number): string {
+  return new Date(ms).toLocaleString("en-GB", {
+    day: "2-digit",
+    month: "short",
+    hour: "2-digit",
+    minute: "2-digit",
   });
 }
 
@@ -109,6 +162,17 @@ function severityTone(severity: string | null): string {
   }
 }
 
+function triageTone(status: string): string {
+  switch (status) {
+    case "resolved":
+      return "bg-emerald-50 text-emerald-700 border-emerald-200";
+    case "muted":
+      return "bg-neutral-100 text-neutral-500 border-neutral-200";
+    default:
+      return "bg-amber-50 text-amber-700 border-amber-200";
+  }
+}
+
 function DetailRow({ label, value }: { label: string; value: string | null }) {
   if (!value) return null;
   return (
@@ -121,13 +185,126 @@ function DetailRow({ label, value }: { label: string; value: string | null }) {
   );
 }
 
-function fmtDateShort(ms: number): string {
-  return new Date(ms).toLocaleString("en-GB", {
-    day: "2-digit",
-    month: "short",
-    hour: "2-digit",
-    minute: "2-digit",
-  });
+/** Ops health strip: active alerts written by the ops-alert cron + a last-run readout for
+ * every pg_cron job, so a silently failing cron (e.g. an auth mismatch 401-ing every minute)
+ * is visible here instead of only in edge-function logs. */
+function OpsHealth() {
+  const { data, error } = useChefQuery<OpsResponse>("ops.alerts", {}, { pollMs: 60000 });
+  const [showAll, setShowAll] = useState(false);
+  if (error) {
+    return (
+      <div className="mt-6 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800">
+        Couldn&rsquo;t load ops health: {error}. This panel needs the{" "}
+        <code className="rounded bg-amber-100 px-1">ops.alerts</code> chef-admin action deployed.
+      </div>
+    );
+  }
+  if (!data) return null;
+
+  const dayAgo = pageLoadedAt - 86_400_000;
+  const recentAlerts = data.alerts.filter((a) => a.createdAt >= dayAgo);
+  const alerts = showAll ? data.alerts.slice(0, 20) : recentAlerts;
+
+  return (
+    <div className="mt-6 rounded-2xl border border-neutral-200 bg-white p-4">
+      <div className="flex items-center justify-between gap-2">
+        <h2 className="flex items-center gap-2 text-sm font-semibold text-neutral-900">
+          <Activity className="h-4 w-4 text-neutral-400" /> Ops health
+        </h2>
+        <button
+          type="button"
+          onClick={() => setShowAll((v) => !v)}
+          className="text-xs text-neutral-500 underline decoration-neutral-300 underline-offset-2 hover:text-neutral-700"
+        >
+          {showAll ? "Recent alerts only" : "Show alert history"}
+        </button>
+      </div>
+
+      <div className="mt-3 grid gap-4 lg:grid-cols-2">
+        <div>
+          <h3 className="text-xs font-medium uppercase tracking-wider text-neutral-400">
+            Scheduled jobs (pg_cron)
+          </h3>
+          <table className="mt-2 w-full text-left text-xs">
+            <thead>
+              <tr className="text-[10px] uppercase tracking-wider text-neutral-400">
+                <th className="py-1 font-medium">Job</th>
+                <th className="py-1 font-medium">Schedule</th>
+                <th className="py-1 font-medium">Last run</th>
+                <th className="py-1 font-medium">Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              {data.crons.length === 0 ? (
+                <tr><td colSpan={4} className="py-2 text-neutral-400">Cron readout unavailable.</td></tr>
+              ) : (
+                data.crons.map((c) => (
+                  <tr key={c.jobname} className="border-t border-neutral-100">
+                    <td className="py-1.5 font-mono text-neutral-700">{c.jobname}</td>
+                    <td className="py-1.5 font-mono text-neutral-500">{c.schedule}</td>
+                    <td className="py-1.5 text-neutral-500">
+                      {c.lastRunAt ? fmtDateShort(c.lastRunAt) : "never"}
+                    </td>
+                    <td className="py-1.5">
+                      <span
+                        className={cn(
+                          "rounded-full border px-1.5 py-0.5 text-[10px] font-medium",
+                          !c.active
+                            ? "border-neutral-200 bg-neutral-100 text-neutral-500"
+                            : c.lastStatus === "succeeded"
+                              ? "border-emerald-200 bg-emerald-50 text-emerald-700"
+                              : c.lastStatus
+                                ? "border-red-200 bg-red-50 text-red-700"
+                                : "border-neutral-200 bg-neutral-50 text-neutral-500",
+                        )}
+                        title={c.lastMessage ?? undefined}
+                      >
+                        {!c.active ? "inactive" : (c.lastStatus ?? "no runs")}
+                      </span>
+                    </td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
+          <p className="mt-2 text-[11px] text-neutral-400">
+            &ldquo;Succeeded&rdquo; means the cron fired — a job that calls an Edge Function can
+            still fail downstream; those failures surface as ops alerts and in the error feed.
+          </p>
+        </div>
+
+        <div>
+          <h3 className="text-xs font-medium uppercase tracking-wider text-neutral-400">
+            {showAll ? "Alert history" : "Alerts (last 24h)"}
+          </h3>
+          {alerts.length === 0 ? (
+            <p className="mt-2 text-xs text-neutral-400">
+              {showAll ? "No alerts recorded." : "No alerts in the last 24 hours."}
+            </p>
+          ) : (
+            <ul className="mt-2 space-y-1.5">
+              {alerts.map((a) => (
+                <li key={a.id} className="flex items-start gap-2 border-t border-neutral-100 py-1.5 text-xs">
+                  <span
+                    className={cn(
+                      "mt-0.5 shrink-0 rounded-full border px-1.5 py-0.5 text-[10px] font-medium",
+                      a.severity === "critical"
+                        ? "border-red-200 bg-red-50 text-red-700"
+                        : "border-amber-200 bg-amber-50 text-amber-700",
+                    )}
+                  >
+                    {a.severity}
+                  </span>
+                  <span className="text-neutral-700">{a.title}</span>
+                  <span className="ml-auto shrink-0 text-neutral-400">{fmtDateShort(a.createdAt)}</span>
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
+      </div>
+    </div>
+  );
 }
 
 /** WS4: import-specific breakdown over /admin/errors. Axis 1 = hard failures by code with a
@@ -218,11 +395,32 @@ export default function ErrorsPage() {
     { pollMs: 30000 },
   );
   const [source, setSource] = useState<string>("all");
+  const [triage, setTriage] = useState<TriageFilter>("open");
   const [expandedId, setExpandedId] = useState<string | null>(null);
+  const [busyFingerprint, setBusyFingerprint] = useState<string | null>(null);
+  const [actionError, setActionError] = useState<string | null>(null);
 
-  const all = data?.errors ?? [];
-  const sources = Array.from(new Set(all.map((e) => e.source)));
-  const rows = source === "all" ? all : all.filter((e) => e.source === source);
+  const all = data?.groups ?? [];
+  const sources = Array.from(new Set(all.map((g) => g.source)));
+  const rows = all.filter(
+    (g) =>
+      (source === "all" || g.source === source) &&
+      (triage === "all" || g.status === triage),
+  );
+  const openCounts = all.filter((g) => g.status === "open").length;
+
+  const setStatus = async (fingerprint: string, status: string) => {
+    setBusyFingerprint(fingerprint);
+    setActionError(null);
+    try {
+      await chefAdmin("errors.setStatus", { fingerprint, status });
+      refetch();
+    } catch (e) {
+      setActionError(e instanceof Error ? e.message : "Update failed");
+    } finally {
+      setBusyFingerprint(null);
+    }
+  };
 
   return (
     <div className="p-8 lg:p-12">
@@ -232,10 +430,11 @@ export default function ErrorsPage() {
             Errors
           </h1>
           <p className="mt-2 max-w-2xl text-sm text-neutral-500">
-            Every failure recorded across the stack, with the full technical
-            context needed to resolve it — screen, user, device, OS build, error
-            domain, and message. iOS client errors carry the richest detail;
-            click a row to expand. No third-party error SDK is required.
+            Failures from every layer, grouped: the same error is one row with an
+            occurrence count, not a flood. Expand a group for the full technical
+            context — screen, user, device, OS build, domain, message — then mark
+            it resolved (reopens if it recurs) or muted (known noise). Crash-level
+            detail for iOS client errors lives in Sentry.
           </p>
         </div>
         <button
@@ -247,9 +446,26 @@ export default function ErrorsPage() {
         </button>
       </div>
 
+      <OpsHealth />
       <ImportsBreakdown />
 
-      <div className="mt-6 flex flex-wrap gap-2">
+      <div className="mt-6 flex flex-wrap items-center gap-2">
+        {TRIAGE_FILTERS.map((t) => (
+          <button
+            key={t}
+            type="button"
+            onClick={() => setTriage(t)}
+            className={cn(
+              "rounded-lg border px-3 py-1.5 text-xs font-medium capitalize transition-colors",
+              triage === t
+                ? "border-neutral-900 bg-neutral-900 text-white"
+                : "border-neutral-200 text-neutral-600 hover:bg-neutral-50",
+            )}
+          >
+            {t === "open" ? `Open (${openCounts})` : t}
+          </button>
+        ))}
+        <span className="mx-1 h-5 w-px bg-neutral-200" />
         {["all", ...sources].map((s) => (
           <button
             key={s}
@@ -262,10 +478,16 @@ export default function ErrorsPage() {
                 : "border-neutral-200 text-neutral-600 hover:bg-neutral-50",
             )}
           >
-            {s === "all" ? "All" : (SOURCE_LABEL[s] ?? s)}
+            {s === "all" ? "All sources" : (SOURCE_LABEL[s] ?? s)}
           </button>
         ))}
       </div>
+
+      {actionError ? (
+        <div className="mt-4 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800">
+          {actionError}
+        </div>
+      ) : null}
 
       {error ? (
         <div className="mt-6 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800">
@@ -281,10 +503,10 @@ export default function ErrorsPage() {
             <tr className="border-b border-neutral-200 bg-neutral-50 text-xs uppercase tracking-wider text-neutral-500">
               <th className="px-4 py-3 font-medium" />
               <th className="px-4 py-3 font-medium">Source</th>
-              <th className="px-4 py-3 font-medium">Message</th>
-              <th className="px-4 py-3 font-medium">User</th>
-              <th className="px-4 py-3 font-medium">Screen</th>
-              <th className="px-4 py-3 font-medium">When</th>
+              <th className="px-4 py-3 font-medium">Error</th>
+              <th className="px-4 py-3 text-right font-medium">Count</th>
+              <th className="px-4 py-3 text-right font-medium">Users</th>
+              <th className="px-4 py-3 font-medium">Last seen</th>
             </tr>
           </thead>
           <tbody>
@@ -297,13 +519,15 @@ export default function ErrorsPage() {
             ) : rows.length === 0 ? (
               <tr>
                 <td colSpan={6} className="px-4 py-12 text-center text-neutral-400">
-                  No errors recorded.
+                  {triage === "open" ? "No open errors. All quiet." : "Nothing here."}
                 </td>
               </tr>
             ) : (
-              rows.map((row) => {
-                const key = `${row.source}-${row.id}`;
+              rows.map((group) => {
+                const row = group.sample;
+                const key = group.fingerprint;
                 const isOpen = expandedId === key;
+                const busy = busyFingerprint === key;
                 return (
                   <Fragment key={key}>
                     <tr
@@ -325,44 +549,106 @@ export default function ErrorsPage() {
                           <span
                             className={cn(
                               "w-fit rounded-full border px-2 py-0.5 text-xs font-medium",
-                              sourceTone(row.source),
+                              sourceTone(group.source),
                             )}
                           >
-                            {SOURCE_LABEL[row.source] ?? row.source}
+                            {SOURCE_LABEL[group.source] ?? group.source}
                           </span>
-                          {row.severity ? (
-                            <span
-                              className={cn(
-                                "w-fit rounded-full border px-2 py-0.5 text-[10px] font-medium uppercase",
-                                severityTone(row.severity),
-                              )}
-                            >
-                              {row.severity}
-                            </span>
-                          ) : null}
+                          <div className="flex gap-1">
+                            {group.severity ? (
+                              <span
+                                className={cn(
+                                  "w-fit rounded-full border px-2 py-0.5 text-[10px] font-medium uppercase",
+                                  severityTone(group.severity),
+                                )}
+                              >
+                                {group.severity}
+                              </span>
+                            ) : null}
+                            {group.status !== "open" ? (
+                              <span
+                                className={cn(
+                                  "w-fit rounded-full border px-2 py-0.5 text-[10px] font-medium uppercase",
+                                  triageTone(group.status),
+                                )}
+                              >
+                                {group.status}
+                              </span>
+                            ) : null}
+                          </div>
                         </div>
                       </td>
                       <td className="px-4 py-3 text-neutral-700">
                         <div className="line-clamp-2 max-w-md break-words">
                           {row.message}
                         </div>
+                        {group.domain ? (
+                          <div className="mt-0.5 font-mono text-[11px] text-neutral-400">
+                            {group.domain}
+                          </div>
+                        ) : null}
                       </td>
-                      <td className="px-4 py-3 text-neutral-600">
-                        {row.userName ?? (row.userId ? `${row.userId.slice(0, 8)}…` : "—")}
+                      <td className="px-4 py-3 text-right">
+                        <span
+                          className={cn(
+                            "rounded-full px-2 py-0.5 text-xs font-semibold",
+                            group.count > 1
+                              ? "bg-neutral-900 text-white"
+                              : "bg-neutral-100 text-neutral-500",
+                          )}
+                        >
+                          ×{group.count}
+                        </span>
                       </td>
-                      <td className="px-4 py-3 text-neutral-600">
-                        {row.screen ?? "—"}
+                      <td className="px-4 py-3 text-right text-neutral-600">
+                        {group.userCount || "—"}
                       </td>
                       <td className="whitespace-nowrap px-4 py-3 text-neutral-500">
-                        {fmtDate(row.at)}
+                        {fmtDateShort(group.lastAt)}
                       </td>
                     </tr>
                     {isOpen ? (
                       <tr className="border-b border-neutral-100 bg-neutral-50/60">
                         <td />
                         <td colSpan={5} className="px-4 py-4">
+                          <div className="mb-3 flex flex-wrap items-center gap-2">
+                            {(["open", "resolved", "muted"] as const).map((s) => (
+                              <button
+                                key={s}
+                                type="button"
+                                disabled={busy || group.status === s}
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  void setStatus(group.fingerprint, s);
+                                }}
+                                className={cn(
+                                  "rounded-lg border px-2.5 py-1 text-xs font-medium capitalize transition-colors disabled:cursor-not-allowed disabled:opacity-40",
+                                  group.status === s
+                                    ? "border-neutral-900 bg-neutral-900 text-white"
+                                    : "border-neutral-200 bg-white text-neutral-600 hover:bg-neutral-50",
+                                )}
+                              >
+                                {s === "open" ? "Reopen" : s === "resolved" ? "Resolve" : "Mute"}
+                              </button>
+                            ))}
+                            {group.source === "client" ? (
+                              <a
+                                href={`${SENTRY_ISSUES_URL}?query=${encodeURIComponent(row.message.slice(0, 80))}&statsPeriod=14d`}
+                                target="_blank"
+                                rel="noreferrer"
+                                onClick={(e) => e.stopPropagation()}
+                                className="ml-auto flex items-center gap-1 rounded-lg border border-neutral-200 bg-white px-2.5 py-1 text-xs font-medium text-neutral-600 transition-colors hover:bg-neutral-50"
+                              >
+                                Search in Sentry <ExternalLink className="h-3 w-3" />
+                              </a>
+                            ) : null}
+                          </div>
                           <dl className="space-y-2">
-                            <DetailRow label="Error ID" value={row.id} />
+                            <DetailRow
+                              label="Occurrences"
+                              value={`${group.count} (${group.userCount} user${group.userCount === 1 ? "" : "s"}) · first ${fmtDate(group.firstAt)} · last ${fmtDate(group.lastAt)}`}
+                            />
+                            <DetailRow label="Latest error ID" value={row.id} />
                             <DetailRow label="Code" value={row.code} />
                             <DetailRow label="Stage" value={row.stage} />
                             {row.code && CODE_EXPLAINER[row.code] ? (
@@ -385,7 +671,6 @@ export default function ErrorsPage() {
                             <DetailRow label="OS" value={row.osVersion} />
                             <DetailRow label="App build" value={row.appVersion} />
                             <DetailRow label="Context" value={row.context} />
-                            <DetailRow label="Timestamp" value={fmtDate(row.at)} />
                             <div className="flex flex-col gap-0.5 sm:flex-row sm:gap-3">
                               <dt className="w-40 shrink-0 text-xs font-medium uppercase tracking-wider text-neutral-400">
                                 Message

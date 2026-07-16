@@ -83,7 +83,7 @@ export function Pricing() {
           <p className="mx-auto mt-5 max-w-xl text-pretty text-lg leading-relaxed text-muted desk:mx-0">
             Seven days with everything unlocked, no trimmed down trial. After
             that you keep Foray Free for as long as you like, or continue with
-            Pro for £4.99 a month.
+            Pro for £54.99 a year — pay monthly or in one payment.
           </p>
           <div className="mt-8 flex justify-center desk:justify-start">
             <AppStoreBadge location="pricing" />
@@ -153,10 +153,12 @@ export function Pricing() {
 
           <div className="mt-6 flex items-center gap-5 border-t border-black/15 pt-6 sm:gap-6">
             <p className="min-w-0 flex-1 text-left text-xs leading-relaxed text-black/55">
-              Foray Pro is £4.99 a month or £54.99 a year after your trial,
-              billed through the App Store. Taking your list in-store is always
-              free. * Online checkout incurs a £{CHECKOUT_FEE_GBP} convenience
-              fee per order on both plans.
+              Try Foray Pro free for 7 days, then £4.59/month for 12 months
+              (£55.08 total) — or £54.99/year in one payment, billed through
+              the App Store. Cancelling a monthly plan stops it renewing after
+              your final payment. Taking your list in-store is always free.
+              * Online checkout incurs a £{CHECKOUT_FEE_GBP} convenience fee
+              per order on both plans.
             </p>
             <ApplePayMark />
           </div>

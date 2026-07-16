@@ -20,7 +20,7 @@ export const CHECKOUT_FEE_GBP = "2.49";
 export const SHOW_TESTIMONIALS = false;
 export const SHOW_PRESS = false;
 
-/** Social accounts (mirrors the iOS app's AboutView). */
+/** Live brand accounts (mirrors iOS `AboutView` socials). TikTok: @forayapp. */
 export const SOCIAL_LINKS = {
   instagram: "https://www.instagram.com/foray_app",
   tiktok: "https://www.tiktok.com/@forayapp",
