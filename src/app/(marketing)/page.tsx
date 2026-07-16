@@ -5,16 +5,18 @@ import { Testimonials } from "@/components/marketing/testimonials";
 import { Pricing } from "@/components/marketing/pricing";
 import { Faq } from "@/components/marketing/faq";
 import { About } from "@/components/marketing/about";
+import { fetchStorePricing, formatPricing } from "@/lib/pricing";
 import { SHOW_TESTIMONIALS } from "@/lib/site";
 
-export default function Home() {
+export default async function Home() {
+  const pricing = formatPricing(await fetchStorePricing());
   return (
     <>
       <Hero />
       <ScrollytellingSection />
       <ValueProps />
       {SHOW_TESTIMONIALS && <Testimonials />}
-      <Pricing />
+      <Pricing pricing={pricing} />
       <Faq />
       <About />
     </>

@@ -1,7 +1,7 @@
 "use client";
 
 import { SfSymbol } from "@/components/brand/sf-symbol";
-import { CHECKOUT_FEE_GBP } from "@/lib/site";
+import type { FormattedPricing } from "@/lib/pricing";
 import { AppStoreBadge } from "./app-store-badge";
 import { ApplePayMark } from "./apple-pay-mark";
 
@@ -67,14 +67,13 @@ function CellMark({ value }: { value: Cell }) {
   );
 }
 
-export function Pricing() {
+export function Pricing({ pricing }: { pricing: FormattedPricing }) {
   return (
     <section
       id="pricing"
       className="bg-section-grey px-(--gutter) py-[clamp(5rem,2.9375rem+8.5vw,8rem)]"
     >
       <div className="mx-auto grid max-w-7xl items-center gap-y-12 motion-safe:transition-[column-gap] motion-safe:duration-200 motion-safe:ease-out desk:grid-cols-[0.85fr_1.15fr] desk:gap-x-20">
-        {/* Left: copy + App Store CTA, vertically centred against the orange card. */}
         <div className="text-center desk:text-left">
           <h2 className="text-balance text-[clamp(2.4rem,5vw,4.25rem)] font-bold leading-[1.02] tracking-[-0.045em] text-foreground">
             Foray Pro, free for your first week
@@ -83,7 +82,10 @@ export function Pricing() {
           <p className="mx-auto mt-5 max-w-xl text-pretty text-lg leading-relaxed text-muted desk:mx-0">
             Seven days with everything unlocked, no trimmed down trial. After
             that you keep Foray Free for as long as you like, or continue with
-            Pro for £54.99 a year — pay monthly or in one payment.
+            Pro for {pricing.upFront} a year — pay monthly or in one payment.
+          </p>
+          <p className="mx-auto mt-3 max-w-xl text-pretty text-base font-medium leading-relaxed text-foreground desk:mx-0">
+            Same price either way — choose how you pay.
           </p>
           <div className="mt-8 flex justify-center desk:justify-start">
             <AppStoreBadge location="pricing" />
@@ -153,12 +155,13 @@ export function Pricing() {
 
           <div className="mt-6 flex items-center gap-5 border-t border-black/15 pt-6 sm:gap-6">
             <p className="min-w-0 flex-1 text-left text-xs leading-relaxed text-black/55">
-              Try Foray Pro free for 7 days, then £4.59/month for 12 months
-              (£55.08 total) — or £54.99/year in one payment, billed through
-              the App Store. Cancelling a monthly plan stops it renewing after
-              your final payment. Taking your list in-store is always free.
-              * Online checkout incurs a £{CHECKOUT_FEE_GBP} convenience fee
-              per order on both plans.
+              Same price either way — choose how you pay. Try Foray Pro free for
+              7 days, then {pricing.monthly}/month for 12 months (
+              {pricing.total} total) — or {pricing.upFront} for the year in one
+              payment, billed through the App Store. Cancelling a monthly plan
+              stops it renewing after your final payment. Taking your list
+              in-store is always free. * Online checkout incurs a{" "}
+              {pricing.convenienceFee} convenience fee per order on both plans.
             </p>
             <ApplePayMark />
           </div>

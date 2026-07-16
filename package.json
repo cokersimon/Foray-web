@@ -6,7 +6,8 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint && bash scripts/lint-pricing.sh",
+    "lint:pricing": "bash scripts/lint-pricing.sh"
   },
   "dependencies": {
     "@next/third-parties": "^16.2.3",

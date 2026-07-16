@@ -6,12 +6,14 @@ import {
   postalContactLine,
   registeredOfficeLine,
 } from "@/lib/legal-entity";
+import { fetchStorePricing, formatPricing } from "@/lib/pricing";
 
 export const metadata: Metadata = {
   title: "Terms & Conditions · Foray",
 };
 
-export default function TermsPage() {
+export default async function TermsPage() {
+  const pricing = formatPricing(await fetchStorePricing());
   return (
     <div className="mx-auto max-w-3xl px-6 pb-16 pt-12 lg:pb-24 lg:pt-16">
       <h1 className="text-4xl font-bold tracking-tight text-foreground">
@@ -72,16 +74,17 @@ export default function TermsPage() {
 
         <LegalSection title="4. Subscriptions, trial & billing">
           <p>
-            The core funnel is free. Foray Pro is a yearly subscription
-            (£54.99/year) with two ways to pay:{" "}
+            The core funnel is free. Same price either way — choose how you pay.
+            Foray Pro is a yearly subscription ({pricing.upFront}/year) with two
+            ways to pay:{" "}
             <strong className="text-foreground">
-              monthly at £4.59/month for 12 months (£55.08 total, a 12-month
-              commitment)
+              monthly at {pricing.monthly}/month for 12 months ({pricing.total}{" "}
+              total, a 12-month commitment)
             </strong>{" "}
-            or one up-front payment of £54.99/year. New users may start a 7-day
-            free trial on the monthly plan via Apple StoreKit; you are not
-            charged until the trial ends. Cancelling during the free trial ends
-            the subscription with nothing owed.{" "}
+            or one up-front payment of {pricing.upFront} for the year. New users
+            may start a 7-day free trial on the monthly plan via Apple StoreKit;
+            you are not charged until the trial ends. Cancelling during the free
+            trial ends the subscription with nothing owed.{" "}
             <strong className="text-foreground">
               Cancelling a monthly plan after the trial converts does not stop
               the remaining monthly payments
@@ -90,7 +93,7 @@ export default function TermsPage() {
             cancellation stops the plan renewing into another 12-month term.
             The up-front yearly plan renews annually unless cancelled at least
             24 hours before renewal. AI creation features are subject to
-            fair-use allowances.{" "}
+            fair-use allowances (trial: 3 uses; Pro: monthly soft cap).{" "}
             <strong className="text-foreground">
               Subscriptions are sold and billed by Apple
             </strong>{" "}
@@ -101,10 +104,12 @@ export default function TermsPage() {
         <LegalSection title="5. Online-checkout convenience charge">
           <p>
             When you check out online, a convenience charge of{" "}
-            <strong className="text-foreground">£2.49 per order</strong> applies,
-            localised per currency. It is collected via Stripe through an Apple Pay
-            sheet before handoff to the retailer (not via Apple in-app purchase),
-            is separate from Pro, and is shown before you commit.{" "}
+            <strong className="text-foreground">
+              {pricing.convenienceFee} per order
+            </strong>{" "}
+            applies, localised per currency. It is collected via Stripe through an
+            Apple Pay sheet before handoff to the retailer (not via Apple in-app
+            purchase), is separate from Pro, and is shown before you commit.{" "}
             <strong className="text-foreground">
               In-person shopping is always free.
             </strong>

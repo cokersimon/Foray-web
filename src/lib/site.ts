@@ -9,9 +9,6 @@ export const APP_STORE_URL = "https://apps.apple.com/gb/app/foray/id000000000";
 /** Public marketing domain. */
 export const SITE_URL = "https://forayapp.co.uk";
 
-/** Convenience fee charged at online checkout (GBP), surfaced in pricing copy. */
-export const CHECKOUT_FEE_GBP = "2.49";
-
 /**
  * Social-proof sections. Placeholder quotes on a public pre-launch site read
  * as fabricated social proof, so these stay false until at least two real
