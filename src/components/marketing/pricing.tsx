@@ -153,10 +153,11 @@ export function Pricing({ pricing }: { pricing: FormattedPricing }) {
           <div className="mt-6 flex items-center gap-5 border-t border-black/15 pt-6 sm:gap-6">
             <p className="min-w-0 flex-1 text-left text-xs leading-relaxed text-black/55">
               Try Foray Pro free for 7 days. Then {pricing.monthly}/month for 12
-              months, or {pricing.upFront} once for the year. Billed through the
-              App Store. Cancel anytime and it won&apos;t renew after your
-              current billing period. * Online checkout:{" "}
-              {pricing.convenienceFee} per order on both plans.
+              months, or {pricing.upFront}
+              {" "}
+              once for the year. Billed through the App Store. Cancel anytime and
+              it won&apos;t renew after your current billing period. * Online
+              checkout: {pricing.convenienceFee} per order on both plans.
             </p>
             <ApplePayMark />
           </div>
