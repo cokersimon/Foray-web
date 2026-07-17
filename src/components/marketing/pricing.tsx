@@ -80,9 +80,9 @@ export function Pricing({ pricing }: { pricing: FormattedPricing }) {
             <span className="text-brand-dot">.</span>
           </h2>
           <p className="mx-auto mt-5 max-w-xl text-pretty text-lg leading-relaxed text-muted desk:mx-0">
-            Seven days with everything unlocked, no trimmed down trial. After
-            that you keep Foray Free for as long as you like, or continue with
-            Pro for {pricing.upFront} a year, paid monthly or in one go.
+            Seven days with everything unlocked, no trimmed down trial. Don&apos;t
+            want to keep Pro? Cancel before the trial ends and stay on Foray Free
+            for as long as you like.
           </p>
           <div className="mt-8 flex justify-center desk:justify-start">
             <AppStoreBadge location="pricing" />
@@ -154,8 +154,8 @@ export function Pricing({ pricing }: { pricing: FormattedPricing }) {
             <p className="min-w-0 flex-1 text-left text-xs leading-relaxed text-black/55">
               Try Foray Pro free for 7 days. Then {pricing.monthly}/month for 12
               months, or {pricing.upFront} once for the year. Billed through the
-              App Store. Cancel monthly and it stops renewing after your final
-              payment. In-store lists are always free. * Online checkout:{" "}
+              App Store. Cancel anytime and it won&apos;t renew after your
+              current billing period. * Online checkout:{" "}
               {pricing.convenienceFee} per order on both plans.
             </p>
             <ApplePayMark />
