@@ -82,10 +82,7 @@ export function Pricing({ pricing }: { pricing: FormattedPricing }) {
           <p className="mx-auto mt-5 max-w-xl text-pretty text-lg leading-relaxed text-muted desk:mx-0">
             Seven days with everything unlocked, no trimmed down trial. After
             that you keep Foray Free for as long as you like, or continue with
-            Pro for {pricing.upFront} a year — pay monthly or in one payment.
-          </p>
-          <p className="mx-auto mt-3 max-w-xl text-pretty text-base font-medium leading-relaxed text-foreground desk:mx-0">
-            Same price either way — choose how you pay.
+            Pro for {pricing.upFront} a year, paid monthly or in one go.
           </p>
           <div className="mt-8 flex justify-center desk:justify-start">
             <AppStoreBadge location="pricing" />
@@ -155,13 +152,11 @@ export function Pricing({ pricing }: { pricing: FormattedPricing }) {
 
           <div className="mt-6 flex items-center gap-5 border-t border-black/15 pt-6 sm:gap-6">
             <p className="min-w-0 flex-1 text-left text-xs leading-relaxed text-black/55">
-              Same price either way — choose how you pay. Try Foray Pro free for
-              7 days, then {pricing.monthly}/month for 12 months (
-              {pricing.total} total) — or {pricing.upFront} for the year in one
-              payment, billed through the App Store. Cancelling a monthly plan
-              stops it renewing after your final payment. Taking your list
-              in-store is always free. * Online checkout incurs a{" "}
-              {pricing.convenienceFee} convenience fee per order on both plans.
+              Try Foray Pro free for 7 days. Then {pricing.monthly}/month for 12
+              months, or {pricing.upFront} once for the year. Billed through the
+              App Store. Cancel monthly and it stops renewing after your final
+              payment. In-store lists are always free. * Online checkout:{" "}
+              {pricing.convenienceFee} per order on both plans.
             </p>
             <ApplePayMark />
           </div>
