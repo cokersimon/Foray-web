@@ -121,13 +121,13 @@ export function ScrollytellingSection() {
   return (
     <section id="how-it-works" className="bg-section-grey text-foreground">
       <div className="mx-auto grid max-w-7xl gap-y-12 px-(--gutter) py-[clamp(5rem,2.9375rem+8.5vw,8rem)] motion-safe:transition-[column-gap] motion-safe:duration-200 motion-safe:ease-out desk:grid-cols-[minmax(0,0.95fr)_minmax(0,1.05fr)] desk:items-center desk:gap-x-16">
-        {/* Left — fixed context. Title on all sizes; subtitle tablet+. */}
-        <div className="max-w-xl text-center desk:text-left">
+        {/* Title + subtitle: always centred (incl. stacked desktop / non-fullscreen). */}
+        <div className="mx-auto max-w-xl text-center">
           <h2 className="text-balance text-[clamp(2.25rem,5vw,3.75rem)] font-bold leading-[1.05] tracking-[-0.045em]">
             The Foray experience
             <span className="text-brand-dot">.</span>
           </h2>
-          <p className="mx-auto mt-5 hidden max-w-md text-pretty text-base leading-relaxed text-muted sm:text-lg md:block desk:mx-0 desk:text-left">
+          <p className="mx-auto mt-5 hidden max-w-md text-pretty text-base leading-relaxed text-muted sm:text-lg md:block">
             Five steps, one app. Here&apos;s how a week with Foray actually runs.
           </p>
         </div>

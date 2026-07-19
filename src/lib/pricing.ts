@@ -1,10 +1,13 @@
 /**
  * Web merchandising prices — single source of truth is the `store-pricing`
- * Edge Function / `storePricing` table (16 Jul FINAL). The iOS app never uses
+ * Edge Function / `storePricing` table (17 Jul ratified). The iOS app never uses
  * this; it renders StoreKit product prices only.
  *
+ * Model: ONE yearly product — pay monthly (£5 × 12 = £60 commitment) or save
+ * with one upfront payment (£54.99). Totals are intentionally unequal.
+ *
  * ISR: `next: { revalidate: 86400 }`. On fetch failure, serve the last-known
- * equal-total defaults so the site never hardcodes unequal figures.
+ * ratified defaults.
  */
 
 export type StorePricing = {
@@ -17,11 +20,11 @@ export type StorePricing = {
   source: string;
 };
 
-/** Equal-total fallback (£4.50 × 12 = £54.00) — matches the Supabase seed. */
+/** Fallback matches the Supabase seed (17 Jul): £5 × 12 / £54.99 upfront. */
 export const PRICING_FALLBACK: StorePricing = {
-  monthly: 4.5,
-  upFront: 54,
-  total: 54,
+  monthly: 5,
+  upFront: 54.99,
+  total: 60,
   convenienceFee: 2.49,
   currency: "GBP",
   updatedAt: null,
@@ -77,9 +80,9 @@ export async function fetchStorePricing(): Promise<StorePricing> {
     ) {
       return PRICING_FALLBACK;
     }
-    // Guard: never merchandise unequal totals from a bad row.
-    if (Math.abs(total - upFront) > 0.001 || Math.abs(total - monthly * 12) > 0.02) {
-      console.warn("pricing: unequal totals from endpoint — using fallback");
+    // Guard: commitment total must equal monthly × 12. Upfront may be lower (saver).
+    if (Math.abs(total - monthly * 12) > 0.02) {
+      console.warn("pricing: commitment total ≠ monthly × 12 — using fallback");
       return PRICING_FALLBACK;
     }
     return {

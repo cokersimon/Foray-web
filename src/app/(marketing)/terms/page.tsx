@@ -74,15 +74,15 @@ export default async function TermsPage() {
 
         <LegalSection title="4. Subscriptions, trial & billing">
           <p>
-            The core funnel is free. Same price either way — choose how you pay.
-            Foray Pro is a yearly subscription ({pricing.upFront}/year) with two
-            ways to pay:{" "}
+            The core funnel is free. Foray Pro is one yearly subscription with
+            two ways to pay:{" "}
             <strong className="text-foreground">
               monthly at {pricing.monthly}/month for 12 months ({pricing.total}{" "}
               total, a 12-month commitment)
             </strong>{" "}
-            or one up-front payment of {pricing.upFront} for the year. New users
-            may start a 7-day free trial on the monthly plan via Apple StoreKit;
+            or save with one up-front payment of {pricing.upFront} for the year.
+            New users may start a 7-day free trial on the monthly commitment plan
+            via Apple StoreKit;
             you are not charged until the trial ends. Cancelling during the free
             trial ends the subscription with nothing owed.{" "}
             <strong className="text-foreground">

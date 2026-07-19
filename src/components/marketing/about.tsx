@@ -39,7 +39,7 @@ export function About() {
               time for family, hobbies and trying something new, while helping
               you eat better and spend less.
             </p>
-            <p>And a few things Foray will always stand for:</p>
+            <p>A few things Foray will always stand for:</p>
             <p>
               <span className="font-semibold text-foreground">
                 Your data isn&apos;t the product.

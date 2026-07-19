@@ -22,7 +22,7 @@ const FAQS = [
   {
     question: "How do I add recipes?",
     answer:
-      "Browse hundreds of Foray recipes, or import your own from social media and cookbooks with a screenshot or photo. Foray turns it into ingredients and steps for you to check. Chef AI can also create one from whatever you fancy.",
+      "Browse hundreds of Foray recipes, or import your own from social media and cookbooks with a screenshot or photo. Foray turns it into ingredients and steps for you to follow. Chef AI can also create one from whatever you fancy.",
   },
   {
     question: "Is Foray free?",

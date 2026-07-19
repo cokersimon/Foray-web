@@ -26,7 +26,7 @@ export const LEGAL_ENTITY = {
     country: "United Kingdom",
   },
   effectiveDate: "7 July 2026",
-  // 16 Jul FINAL: equal-total dual billing (store-pricing JSON) + Chef AI dietary
+  // 17 Jul: yearly dual billing (store-pricing JSON; upfront saver) + Chef AI dietary
   // personalisation disclosure (#chef-ai anchor). Price digits live in storePricing only.
   lastUpdated: "16 July 2026",
   privacyEmail: "privacy@forayapp.co.uk",
