@@ -26,9 +26,9 @@ export const LEGAL_ENTITY = {
     country: "United Kingdom",
   },
   effectiveDate: "7 July 2026",
-  // 17 Jul: yearly dual billing (store-pricing JSON; upfront saver) + Chef AI dietary
-  // personalisation disclosure (#chef-ai anchor). Price digits live in storePricing only.
-  lastUpdated: "16 July 2026",
+  // 19 Jul: Art. 9 allergen consent, lawful bases, WebView, Pepesto/DPA wording,
+  // remove PCC + Logo.dev; section nav on Privacy/Terms.
+  lastUpdated: "19 July 2026",
   privacyEmail: "privacy@forayapp.co.uk",
   legalEmail: "legal@forayapp.co.uk",
   supportEmail: "support@forayapp.co.uk",
