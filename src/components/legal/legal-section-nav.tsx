@@ -1,16 +1,24 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState, useSyncExternalStore } from "react";
 import { useLenis } from "lenis/react";
 import { cn } from "@/lib/cn";
 import type { LegalNavSection } from "./legal-section";
+
+const FINE_POINTER = "(hover: hover) and (pointer: fine)";
 
 function prefersReducedMotion() {
   return window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 }
 
-function hasFinePointer() {
-  return window.matchMedia("(hover: hover) and (pointer: fine)").matches;
+function subscribeFinePointer(callback: () => void) {
+  const media = window.matchMedia(FINE_POINTER);
+  media.addEventListener("change", callback);
+  return () => media.removeEventListener("change", callback);
+}
+
+function getFinePointer() {
+  return window.matchMedia(FINE_POINTER).matches;
 }
 
 function sectionTopY(el: HTMLElement) {
@@ -18,25 +26,29 @@ function sectionTopY(el: HTMLElement) {
   return Math.max(0, Math.round(el.getBoundingClientRect().top + current));
 }
 
-const MOBILE_IDLE_MS = 3000;
-
+/**
+ * Desktop-only section index (Mealia-style dashes + hover panel).
+ * Hidden on mobile / coarse pointers — Privacy and Terms stay clean there.
+ */
 export function LegalSectionNav({
   sections,
 }: {
   sections: LegalNavSection[];
 }) {
+  const isDesktop = useSyncExternalStore(
+    subscribeFinePointer,
+    getFinePointer,
+    () => false,
+  );
   const [activeId, setActiveId] = useState(sections[0]?.id ?? "");
   const [open, setOpen] = useState(false);
-  /** Mobile only: hide the dash rail after idle; always visible on desktop. */
-  const [railVisible, setRailVisible] = useState(true);
   const leaveTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const idleTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const rootRef = useRef<HTMLDivElement>(null);
   const visibleIds = useRef(new Set<string>());
   const lenis = useLenis();
 
   useEffect(() => {
-    if (sections.length === 0) return;
+    if (!isDesktop || sections.length === 0) return;
 
     const elements = sections
       .map((s) => document.getElementById(s.id))
@@ -72,47 +84,7 @@ export function LegalSectionNav({
 
     for (const el of elements) observer.observe(el);
     return () => observer.disconnect();
-  }, [sections]);
-
-  // Mobile: show rail while scrolling; hide ~3s after scroll stops (unless panel open).
-  useEffect(() => {
-    if (hasFinePointer()) {
-      setRailVisible(true);
-      return;
-    }
-
-    const clearIdle = () => {
-      if (idleTimer.current) {
-        clearTimeout(idleTimer.current);
-        idleTimer.current = null;
-      }
-    };
-
-    const bump = () => {
-      if (hasFinePointer()) return;
-      setRailVisible(true);
-      clearIdle();
-      idleTimer.current = setTimeout(() => {
-        setOpen((isOpen) => {
-          if (!isOpen) setRailVisible(false);
-          return isOpen;
-        });
-      }, MOBILE_IDLE_MS);
-    };
-
-    bump();
-    window.addEventListener("scroll", bump, { passive: true });
-    return () => {
-      window.removeEventListener("scroll", bump);
-      clearIdle();
-    };
-  }, []);
-
-  // Keep rail visible while the mobile panel is open.
-  useEffect(() => {
-    if (hasFinePointer()) return;
-    if (open) setRailVisible(true);
-  }, [open]);
+  }, [isDesktop, sections]);
 
   useEffect(() => {
     if (!open) return;
@@ -123,17 +95,6 @@ export function LegalSectionNav({
     return () => window.removeEventListener("keydown", onKey);
   }, [open]);
 
-  useEffect(() => {
-    if (!open) return;
-    function onPointerDown(e: PointerEvent) {
-      if (!rootRef.current?.contains(e.target as Node)) {
-        setOpen(false);
-      }
-    }
-    document.addEventListener("pointerdown", onPointerDown);
-    return () => document.removeEventListener("pointerdown", onPointerDown);
-  }, [open]);
-
   const clearLeaveTimer = () => {
     if (leaveTimer.current) {
       clearTimeout(leaveTimer.current);
@@ -142,13 +103,11 @@ export function LegalSectionNav({
   };
 
   const handleMouseEnter = () => {
-    if (!hasFinePointer()) return;
     clearLeaveTimer();
     setOpen(true);
   };
 
   const handleMouseLeave = () => {
-    if (!hasFinePointer()) return;
     clearLeaveTimer();
     leaveTimer.current = setTimeout(() => setOpen(false), 160);
   };
@@ -158,7 +117,7 @@ export function LegalSectionNav({
       const el = document.getElementById(id);
       if (!el) return;
       const y = sectionTopY(el);
-      if (lenis && hasFinePointer() && !prefersReducedMotion()) {
+      if (lenis && !prefersReducedMotion()) {
         lenis.scrollTo(y, { offset: 0, duration: 1.15 });
       } else {
         window.scrollTo({
@@ -168,41 +127,25 @@ export function LegalSectionNav({
       }
       window.history.replaceState(null, "", `#${id}`);
       setActiveId(id);
-      if (!hasFinePointer()) setOpen(false);
     },
     [lenis],
   );
 
-  if (sections.length === 0) return null;
-
-  const showChrome = railVisible || open;
+  if (!isDesktop || sections.length === 0) return null;
 
   return (
     <div
       ref={rootRef}
-      className={cn(
-        "pointer-events-none fixed inset-y-0 right-0 z-40 flex items-center pr-1 sm:pr-2",
-        "transition-opacity duration-300 motion-reduce:transition-none",
-        showChrome ? "opacity-100" : "opacity-0",
-      )}
+      className="pointer-events-none fixed inset-y-0 right-0 z-40 flex items-center pr-2"
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
     >
-      <div
-        className={cn(
-          "pointer-events-auto relative flex items-center",
-          !showChrome && "pointer-events-none",
-        )}
-      >
+      <div className="pointer-events-auto relative flex items-center">
         <div
           className={cn(
             "absolute right-full mr-2 origin-right",
             "rounded-2xl border border-border bg-surface/95 shadow-lg backdrop-blur-md",
-            // Fine pointer: full list, no internal scroll. Coarse: cap height.
-            "w-[min(calc(100vw-3rem),17rem)] px-2 py-2",
-            "max-h-[min(92vh,calc(100dvh-1.5rem))] overflow-y-auto",
-            "[@media(hover:hover)_and_(pointer:fine)]:max-h-none",
-            "[@media(hover:hover)_and_(pointer:fine)]:overflow-visible",
+            "w-[17rem] px-2 py-2",
             "transition-[opacity,transform] duration-200 ease-out",
             open
               ? "translate-x-0 opacity-100"
@@ -243,23 +186,15 @@ export function LegalSectionNav({
           aria-label="Page sections"
           className="flex flex-col items-center gap-1.5 rounded-full px-2 py-3"
         >
-          <button
-            type="button"
-            className="flex flex-col items-center gap-1.5 rounded-full py-1 outline-none focus-visible:ring-2 focus-visible:ring-foreground/30"
-            aria-expanded={open}
-            aria-controls="legal-section-nav-panel"
-            aria-label={open ? "Close section list" : "Open section list"}
-            onClick={() => {
-              if (hasFinePointer()) return;
-              setOpen((v) => !v);
-            }}
+          <div
+            className="flex flex-col items-center gap-1.5 rounded-full py-1"
+            aria-hidden
           >
             {sections.map((section) => {
               const isActive = section.id === activeId;
               return (
                 <span
                   key={section.id}
-                  aria-hidden
                   className={cn(
                     "block h-0.5 rounded-full transition-all duration-200",
                     isActive
@@ -269,7 +204,7 @@ export function LegalSectionNav({
                 />
               );
             })}
-          </button>
+          </div>
         </nav>
       </div>
     </div>
