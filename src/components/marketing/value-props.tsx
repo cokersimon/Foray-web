@@ -9,7 +9,7 @@ const PROPS = [
   {
     image: "/brand/feature-household.png",
     title: "Shop for the whole household.",
-    body: "Set servings once. Every list scales so you are not doing the maths for four people at the till.",
+    body: "Set servings once. Every list scales for kids, visitors, or whoever is eating that week.",
     band: "bg-[#ff9500]",
   },
   {
