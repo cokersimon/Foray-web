@@ -115,8 +115,8 @@ export default async function TermsPage() {
                 Cancelling a monthly plan after the trial converts does not stop
                 the remaining monthly payments
               </strong>
-              &nbsp;&mdash; billing continues through all 12 payments and
-              cancellation stops the plan renewing into another 12-month term.
+              Billing continues through all 12 payments and cancellation stops
+              the plan renewing into another 12-month term.
               The up-front yearly plan renews annually unless cancelled at least
               24 hours before renewal. AI creation features are subject to
               fair-use allowances (trial: 3 uses; Pro: monthly soft cap).{" "}

@@ -5,6 +5,7 @@ import {
   sectionIdFromTitle,
   type LegalNavSection,
 } from "@/components/legal/legal-section";
+import { LegalScrollTable } from "@/components/legal/legal-scroll-table";
 import {
   dataControllerLine,
   LEGAL_ENTITY,
@@ -190,16 +191,16 @@ export default function PrivacyPage() {
             </p>
             <ul className="list-disc space-y-2 pl-5">
               <li>
-                <strong className="text-foreground">Contract</strong> — to create
+                <strong className="text-foreground">Contract:</strong> to create
                 and maintain your account, meal plans, grocery lists, Chef AI
                 recipes you request, and checkout handoff features you use.
               </li>
               <li>
                 <strong className="text-foreground">
-                  Explicit consent (UK GDPR Article 9(2)(a))
+                  Explicit consent (UK GDPR Article 9(2)(a)):
                 </strong>{" "}
-                —                 allergy and other health-related dietary information is
-                special-category data. We store and use it only with your{" "}
+                allergy and other health-related dietary information is special
+                category data. We store and use it only with your{" "}
                 <strong className="text-foreground">explicit consent</strong>,
                 collected when you provide those details (for example during
                 onboarding). You can withdraw that consent in Settings or by
@@ -207,7 +208,7 @@ export default function PrivacyPage() {
                 stop using the health data where legally possible.
               </li>
               <li>
-                <strong className="text-foreground">Consent</strong> — optional
+                <strong className="text-foreground">Consent:</strong> optional
                 diagnostics and product analytics (off by default in the UK/EU);
                 website Google Analytics (cookie banner); including allergies in
                 Chef AI requests when you enable{" "}
@@ -215,13 +216,13 @@ export default function PrivacyPage() {
                 your device permission is required.
               </li>
               <li>
-                <strong className="text-foreground">Legitimate interests</strong>{" "}
-                — securing the Service, preventing fraud and abuse, and improving
+                <strong className="text-foreground">Legitimate interests:</strong>{" "}
+                securing the Service, preventing fraud and abuse, and improving
                 reliability where we do not rely on consent (balanced against your
                 rights).
               </li>
               <li>
-                <strong className="text-foreground">Legal obligation</strong> —
+                <strong className="text-foreground">Legal obligation:</strong>{" "}
                 retaining certain transaction records (for example the
                 convenience charge) where UK law requires it.
               </li>
@@ -294,8 +295,8 @@ export default function PrivacyPage() {
               instructions under data-processing agreements or equivalent
               safeguards:
             </p>
-            <div className="overflow-hidden rounded-2xl border border-border">
-              <table className="w-full border-collapse text-left text-sm">
+            <LegalScrollTable>
+              <table className="w-full min-w-[40rem] border-collapse text-left text-sm">
                 <thead>
                   <tr className="border-b border-border bg-surface">
                     <th className="px-4 py-3 font-semibold text-foreground">
@@ -328,7 +329,7 @@ export default function PrivacyPage() {
                   ))}
                 </tbody>
               </table>
-            </div>
+            </LegalScrollTable>
             <p>
               Pepesto receives cart items and store selection so we can show
               catalogue pricing and hand you to the retailer&rsquo;s checkout. The

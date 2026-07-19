@@ -18,6 +18,8 @@ function sectionTopY(el: HTMLElement) {
   return Math.max(0, Math.round(el.getBoundingClientRect().top + current));
 }
 
+const MOBILE_IDLE_MS = 3000;
+
 export function LegalSectionNav({
   sections,
 }: {
@@ -25,7 +27,10 @@ export function LegalSectionNav({
 }) {
   const [activeId, setActiveId] = useState(sections[0]?.id ?? "");
   const [open, setOpen] = useState(false);
+  /** Mobile only: hide the dash rail after idle; always visible on desktop. */
+  const [railVisible, setRailVisible] = useState(true);
   const leaveTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const idleTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const rootRef = useRef<HTMLDivElement>(null);
   const visibleIds = useRef(new Set<string>());
   const lenis = useLenis();
@@ -60,7 +65,6 @@ export function LegalSectionNav({
         syncActive();
       },
       {
-        // Match sticky navbar offset; prefer the section near the top third.
         rootMargin: "-96px 0px -55% 0px",
         threshold: [0, 0.1, 0.25],
       },
@@ -69,6 +73,46 @@ export function LegalSectionNav({
     for (const el of elements) observer.observe(el);
     return () => observer.disconnect();
   }, [sections]);
+
+  // Mobile: show rail while scrolling; hide ~3s after scroll stops (unless panel open).
+  useEffect(() => {
+    if (hasFinePointer()) {
+      setRailVisible(true);
+      return;
+    }
+
+    const clearIdle = () => {
+      if (idleTimer.current) {
+        clearTimeout(idleTimer.current);
+        idleTimer.current = null;
+      }
+    };
+
+    const bump = () => {
+      if (hasFinePointer()) return;
+      setRailVisible(true);
+      clearIdle();
+      idleTimer.current = setTimeout(() => {
+        setOpen((isOpen) => {
+          if (!isOpen) setRailVisible(false);
+          return isOpen;
+        });
+      }, MOBILE_IDLE_MS);
+    };
+
+    bump();
+    window.addEventListener("scroll", bump, { passive: true });
+    return () => {
+      window.removeEventListener("scroll", bump);
+      clearIdle();
+    };
+  }, []);
+
+  // Keep rail visible while the mobile panel is open.
+  useEffect(() => {
+    if (hasFinePointer()) return;
+    if (open) setRailVisible(true);
+  }, [open]);
 
   useEffect(() => {
     if (!open) return;
@@ -131,20 +175,35 @@ export function LegalSectionNav({
 
   if (sections.length === 0) return null;
 
+  const showChrome = railVisible || open;
+
   return (
     <div
       ref={rootRef}
-      className="pointer-events-none fixed inset-y-0 right-0 z-40 flex items-center pr-1 sm:pr-2"
+      className={cn(
+        "pointer-events-none fixed inset-y-0 right-0 z-40 flex items-center pr-1 sm:pr-2",
+        "transition-opacity duration-300 motion-reduce:transition-none",
+        showChrome ? "opacity-100" : "opacity-0",
+      )}
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
     >
-      <div className="pointer-events-auto relative flex items-center">
+      <div
+        className={cn(
+          "pointer-events-auto relative flex items-center",
+          !showChrome && "pointer-events-none",
+        )}
+      >
         <div
           className={cn(
             "absolute right-full mr-2 origin-right",
             "rounded-2xl border border-border bg-surface/95 shadow-lg backdrop-blur-md",
-            "max-h-[min(70vh,28rem)] w-[min(calc(100vw-3rem),16.5rem)] overflow-y-auto",
-            "px-3 py-3 transition-[opacity,transform] duration-200 ease-out",
+            // Fine pointer: full list, no internal scroll. Coarse: cap height.
+            "w-[min(calc(100vw-3rem),17rem)] px-2 py-2",
+            "max-h-[min(92vh,calc(100dvh-1.5rem))] overflow-y-auto",
+            "[@media(hover:hover)_and_(pointer:fine)]:max-h-none",
+            "[@media(hover:hover)_and_(pointer:fine)]:overflow-visible",
+            "transition-[opacity,transform] duration-200 ease-out",
             open
               ? "translate-x-0 opacity-100"
               : "pointer-events-none translate-x-2 opacity-0",
@@ -153,9 +212,6 @@ export function LegalSectionNav({
           id="legal-section-nav-panel"
           aria-hidden={!open}
         >
-          <p className="mb-2 px-2 text-xs font-semibold uppercase tracking-wide text-muted">
-            On this page
-          </p>
           <ul className="space-y-0.5">
             {sections.map((section) => {
               const isActive = section.id === activeId;
@@ -184,7 +240,7 @@ export function LegalSectionNav({
         </div>
 
         <nav
-          aria-label="On this page"
+          aria-label="Page sections"
           className="flex flex-col items-center gap-1.5 rounded-full px-2 py-3"
         >
           <button
