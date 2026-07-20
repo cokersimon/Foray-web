@@ -132,10 +132,27 @@ export default function AnalyticsPage() {
         </h2>
         {creditsError ? (
           <div className="rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800">
-            Couldn&rsquo;t load Pepesto credits: {creditsError}. Needs{" "}
-            <code className="rounded bg-amber-100 px-1">pepesto.credits</code>{" "}
-            on chef-admin plus a configured{" "}
-            <code className="rounded bg-amber-100 px-1">PEPESTO_API_KEY</code>.
+            Couldn&rsquo;t load Pepesto credits: {creditsError}.
+            {creditsError.includes("unknown action") ? (
+              <>
+                {" "}
+                The website is ahead of the backend — redeploy{" "}
+                <code className="rounded bg-amber-100 px-1">chef-admin</code>{" "}
+                with the{" "}
+                <code className="rounded bg-amber-100 px-1">pepesto.credits</code>{" "}
+                action. Your existing{" "}
+                <code className="rounded bg-amber-100 px-1">PEPESTO_API_KEY</code>{" "}
+                and Stripe top-up are unrelated to this message.
+              </>
+            ) : (
+              <>
+                {" "}
+                Check that{" "}
+                <code className="rounded bg-amber-100 px-1">chef-admin</code> can
+                reach Pepesto with the server-side{" "}
+                <code className="rounded bg-amber-100 px-1">PEPESTO_API_KEY</code>.
+              </>
+            )}
           </div>
         ) : creditsLoading && !credits ? (
           <div className="rounded-2xl border border-neutral-200 bg-white px-4 py-8 text-center text-neutral-400">
