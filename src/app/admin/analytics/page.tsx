@@ -20,6 +20,25 @@ type Analytics = {
 
 type AnalyticsResponse = { metrics: Analytics };
 
+type PepestoCredits = {
+  creditsRemaining: number;
+  currency: string;
+  checkedAt: number;
+};
+
+function formatCredits(amount: number, currency: string): string {
+  try {
+    return new Intl.NumberFormat("en-GB", {
+      style: "currency",
+      currency,
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    }).format(amount);
+  } catch {
+    return `${currency} ${amount.toFixed(2)}`;
+  }
+}
+
 function Stat({
   label,
   value,
@@ -51,12 +70,30 @@ function Stat({
 }
 
 export default function AnalyticsPage() {
-  const { data, error, isLoading, refetch } = useChefQuery<AnalyticsResponse>(
-    "analytics.overview",
-    {},
-    { pollMs: 60000 },
-  );
+  const {
+    data,
+    error,
+    isLoading,
+    refetch: refetchAnalytics,
+  } = useChefQuery<AnalyticsResponse>("analytics.overview", {}, { pollMs: 60000 });
+  const {
+    data: credits,
+    error: creditsError,
+    isLoading: creditsLoading,
+    refetch: refetchCredits,
+  } = useChefQuery<PepestoCredits>("pepesto.credits", {}, { pollMs: 15000 });
   const m = data?.metrics;
+
+  const refreshAll = () => {
+    refetchAnalytics();
+    refetchCredits();
+  };
+
+  const creditsTone =
+    credits && credits.creditsRemaining < 5 ? ("warn" as const) : ("default" as const);
+  const checkedLabel = credits
+    ? `Live from Pepesto · updated ${new Date(credits.checkedAt).toLocaleTimeString("en-GB")}`
+    : "Live from Pepesto /credits";
 
   return (
     <div className="p-8 lg:p-12">
@@ -67,13 +104,14 @@ export default function AnalyticsPage() {
           </h1>
           <p className="mt-2 max-w-2xl text-sm text-neutral-500">
             SQL-derived metrics over data you already have — signups, imports,
-            the checkout funnel, AI usage, and an error-rate signal. No analytics
-            SDK is installed; these are server-side counts only.
+            the checkout funnel, AI usage, and an error-rate signal — plus a live
+            Pepesto prepaid credit balance. No analytics SDK is installed; these
+            are server-side counts only.
           </p>
         </div>
         <button
           type="button"
-          onClick={refetch}
+          onClick={refreshAll}
           className="flex shrink-0 items-center gap-2 rounded-lg border border-neutral-200 px-3 py-2 text-sm text-neutral-600 transition-colors hover:bg-neutral-50"
         >
           <RefreshCw className="h-4 w-4" /> Refresh
@@ -88,12 +126,39 @@ export default function AnalyticsPage() {
         </div>
       ) : null}
 
+      <section className="mt-6">
+        <h2 className="mb-3 text-sm font-semibold uppercase tracking-wider text-neutral-500">
+          Integrations
+        </h2>
+        {creditsError ? (
+          <div className="rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800">
+            Couldn&rsquo;t load Pepesto credits: {creditsError}. Needs{" "}
+            <code className="rounded bg-amber-100 px-1">pepesto.credits</code>{" "}
+            on chef-admin plus a configured{" "}
+            <code className="rounded bg-amber-100 px-1">PEPESTO_API_KEY</code>.
+          </div>
+        ) : creditsLoading && !credits ? (
+          <div className="rounded-2xl border border-neutral-200 bg-white px-4 py-8 text-center text-neutral-400">
+            Loading Pepesto balance…
+          </div>
+        ) : credits ? (
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            <Stat
+              label="Pepesto credits remaining"
+              value={formatCredits(credits.creditsRemaining, credits.currency)}
+              sub={checkedLabel}
+              tone={creditsTone}
+            />
+          </div>
+        ) : null}
+      </section>
+
       {isLoading ? (
         <div className="mt-6 rounded-2xl border border-neutral-200 bg-white px-4 py-12 text-center text-neutral-400">
           Loading…
         </div>
       ) : m ? (
-        <div className="mt-6 space-y-8">
+        <div className="mt-8 space-y-8">
           <section>
             <h2 className="mb-3 text-sm font-semibold uppercase tracking-wider text-neutral-500">
               Growth
