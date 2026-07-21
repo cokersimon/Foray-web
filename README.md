@@ -3,7 +3,7 @@
 The Foray marketing site and hidden admin portal — a single [Next.js 16](https://nextjs.org) app.
 
 - **Marketing** (`/`, `/terms`, `/privacy`): public-facing site for the Foray iOS app.
-- **Admin** (`/admin`): role-gated cockpit (`app_metadata.role === 'admin'`). `/admin` redirects to the Recipes queue; the sidebar is Recipes, AI ingest, Checkout, Reports, Errors, Analytics. Analytics → Integrations shows a live Pepesto prepaid credit balance (`chef-admin pepesto.credits`, 15s poll). All admin traffic flows through the Foray `chef-admin` / `chef-ingest` Supabase Edge Functions.
+- **Admin** (`/admin`): role-gated cockpit (`app_metadata.role === 'admin'`). `/admin` redirects to the Recipes queue; the sidebar is Recipes, AI ingest, Checkout, Reports, Errors, Analytics. Analytics → Integrations shows a live Pepesto prepaid credit balance (`chef-admin pepesto.credits`, 45s poll; pauses when the tab is hidden). All admin traffic flows through the Foray `chef-admin` / `chef-ingest` Supabase Edge Functions.
 
 Backed by the Foray Supabase project (shared with the iOS app): the `chef` schema is the admin side, `public` is the consumer side.
 

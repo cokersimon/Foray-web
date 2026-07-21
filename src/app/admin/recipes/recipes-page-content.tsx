@@ -51,8 +51,9 @@ type CookingGuideStep = {
   tokens: CookingToken[];
 };
 
-/** List poll cadence — staging rows appear as chef jobs complete (ADR-019 async ingest). */
-const LIST_POLL_MS = 5000;
+/** List poll cadence — staging rows appear as chef jobs complete (ADR-019 async ingest).
+ *  45s floor (was 5s) to cut admin egress / DB slot pressure; ticks skip while the tab is hidden. */
+const LIST_POLL_MS = 45000;
 
 /**
  * Humanise the `chef.publish_recipe` gate errors into a blocking validation message the admin can
@@ -174,10 +175,19 @@ function RecipesPageInner() {
       }
     };
     void load();
-    const timer = setInterval(load, LIST_POLL_MS);
+    const tick = () => {
+      if (typeof document !== "undefined" && document.hidden) return;
+      void load();
+    };
+    const timer = setInterval(tick, LIST_POLL_MS);
+    const onVisibility = () => {
+      if (!document.hidden) void load();
+    };
+    document.addEventListener("visibilitychange", onVisibility);
     return () => {
       cancelled = true;
       clearInterval(timer);
+      document.removeEventListener("visibilitychange", onVisibility);
     };
   }, [isAuthenticated, statusFilter, listVersion]);
 
@@ -215,10 +225,19 @@ function RecipesPageInner() {
       }
     };
     void load();
-    const timer = setInterval(load, LIST_POLL_MS);
+    const tick = () => {
+      if (typeof document !== "undefined" && document.hidden) return;
+      void load();
+    };
+    const timer = setInterval(tick, LIST_POLL_MS);
+    const onVisibility = () => {
+      if (!document.hidden) void load();
+    };
+    document.addEventListener("visibilitychange", onVisibility);
     return () => {
       cancelled = true;
       clearInterval(timer);
+      document.removeEventListener("visibilitychange", onVisibility);
     };
   }, [isAuthenticated, statusFilter, jobsVersion]);
 

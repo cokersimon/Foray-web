@@ -81,7 +81,7 @@ export default function AnalyticsPage() {
     error: creditsError,
     isLoading: creditsLoading,
     refetch: refetchCredits,
-  } = useChefQuery<PepestoCredits>("pepesto.credits", {}, { pollMs: 15000 });
+  } = useChefQuery<PepestoCredits>("pepesto.credits", {}, { pollMs: 45000 });
   const m = data?.metrics;
 
   const refreshAll = () => {

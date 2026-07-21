@@ -15,6 +15,9 @@ type State<T> = {
  * Small read-only data hook for admin surfaces: calls a chef-admin action, tracks
  * loading/error, and re-runs on demand or on a poll interval. Mirrors the manual
  * fetch/poll pattern in recipes-page-content.tsx without the per-page boilerplate.
+ *
+ * When `pollMs` is set, ticks are skipped while the document is hidden so a
+ * background admin tab does not keep hammering chef-admin (egress / DB slots).
  */
 export function useChefQuery<T>(
   action: string,
@@ -50,10 +53,27 @@ export function useChefQuery<T>(
       }
     };
     void load();
-    const timer = pollMs ? setInterval(load, pollMs) : null;
+
+    if (!pollMs) {
+      return () => {
+        cancelled = true;
+      };
+    }
+
+    const tick = () => {
+      if (typeof document !== "undefined" && document.hidden) return;
+      void load();
+    };
+    const timer = setInterval(tick, pollMs);
+    const onVisibility = () => {
+      if (!document.hidden) void load();
+    };
+    document.addEventListener("visibilitychange", onVisibility);
+
     return () => {
       cancelled = true;
-      if (timer) clearInterval(timer);
+      clearInterval(timer);
+      document.removeEventListener("visibilitychange", onVisibility);
     };
   }, [isAuthenticated, action, argsKey, version, pollMs]);
 

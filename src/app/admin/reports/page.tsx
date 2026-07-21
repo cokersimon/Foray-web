@@ -57,7 +57,7 @@ export default function ReportsPage() {
   const { data, error, isLoading, refetch } = useChefQuery<ReportsResponse>(
     "reports.list",
     {},
-    { pollMs: 30000 },
+    { pollMs: 45000 },
   );
   const [busyId, setBusyId] = useState<string | null>(null);
   const [actionError, setActionError] = useState<string | null>(null);

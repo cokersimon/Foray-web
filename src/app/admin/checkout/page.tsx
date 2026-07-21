@@ -49,7 +49,7 @@ export default function CheckoutPage() {
   const { data, error, isLoading, refetch } = useChefQuery<CheckoutResponse>(
     "checkout.list",
     {},
-    { pollMs: 30000 },
+    { pollMs: 45000 },
   );
 
   const sessions = data?.sessions ?? [];

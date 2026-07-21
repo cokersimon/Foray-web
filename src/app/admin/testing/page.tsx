@@ -278,7 +278,7 @@ export default function TestingPage() {
   const { data, error, isLoading, refetch } = useChefQuery<TestingResponse>(
     "testing.list",
     {},
-    { pollMs: 30000 },
+    { pollMs: 45000 },
   );
 
   const clusters = useMemo(() => data?.clusters ?? [], [data]);

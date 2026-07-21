@@ -311,7 +311,7 @@ function OpsHealth() {
  * 429 spike alert ("Instagram changed something"); Axis 2 = succeeded-but-suspect imports that
  * auto-published at low quality (no review gate), so admin sees bad successes, not just errors. */
 function ImportsBreakdown() {
-  const { data } = useChefQuery<ImportBreakdown>("imports.breakdown", {}, { pollMs: 30000 });
+  const { data } = useChefQuery<ImportBreakdown>("imports.breakdown", {}, { pollMs: 45000 });
   if (!data) return null;
 
   return (
@@ -392,7 +392,7 @@ export default function ErrorsPage() {
   const { data, error, isLoading, refetch } = useChefQuery<ErrorsResponse>(
     "errors.list",
     {},
-    { pollMs: 30000 },
+    { pollMs: 45000 },
   );
   const [source, setSource] = useState<string>("all");
   const [triage, setTriage] = useState<TriageFilter>("open");

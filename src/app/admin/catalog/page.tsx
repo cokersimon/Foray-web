@@ -76,7 +76,7 @@ export default function CatalogPage() {
     }
   }
 
-  const stats = useChefQuery<CatalogRunStats>("catalog.runStats", { storeDomain: store }, { pollMs: 15000 });
+  const stats = useChefQuery<CatalogRunStats>("catalog.runStats", { storeDomain: store }, { pollMs: 45000 });
   const list = useChefQuery<CatalogListResponse>("catalog.list", {
     storeDomain: store,
     aisle: aisle || undefined,
