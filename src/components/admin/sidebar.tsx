@@ -11,6 +11,7 @@ import {
   AlertTriangle,
   BarChart3,
   ShoppingBasket,
+  FlaskConical,
 } from "lucide-react";
 import { supabaseBrowser } from "@/lib/supabase/client";
 import { useSupabaseSession } from "@/components/providers";
@@ -28,6 +29,7 @@ const navItems = [
   { label: "Catalogue", href: "/admin/catalog", icon: ShoppingBasket },
   { label: "Checkout", href: "/admin/checkout", icon: CreditCard },
   { label: "Reports", href: "/admin/reports", icon: Flag },
+  { label: "Testing", href: "/admin/testing", icon: FlaskConical },
   { label: "Errors", href: "/admin/errors", icon: AlertTriangle },
   { label: "Analytics", href: "/admin/analytics", icon: BarChart3 },
 ];
