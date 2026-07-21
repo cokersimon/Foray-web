@@ -72,9 +72,44 @@ type TestingResponse = {
   unenrichedCount: number;
 };
 
-const KINDS = ["design", "bug", "content", "checkout", "other"] as const;
+const KINDS = [
+  "design",
+  "bug",
+  "content",
+  "checkout",
+  "suggestion",
+  "account",
+  "notifications",
+  "accessibility",
+  "performance",
+  "import",
+  "other",
+] as const;
+
+const KIND_LABELS: Record<(typeof KINDS)[number], string> = {
+  design: "Design",
+  bug: "Bug",
+  content: "Content",
+  checkout: "Checkout",
+  suggestion: "Suggestion",
+  account: "Account",
+  notifications: "Notifications",
+  accessibility: "Accessibility",
+  performance: "Performance",
+  import: "Import",
+  other: "Other",
+};
+
 const ROW_STATUSES = ["open", "triaged", "resolved", "dismissed"] as const;
 const CLUSTER_STATUSES = ["open", "briefed", "fixing", "resolved"] as const;
+
+function kindLabel(kind: string | null): string {
+  if (!kind) return "";
+  if ((KINDS as readonly string[]).includes(kind)) {
+    return KIND_LABELS[kind as (typeof KINDS)[number]];
+  }
+  return kind;
+}
 
 function fmtDateShort(ms: number): string {
   return new Date(ms).toLocaleString("en-GB", {
@@ -110,6 +145,18 @@ function kindTone(kind: string | null): string {
       return "bg-sky-50 text-sky-700 border-sky-200";
     case "checkout":
       return "bg-emerald-50 text-emerald-700 border-emerald-200";
+    case "suggestion":
+      return "bg-amber-50 text-amber-800 border-amber-200";
+    case "account":
+      return "bg-indigo-50 text-indigo-700 border-indigo-200";
+    case "notifications":
+      return "bg-orange-50 text-orange-700 border-orange-200";
+    case "accessibility":
+      return "bg-teal-50 text-teal-700 border-teal-200";
+    case "performance":
+      return "bg-rose-50 text-rose-700 border-rose-200";
+    case "import":
+      return "bg-cyan-50 text-cyan-700 border-cyan-200";
     default:
       return "bg-neutral-100 text-neutral-600 border-neutral-200";
   }
@@ -385,7 +432,7 @@ function ClustersTable({
                       <td className="px-4 py-3">
                         <div className="font-medium text-neutral-800">{cluster.title}</div>
                         <div className="mt-1 flex flex-wrap gap-1">
-                          {cluster.kind ? <Chip tone={kindTone(cluster.kind)}>{cluster.kind}</Chip> : null}
+                          {cluster.kind ? <Chip tone={kindTone(cluster.kind)}>{kindLabel(cluster.kind)}</Chip> : null}
                           {cluster.briefMd ? (
                             <Chip tone="bg-violet-50 text-violet-700 border-violet-200">brief drafted</Chip>
                           ) : null}
@@ -636,13 +683,13 @@ function ReportsTable({
             type="button"
             onClick={() => setKind(k)}
             className={cn(
-              "rounded-lg border px-3 py-1.5 text-xs font-medium capitalize transition-colors",
+              "rounded-lg border px-3 py-1.5 text-xs font-medium transition-colors",
               kind === k
                 ? "border-neutral-900 bg-neutral-900 text-white"
                 : "border-neutral-200 text-neutral-600 hover:bg-neutral-50",
             )}
           >
-            {k}
+            {k === "all" ? "all" : kindLabel(k)}
           </button>
         ))}
         {screens.length > 0 ? (
@@ -706,7 +753,7 @@ function ReportsTable({
                       </td>
                       <td className="px-4 py-3">
                         <div className="flex flex-wrap gap-1">
-                          <Chip tone={kindTone(row.kind)}>{row.kind}</Chip>
+                          <Chip tone={kindTone(row.kind)}>{kindLabel(row.kind)}</Chip>
                           {row.detail ? (
                             <Chip tone="bg-neutral-100 text-neutral-600 border-neutral-200">
                               {row.detail}
