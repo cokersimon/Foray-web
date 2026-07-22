@@ -42,12 +42,9 @@ export function Sidebar() {
   return (
     <aside className="flex h-screen w-60 shrink-0 flex-col border-r border-neutral-200 bg-white">
       <div className="flex h-16 items-center px-6">
-        <Link href="/admin/recipes" className="text-lg">
-          <Wordmark />
+        <Link href="/admin/recipes" className="text-lg" aria-label="Foray.Admin">
+          <Wordmark suffix="Admin" />
         </Link>
-        <span className="ml-2 rounded-md bg-neutral-100 px-2 py-0.5 text-[10px] font-medium uppercase tracking-wider text-neutral-500">
-          Admin
-        </span>
       </div>
 
       <nav className="flex-1 space-y-1 px-3 py-4">

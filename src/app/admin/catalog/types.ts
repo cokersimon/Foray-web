@@ -99,6 +99,64 @@ export type CatalogListResponse = {
   offset: number;
 };
 
+// ── durable import + publish gate (ADR-077) ──────────────────────────────────────────────
+
+/** One dated catalogue version (catalog.refresh.start → catalogRefreshRun row). */
+export type CatalogRefreshRun = {
+  id: string;
+  storeDomain: string;
+  startedAt: string;
+  importedAt: string | null;
+  finishedAt: string | null;
+  publishedAt: string | null;
+  status:
+    | "fetching"
+    | "imported"
+    | "diffing"
+    | "awaiting_match"
+    | "matching"
+    | "ready"
+    | "published"
+    | "unpublished"
+    | "failed";
+  incoming: number | null;
+  matchedSame: number | null;
+  priceChanged: number | null;
+  newSkus: number | null;
+  droppedSkus: number | null;
+  processed: number | null;
+  error: string | null;
+  hasRawDump: boolean;
+};
+
+export type CatalogRefreshRunsResponse = {
+  runs: CatalogRefreshRun[];
+  publishedRunId: string | null;
+  workingRunId: string | null;
+  /** Draft-version SKUs still awaiting aisle freeze or semantic match. */
+  unmatched: number;
+};
+
+export type SnapshotBucket = "matched" | "new" | "historic";
+
+export type CatalogSnapshotRow = CatalogSkuRow & {
+  status: "active" | "dropped";
+  bucket: SnapshotBucket;
+  /** Price observed in the selected run's dump; null = the SKU wasn't in that dump (render a dash). */
+  runPrice: number | null;
+  runCurrency: string | null;
+  runObservedAt: string | null;
+};
+
+export type CatalogSnapshotResponse = {
+  runId: string | null;
+  skus: CatalogSnapshotRow[];
+  counts: { matched: number; new: number; historic: number };
+  total: number;
+  limit: number;
+  offset: number;
+};
+
 export type CatalogRun = {
   id: string;
   scope: "pilot" | "full";
