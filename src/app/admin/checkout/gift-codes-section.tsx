@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { Check, Copy, Gift, Plus, RefreshCw, Search, X } from "lucide-react";
+import { Check, Copy, Plus, RefreshCw, Search, X } from "lucide-react";
 import { chefAdmin } from "@/lib/chef-api";
 import { useChefQuery } from "@/lib/use-chef-query";
 import { cn } from "@/lib/cn";
@@ -118,20 +118,14 @@ export function GiftCodesSection() {
   };
 
   return (
-    <section className="mt-10">
+    <section>
       <div className="flex items-start justify-between gap-4">
-        <div>
-          <h2 className="flex items-center gap-2 text-lg font-semibold tracking-tight text-neutral-900">
-            <Gift className="h-5 w-5 text-neutral-700" />
-            Gift codes
-          </h2>
-          <p className="mt-1 max-w-2xl text-sm text-neutral-500">
-            Single-use, account-locked codes that cover the £2.49 convenience fee.
-            Issue to an owner UUID or FA- account ref; the branded email goes out
-            best-effort. Redeemed codes stay history — revoke only works while still
-            issued.
-          </p>
-        </div>
+        <p className="max-w-2xl text-sm text-neutral-500">
+          Single-use, account-locked codes that cover the £2.49 convenience fee.
+          Issue to an owner UUID or FA- account ref; the branded email goes out
+          best-effort. Redeemed codes stay history — revoke only works while still
+          issued.
+        </p>
         <div className="flex shrink-0 items-center gap-2">
           <button
             type="button"
